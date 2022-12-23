@@ -1,0 +1,423 @@
+---
+title: "2.1 Production and Production Functions"
+author: Jim Bang
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(Ryacas)
+library(Deriv)
+gradethis_setup(exercise.reveal_solution = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+polynomial <- function(x) {
+  -x^3 + 60*x^2 + 25*x
+}
+```
+
+## Firm Decisions
+
+### Three (Related) Decisions:
+
+1. Cost-Minimizing Combination of Inputs: For a *given* level of (expected) output (firm demand) choose the *combination* of inputs that minimizes the cost of producing that amount to derive the cost function.
+2. Profit-Maximizing Level of Output: Choose the *level* of output that maximizes profits by adjusting quantity and/or price of the output. 
+3. Profit-Maximizing Level of Inputs: Choose the *levels* of all inputs that maximizes profits by adjusting the quantity and/or price for inputs. 
+
+### Components
+
+1. Production Technology
+2. Resource Constraints
+3. Input/Output Choices
+
+### Complications
+
+1. Time Horizon
+a. Short Run
+b. Long Run
+c. Sunk versus Fixed Costs
+2. Market Structure
+a. Price Taker
+b. Price Maker
+c. In-Between
+3. Transactions Costs
+a. Negotiation
+b. Monitoring
+c. Enforcement
+
+## Theory of the Firm
+
+Firms suppress market transactions. 
+
+Why do they exist? 
+
+### Classical/Neoclassical Approach "Black Box"
+
+Transform inputs into outputs
+
+```{r, fig.height = 1, fig.width = 5}
+par(mar = c(1, 1, 1, 1))
+plot.new()
+plot.window(xlim = c(0,1), ylim = c(0,0.1))
+text(0.05, 0.05, "Hire\nInputs")
+polygon(x = c(0.4, 0.6, 0.6, 0.4), y = c(0, 0, 0.1, 0.1), col = 'black')
+arrows(x0 = 0.1, y0 = 0.05, x1 = 0.4, y1 = 0.05)
+text(0.5, 0.05, "???", col = 'white')
+arrows(x0 = 0.6, y0 = 0.05, x1 = 0.9, y1 = 0.05)
+text(0.95, 0.05, "Sell\nOutputs")
+```
+
+<details style="line-height:105%"><summary>Click here to see the code for the above figure.</summary>
+
+`par(mar = c(1, 1, 1, 1))`<br>
+`plot.new()`<br>
+`plot.window(xlim = c(0,1), ylim = c(0,0.1))`<br>
+`text(0.05, 0.05, "Hire\nInputs")`<br>
+`polygon(x = c(0.4, 0.6, 0.6, 0.4), y = c(0, 0, 0.1, 0.1), col = 'black')`<br>
+`arrows(x0 = 0.1, y0 = 0.05, x1 = 0.4, y1 = 0.05)`<br>
+`text(0.5, 0.05, "???", col = 'white')`<br>
+`arrows(x0 = 0.6, y0 = 0.05, x1 = 0.9, y1 = 0.05)`<br>
+`text(0.95, 0.05, "Sell\nOutputs")`<br>
+
+</details>
+
+### Bureaucratic Hierarchy
+
+Manage jointly-owned resources
+
+### "Nexus of Contracts"
+
+Incentivize productivity and specialization within and between organizations
+
+## The Production Function
+
+$$y = f(L,K),\text{ where}$$
+$$y\text{ is the amount of output the firm produces}$$ 
+$$L\text{ is the amount of labor the firm hires}$$ 
+$$K\text{ is the amount of capital the firm hires}$$ 
+$$f()\text{ describes the technology for transforming inputs (L and K) into output (y)}$$ 
+
+### Basic Properties 
+
+1. Monotonic
+2. Diminishing Returns
+
+(Similar properties to utility functions; transitivity is trivial in industries where physical output is cardinally measurable.)
+
+### Cobb-Douglas
+
+Since production functions exhibit many of the same properties as utility functions, the Cobb-Douglas function is a common functional form for examples. In the context of production with labor and capital inputs, the Cobb-Douglass (production) function is: 
+
+$$ y = AL^{\alpha}K^{(1-\alpha)},\text{ where}$$
+
+$$\alpha\text{ is labor's productivity share}$$
+$$A\text{ represents "total factor productivity," or the overall level of technology}$$
+
+### Other Examples
+
+1. Constant Elasticity of Substitution
+$$U(x) = (L^r + K^r)^{\frac{1}{r}},\text{ where}$$ 
+
+$$s=\frac{1}{1-r} \text{ is the elasticity of substitution.}$$ 
+
+2. Polynomial (Short-Run Only?)
+$$y = aL^3 + bL^2 + cL,\text{ where}$$
+$$a<0$$ 
+$$b>0$$ 
+$$c>0$$ 
+### Graphical Representation
+
+Use the `persp(x, y, z) function in r to graph the Cobb-Douglas production function for $A = 100$, $0 \le L \le 50$, $0 \le K \le 50$, and $\alpha = 1/3$.
+
+```{r CobbDouglas, exercise=TRUE, exercise.reveal_solution = TRUE}
+
+```
+
+```{r CobbDouglas-solution}
+x = seq(0, 10, 0.1)
+y = seq(0, 10, 0.1)
+z = outer(100*x^(1/3), y^(2/3))
+persp(x,
+      y,
+      z,
+      xlab = "Labor",
+      ylab = "Capital",
+      zlab = "y = f(L,K)")
+```
+
+```{r CobbDouglas-check}
+grade_code() 
+```
+
+## Short-Run Production Function
+
+In the short run at least one input is fixed (usually capital and/or land). In our two-input production function this makes output a function of only labor.  
+
+Graphically, this is like slicing a vertical cross-section of the production function at a specific level of the fixed input (capital). 
+
+### Cobb-Douglas Production Function
+
+Plot production as a function of labor for $0 \le L \le 50$ and $K = 25$.
+
+```{r cdShortRun, exercise=TRUE, exercise.reveal_solution = TRUE}
+
+```
+
+```{r cdShortRun-solution}
+curve(100*25^(2/3)*x^(1/3),
+  type = 'l',
+  xlim = c(0, 50),
+  xlab = "Labor",
+  ylab = "Capital"
+)
+```
+
+```{r cdShortRun-check}
+grade_code() 
+```
+
+### Polynomial Production Function
+
+Define and graph an expression for the following short-run production function: 
+
+$$y = -L^3 + 60L^2 + 25L$$
+
+```{r polynomial, exercise = TRUE, exercise.reveal_solution = TRUE}
+
+```
+
+```{r polynomial-solution}
+polynomial <- function(x) {
+  -x^3 + 60*x^2 + 25*x
+}
+curve(polynomial, 
+      type = 'l', 
+      xlim = c(0, 50), 
+      xlab = "Labor",
+      ylab = "Output"
+)
+```
+
+```{r polynomial-check}
+
+```
+
+The *marginal product of labor* is the *change* in (i.e. slope, derivative of) the total production function with respect to $L$. 
+
+The *average product of labor* is the amount (i.e. level) of output *per-worker*. 
+
+```{r MPLvAPL, echo=FALSE}
+question("When the marginal product curve reaches its maximum, the average product curve",
+    answer("also reaches its maximum"),
+    answer("lies above the marginal product curve "),
+    answer("continues to rise", correct = TRUE),
+    answer("is negative"),
+    allow_retry = TRUE
+  )
+```
+
+## Marginal and Average Product Product of Labor
+
+### Marginal Product of Labor
+
+The marginal product of labor is the rate of change in output for a given change in labor hired. 
+
+$$MP_L = \frac{df(L,K)}{dL}$$
+
+Graphically, the marginal product is the slope of the production function, holding the level of capital fixed. 
+
+### Average Product
+
+$$AP_L = \frac{f(L,K)}{L}$$
+
+### Graphical Representation
+
+Add `curve()` functions to the following code to graph the marginal and average products of labor from $0 \le L \le 50$ in a single plot area. Use $(-1250, 1250)$ as the limits for the vertical (output) axis and label your axes "Labor" and "Output." 
+
+```{r MPL, exercise = TRUE, exercise.reveal_solution = TRUE}
+dl.polynomial <- 
+  ysym(deparse(polynomial)[[3]]) |> # Convert the "polynomial" function into a yac_sym. 
+  deriv('x') |>                     # Take the derivative with respect to x. 
+  yac_expr()                        # Convert the result into an r expression
+yl.polynomial <- 
+  (ysym(deparse(polynomial)[[3]]) / ysym('x')) |> # Divide converted polynomial by x.
+  yac_expr()                                      # Convert the result into an r expression
+polynomial.mpl <- function(x) {
+  eval(dl.polynomial[[1]])
+}                                   # Define the mpl as a function. 
+polynomial.apl <- function(x) {
+  eval(yl.polynomial[[1]])
+}                                   # Define the apl as a function. 
+
+
+```
+
+```{r MPL-solution}
+dl.polynomial <- ysym(deparse(polynomial)[[3]]) |>
+  deriv('x') |>
+  yac_expr()
+yl.polynomial <- (ysym(deparse(polynomial)[[3]]) / ysym('x')) |>
+  yac_expr()
+polynomial.mpl <- function(x) {
+  eval(dl.polynomial[[1]])
+}
+polynomial.apl <- function(x) {
+  eval(yl.polynomial[[1]])
+}
+curve(
+  polynomial.mpl,
+  type = 'l',
+  xlim = c(0, 50),
+  ylim = c(-1250, 1250),
+  xlab = "Labor",
+  ylab = "Output"
+)
+curve(polynomial.apl, add = TRUE)
+```
+
+```{r MPL-check}
+
+```
+
+## Production in the Long Run
+
+Flexibility of input choices
+
+### Isoquants and their Properties
+
+Based on the preference axioms introduced earlier, we can derive three properties for indifference curves.
+
+1.  Isoquants farther from the origin represent *greater output* (monotonicity);
+2.  Isoquants *do not cross* (transitivity);
+3.  Isoquants slope *downward* (monotonicity + diminishing returns);
+4.  Isoquants are *bowed inward* (convexity - a mix of inputs is usually more productive).
+
+Graphically, an isoquant is a horizontal cross-section of the production function at a fixed level of output. 
+
+For the Cobb-Douglass example with $\alpha = 1/3$ and $A = 100$, plot the isoquant curves for $y = 1000$ and $y = 2500$ for $0 \le x_1 \le 50$ and $0 \le x_2 \le 50$.
+
+```{r cdIsoquants, exercise=TRUE, exercise.reveal_solution = TRUE}
+
+```
+
+```{r cdIsoquants-solution}
+curve((1000 / 100*x^(1/3))^(3/2),
+  type = 'l',
+  ylim = c(0, 50),
+  xlim = c(0, 50),
+  xlab = "Labor",
+  ylab = "Capital"
+)
+curve((2500 / 100*x^(1/3))^(3/2), add = TRUE)
+```
+
+```{r cdIsoquants-check}
+grade_code() 
+```
+
+### Marginal Rate of Technical Substitution
+
+The *marginal rate of technical substitution* between two inputs (e.g. labor and capital, $MRTS_{LK}$) is the ratio of the marginal productivities, $\frac{MP_L}{MP_K}$. The MRTS tells us the firm's ability (through the available production technology) to exchange capital for labor on the margin in such a way that the firm produces the same total amount of output. Hence, the MRS also represents the slope of the isoquant curve through any given values of $L$ and $K$. 
+
+Use the `Simplify` function from the `Deriv` package to get $MRTS_{LK} = \frac{MP_L}{MP_K}$ for the previous exercise. Remember that marginal utility results stored as `yac_symbol` objects, so you need to convert them to strings before applying `Simplify`, and then finally converting it back to a `ysym`. Try using piping to keep it readable! <br>(Note: `Ryacas` has a `simplify` function, but it just doesn't work as well for the functions we're trying to simplify.)
+
+```{r marginalRateOfSubstitution, exercise = TRUE}
+
+```
+
+```{r marginalRateOfSubstitution-solution}
+y <- ysym('100 * L^(1/3) * K^(2/3)')
+MRTS <- (deriv(y, 'L') / deriv(y, 'K')) |>
+  yac_str() |> 
+  Simplify() |>
+  ysym()
+MRTS
+```
+
+```{r marginalRateOfSubstitution-check}
+grade_code() 
+```
+
+### General Form
+
+```{r}
+q <- ysym('A * L^(alpha) * K^(1-alpha)')
+MRTSq <- (deriv(q, 'L') / deriv(q, 'K')) |>
+  yac_str() |> 
+  Simplify() |>
+  ysym()
+```
+
+$$`r tex(MRTSq)`$$
+
+## Returns to Scale
+
+Let's see what happens when we scale up *all* of the inputs in the production function. 
+
+Evaluate the Cobb Douglas production function from our example for $(L,K) = {(10,10), (20,20), (30,30)}$. (Hint: create a new function of `L` and `K` called `f` that converts the `yac_symbol` `y` into an `r` expression \[`yac_expr'\] and evaluates it \[`eval`\].)
+
+```{r RTS, exercise = TRUE, exercise.reveal_solution = TRUE}
+f <- function(L, K) {eval(yac_expr(y))}
+
+```
+
+```{r RTS-solution}
+f <- function(L, K) {eval(yac_expr(y))}
+f(10, 10)
+f(20, 20)
+f(30, 30)
+```
+
+```{r RTS-check}
+
+```
+
+```{r RTS, echo=FALSE}
+question("What happens when we double the inputs in the Cobb-Douglas function?",
+    answer("Output more than doubles"),
+    answer("Output doubles", correct = TRUE),
+    answer("Output increases by less than double"),
+    answer("Output decreases"),
+    allow_retry = TRUE
+  )
+```
+
+### Constant Returns to Scale
+
+A production technology has *constant returns to scale* whenever scaling up all inputs by the same proportion (e.g. double) increases output by the same proportion (e.g. double). 
+
+Examples of constant returns to scale production functions: 
+
+1. Cobb-Douglas $y = AL^{\alpha}K^{1-\alpha}$
+2. Constant Elasticity of Substitution $y = (aL^r + bK^r)^{1/r}$
+3. Linear (Perfect Substitutes) $y = aL + bK$
+4. Perfect Complements (Linear Expansion Path) $y = min\{aL, bK\}$
+
+Isoquants for a constant-returns technology are evenly spaced as the firm chooses to expand production.
+
+Production functions with constant returns to scale correspond to constant long-run average costs. 
+
+### Decreasing Returns to Scale
+
+A production technology has *decreasing returns to scale* whenever scaling up all inputs by the same proportion (e.g. double) increases output by less than that proportion (e.g. less than double). 
+
+```{r RTS, echo=FALSE}
+question("What happens to the spacing of the isoquants as output expands by equal amounts for a decreasing-returns production technology?",
+    answer("They get closer together."),
+    answer("They remain equally spaced."),
+    answer("They get farther apart.", correct = TRUE),
+    answer("The spacing cannot be determined with the given information."),
+    allow_retry = TRUE
+  )
+```
+
+Production functions with *decreasing* returns to scale correspond to *increasing* long-run average costs (diseconomies of scale). 
+
+### Increasing Returns to Scale
+
+A production technology has *increasing returns to scale* whenever scaling up all inputs by the same proportion (e.g. double) increases output by more than that proportion (e.g. more than double). 
+
+Production functions with *increasing* returns to scale correspond to *decreasing* long-run average costs (economies of scale). 

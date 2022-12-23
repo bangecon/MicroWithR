@@ -1,0 +1,23 @@
+"0","  question(""What is the RStudio IDE?"","
+"0","    answer(""An application that makes it easier to use R."", correct = TRUE, message = ""RStudio organizes your workspace and makes it easier to write, use, debug, and save R code. I highly recommend it and will rely on the RStudio IDE in several tutorials.""),"
+"0","    answer(""An application that let's you use R without writing any code"", message = ""And thank goodness! Code provides a reproducible record of your work, which is essential for data science.""),"
+"0","    answer(""A spreadsheet program like Microsoft Excel.""),"
+"0","    answer(""Another name for R"", message = ""R and RStudio are two separate things. R is a language, like English. Think of RStudio as a program that helps you use the language, kind of like how a word processing program helps you write in English.""),"
+"0","    allow_retry = TRUE"
+"0","  )"
+"1","Question: ""What is the RStudio IDE?""
+  type: ""learnr_radio""
+  allow_retry: TRUE
+  random_answer_order: FALSE
+  answers:
+    ✔: ""An application that makes it easier to use R.""; ""RStudio organizes your workspace and makes it easier to write, use, debug, and save R code. I highly recommend it and will rely on the RStudio IDE in several tutorials.""
+    X: ""An application that let’s you use R without writing any code""; ""And thank goodness! Code provides a reproducible record of your work, which is essential for data science.""
+    X: ""A spreadsheet program like Microsoft Excel.""
+    X: ""Another name for R""; ""R and RStudio are two separate things. R is a language, like English. Think of RStudio as a program that helps you use the language, kind of like how a word processing program helps you write in English.""
+  messages:
+    correct: ""Correct!""
+    incorrect: ""Incorrect""
+    try_again: ""Incorrect"""
+"1"," "
+"1","
+"

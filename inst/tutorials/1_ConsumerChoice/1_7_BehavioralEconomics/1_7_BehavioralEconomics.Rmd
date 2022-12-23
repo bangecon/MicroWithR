@@ -1,0 +1,36 @@
+---
+title: "1.6 Behavioral Economics"
+author: Jim Bang
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Overview
+
+
+
+## Anchoring
+
+
+
+## Emotion
+
+
+
+## Melioration
+
+
+
+## Framing Effects
+
+
+
+## Myopia
+
+

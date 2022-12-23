@@ -1,0 +1,364 @@
+---
+title: "2.2 Cost Minimization"
+author: Jim Bang    
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(Deriv)
+library(Ryacas)
+library(Rsolnp)
+gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+w =1; r = 2; alpha = 1/3; y0 = 2500
+G <- ysym('L + 2*K + lambda*(2500 - 100*L^(1/3) * K^(2/3))')
+(dG <- c(deriv(G, 'L'), deriv(G, 'K'), deriv(G, 'lambda')))
+MPLinv <- solve(dG[[1]], 'lambda') |> y_rmvars()/w
+MPLinv <- yac_str(MPLinv) |> Simplify() |> ysym()
+MPKinv <- solve(dG[[2]], 'lambda') |> y_rmvars()/r
+MPKinv <- yac_str(MPKinv) |> Simplify() |> ysym()
+MRTS <- MPKinv/MPLinv
+MRTSsolve <- solve(MRTS - w/r, 'K') |> y_rmvars() 
+MRTSsolve <- gsub('\\}|\\{', '', MRTSsolve)
+IQsub <- gsub('K', MRTSsolve, dG[[3]]) |> Simplify() |> ysym()
+Lstar <- solve(IQsub, 'L') |> y_rmvars() |> yac_expr() |> eval()
+Kstar <- parse(text = gsub('L', Lstar, MRTSsolve)) |> eval()
+lambda <- parse(text = gsub('K', Kstar, gsub('L', Lstar, MPLinv))) |> eval()*w
+costMin <- solnp(pars = c(1, 1), fun = function(x) w*x[1] + r*x[2],
+                 ineqfun = function(x) 100 * (x[1]^alpha * x[2]^(1-alpha)) - y0,
+                 ineqLB = 0, ineqUB = Inf, LB = c(0, 0))
+```
+
+## Overview
+
+Goal: Minimize costs for any (each?) given quantity 
+
+Constraint: Quantity produced with available technology
+
+Endogenous (Strategic) Variables: Choice of inputs
+
+Exogenous Variables (Parameters): Market input prices, technology
+
+### Isocost Lines
+
+Isocost lines resemble budget lines from the consumer problem. 
+
+$$TC = wL + rK$$
+
+Since total cost is the *objective* the firm sets out to minimize, we do not set a given value for the left-hand side. 
+
+The right-hand side consists of labor costs (price per unit labor, i.e. wage, times the quantity of labor hired) plus capital costs (price per unit capital, i.e. rent, times the quantity of capital rented). 
+
+Solving for $K$, the isocost line becomes
+
+$$K = \frac{TC}{r} - \frac{w}{r}L.$$
+
+Plot the isocost lines for $TC = \{100, 75, 50\}$ for $0 \le L \le 50$ given a market wage of 1 and a market rental price of capital of 2. Orient the quantity of labor on the horizontal axis (labeled "Labor") and quantity of capital on the vertical axis (labeled "Capital").
+
+```{r isocost, exercise = TRUE}
+
+```
+
+
+```{r isocost-solution}
+curve(50 - x / 2,
+      from = 0,
+      to = 100,
+      ylim = c(0, 50),
+      xlab = "Labor",
+      ylab = "Capital")
+curve(37.5 - x / 2,
+      from = 0,
+      to = 75,
+      add = TRUE)
+curve(25 - x / 2,
+      from = 0,
+      to = 50,
+      add = TRUE)
+```
+
+
+```{r isocost-check}
+grade_code()
+```
+
+### Isoquant Constraint
+
+Suppose that the firm wants to produce 25 units of output. Add the isoquant for the Cobb-Douglas production function from the previous section to the graph you started above. 
+
+$$f(L, K) = 100L^{1/3}K^{2/3}$$
+```{r isoquant, exercise = TRUE}
+curve(50 - x / 2,
+      from = 0,
+      to = 100,
+      ylim = c(0, 50),
+      xlab = "Labor",
+      ylab = "Capital")
+curve(37.5 - x / 2,
+      from = 0,
+      to = 75,
+      add = TRUE)
+curve(25 - x / 2,
+      from = 0,
+      to = 50,
+      add = TRUE)
+arrows(x0 = 100/3,
+       y0 = 100/3,
+       x1 = 100/6,
+       y1 = 100/6)
+
+```
+
+```{r isoquant-solution}
+curve(50 - x / 2,
+      from = 0,
+      to = 100,
+      ylim = c(0, 50),
+      xlab = "Labor",
+      ylab = "Capital")
+curve(37.5 - x / 2,
+      from = 0,
+      to = 75,
+      add = TRUE)
+curve(25 - x / 2,
+      from = 0,
+      to = 50,
+      add = TRUE)
+arrows(x0 = 100/3,
+       y0 = 100/3,
+       x1 = 100/6,
+       y1 = 100/6)
+curve((2500 / (100*x^(1/3)))^(3/2), add = TRUE)
+```
+
+```{r isoquant-check}
+grade_code()
+```
+
+## Graphical Approach
+
+From our graph, it appears that this firm would minimize its cost of producing 2500 units by hiring about 25 units of labor and renting about 25 units of capital at a cost of 75. 
+
+```{r}
+curve(37.5 - x / 2,
+      from = 0,
+      to = 75, 
+      xlab = "Labor", 
+      ylab = "Capital")
+curve((2500 / (100*x^(1/3)))^(3/2), add = TRUE)
+segments(x0 = 25, y0 = 0, x1 = 25, y1 = 25, lty = 'dashed')
+segments(x0 = 0, y0 = 25, x1 = 25, y1 = 25, lty = 'dashed')
+```
+
+## Analytical Approach
+
+### Consumer Expenditure Minimization Redux
+
+The solution to the cost-minimization problem mirrors the expenditure minimization problem we used to help decompose the effect of a price change into income and substitution effects. In that context, we defined $\tilde{x}$ to be the consumption bundle that minimized expenditures subject to remaining on the same level of utility as the original equilibrium before the price change. 
+
+$$min_x \bigg\{p_1x_1 + p_2x_2 \bigg\}$$
+
+$$\text{s.t. } u_0^* - u(x_1, x_2) \le 0$$
+
+### Cost Minimization - Setup
+
+In the case of cost minimization, the basic structure is similar, except that the firm uses its "expenditures" (costs) to "buy" (hire/rent) inputs to gain a benefit in the form of output. Formally, the firm solves: 
+
+$$min_{L,K} \bigg\{wL + rK \bigg\}$$
+
+$$\text{s.t. } y^* - f(L, K) \le 0$$
+
+Recall the five key steps for constrained optimization problems: 
+
+1. Rearrange the constraint to be something equal to *zero* when it binds. 
+2. Define the Lagrangean (since this is minimization the constraint portion of the Lagrangean will be *less than* or equal to zero).
+3. Take derivatives with respect to the choice variables (including $\lambda$). 
+4. Set the derivatives equal to zero. 
+5. Solve for all choice variables. 
+
+The Lagrangean for the firm with parameters defined from our example is: 
+
+$$\mathcal{L} = L + 2K + \lambda(2500 - 100L^{1/3}K^{2/3})$$
+
+1. Define a `yac_symbol` object for the Lagrangean (name it "G" to avoid conflict withthe "L" for labor);
+2. Find the derivatives with respect to $L$, $K$, and $\lambda$;
+
+Wrap the function obtaining the derivatives in "()" so that it displays in the output. 
+
+```{r foc, exercise = TRUE, exercise.reveal_solution = TRUE}
+
+```
+
+```{r foc-solution}
+G <- ysym('L + 2*K + lambda*(2500 - 100*L^(1/3) * K^(2/3))')
+(dG <- c(deriv(G, 'L'), deriv(G, 'K'), deriv(G, 'lambda')))
+```
+
+```{r foc-check}
+grade_code() 
+```
+
+Setting the derivatives of the Lagrangean equal to zero finds the "first-order conditions." These conditions find the "critical values" where the Lagrangean switches from increasing to decreasing (or vice-versa) corresponding to maximum (minimum) values. 
+
+$$`r tex(dG[[1]])` = 0 \text{ (w.r.t. L)}$$
+$$`r tex(dG[[2]])` = 0 \text{ (w.r.t. K)}$$
+$$`r tex(dG[[3]])` = 0 \text{ (w.r.t. }\lambda)$$
+
+### The Marginal Rate of Technical Substitution (MRTS)
+
+Combining the first-order conditions with respect to $x_1$ and $x_2$, we get the "Cost per Marginal Product" condition: 
+
+$$\frac{w}{MP_L} = \frac{r}{MP_K} = \lambda \text{, or}$$
+
+$$MRTS_{LK} = \frac{MP_L}{MP_K} = \frac{w}{r}.$$
+
+Derive the $MRTS$ of the example with the following steps: 
+
+1. Solve the first-order condition with respect to `L` for $\lambda$ using `Ryacas::solve()`. Pipe the result to `y_rmvars()` to remove the `lambda==` from the LHS, and divide the result by `w`. <br>
+This will give you $1/MP_L$, so we will name it `MPLinv`.
+2. Convert MLPinv to a character string with `yac_str()` and pipe the result forward to `Deriv::Simplify()` before converting it back to a `yac_symbol` with `ysym()`
+3. Repeat steps 1 and 2 for the first order condition with respect to `K` and name the result `MPKinv`. 
+4. Get the $MRTS = MPL/MPK$ by dividing `MPKinv` by `MPLinv`. 
+
+```{r MRTS, exercise = TRUE, exercise.reveal_solution = TRUE, exercise.lines = 12}
+
+```
+
+```{r MRTS-solution}
+MPLinv <- solve(dG[[1]], 'lambda') |>
+  y_rmvars()/w
+MPLinv <- yac_str(MPLinv) |>
+  Simplify() |>
+  ysym()
+MPKinv <- solve(dG[[2]], 'lambda') |>
+  y_rmvars()/r
+MPKinv <- yac_str(MPKinv) |>
+  Simplify() |>
+  ysym()
+MRTS <- MPKinv/MPLinv
+```
+
+```{r MRTS-check}
+grade_code() 
+```
+
+$$`r tex(MRTS)` = w/r$$
+
+### Solving for Input Levels
+
+Execute the following steps to get the optimal levels of $L$ and $K$. 
+
+1. Solve the $MRS - w/r = 0$ for $K$. Pipe the result forward to `y_rmvars()` to remove the `K==` and name this `MRTSsolve`. 
+2. Substitute the result of step 1 for `K` in the isoquant constraint, `dG[[3]]` using `gsub()`. Pipe this result forward to `Simplify()` and convert the character string to a `yac_symbol` with `ysym()`. Name this object `IQsub`.
+3. Solve `IQsub` for `L` and pipe the solution forward to `y_rmvars()`, `yac_expr()`, and `eval()` to stor the result as a numerical object named `Lstar`. 
+4. Substitute `Lstar` for `L` in `MRTSsolve`, and nest this `gsub()` within `parse(text = )` to convert it directly into an expression. Pipe the result forward to `eval()` to store it as a numeric object. 
+
+```{r solution, exercise = TRUE, exercise.lines = 12}
+# Complete the first part of the solution to get Lstar; 
+
+
+# I've parsed the text substitution for Kstar below: 
+Kstar <- parse(text = gsub('L', Lstar, MRTSsolve)) |>
+  eval()
+Lstar; Kstar
+```
+
+
+```{r solution-solution}
+MRTSsolve <- solve(MRTS - w/r, 'K') |>
+  y_rmvars() 
+MRTSsolve <- gsub('\\}|\\{', '', MRTSsolve)
+IQsub <- gsub('K', MRTSsolve, dG[[3]]) |>
+    Simplify() |> 
+    ysym()
+Lstar <- solve(IQsub, 'L') |>
+  y_rmvars() |> 
+  yac_expr() |>
+  eval()
+Kstar <- parse(text = gsub('L', Lstar, MRTSsolve)) |>
+  eval()
+Lstar; Kstar
+```
+
+
+```{r solution-check}
+grade_code()
+```
+
+### Calculating $\lambda$
+
+```{r, echo = TRUE}
+lambda <-
+  parse(text = gsub('K', Kstar, gsub('L', Lstar, MPLinv))) |>
+  eval()*w
+lambda
+```
+What does $\lambda$ represent?
+
+## Computational Approach
+
+### Expenditure Minimization
+
+What makes the computational approach to this problem tricky is the fact that the constraint is the value of the *nonlinear* utility function. Since the `constrOptim` function only accepts arguments for parameters for a linear constraint, we needed the `Rsolnp` package/function for nonlinear optimization. The code we used to solve the problem is: 
+
+```{r xTilde, echo = TRUE}
+library(Rsolnp)
+u <- function(x) {
+  x[1] ^ (alpha) * x[2] ^ (1 - alpha)
+}
+alpha = 0.25
+p1 = 1.5
+p2 = 1
+m = 100
+dp1 = 0.5
+initialEquilibrium <- constrOptim(
+  c(0.01, 0.01),
+  u,
+  NULL,
+  ui = c(-p1,-p2),
+  ci = c(-m),
+  control = list(fnscale = -1)
+)
+u0 <- initialEquilibrium$value
+x0 <- c(initialEquilibrium$par)
+xTilde <- solnp(pars = x0, fun = function(x) (p1 - dp1)*x[1] + p2*x[2],
+                ineqfun = function(x) x[1]^alpha * x[2]^(1-alpha) - u0,
+                ineqLB = 0, ineqUB = Inf, LB = c(0, 0))
+xTilde
+```
+
+### Cost Minimization 
+
+Find the cost-minimizing level of labor and capital at a wage of 1 and rental price of capital of 2 for a firm using a Cobb-Douglass production technology with a labor share of one-third that expects to sell 2500 units.  
+
+```{r costMin, exercise = TRUE}
+
+
+```
+
+```{r costMin-solution}
+alpha = 1/3
+y0 = 2500
+w = 1
+r = 2
+costMin <- solnp(pars = c(1, 1), fun = function(x) w*x[1] + r*x[2],
+                 ineqfun = function(x) 100*x[1]^alpha*x[2]^(1-alpha)-y0,
+                 ineqLB = 0, ineqUB = Inf, LB = c(0, 0))
+costMin
+```
+
+
+```{r costMin-check}
+grade_code()
+```
+
+## Summary
+
+1. A firm seeks to produce any given quantity with a combination of inputs that minimizes its costs. 
+2. The combination of inputs that minimizes per-unit costs *for a given quantity of output* represents a point on the long-run average cost curve. 
+3. Choosing (or anticipating) the right *quantity* of output consumers will buy at a given price determines whether the firm will maximize its profits. 

@@ -1,0 +1,305 @@
+---
+title: "Chapter 8-1: Testing for Heteroskedasticity"
+author: Jim Bang
+description: "Consequences of heterodkedasticity and testing for heteroskedasticity"
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+---
+
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+</style>
+
+<script language="JavaScript">
+$(function() {
+   var editor;
+   $('.ace_editor').each(function( index ) {
+     editor = ace.edit(this);
+     editor.setFontSize("16px");
+   });
+})
+</script>
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(lmtest)
+library(sandwich)
+library(car)
+library(stargazer)
+wage1 <- wooldridge::wage1
+wage.lm14 <- lm( log(wage) ~ I(married * (1 - female)) + I(married * female) + I((1 - married) * female) + educ + exper + I(exper ^ 2) + tenure + I(tenure ^ 2),data = wage1)
+wage.lm14r <- coeftest(wage.lm14, vcov = vcovHC(wage.lm14, type = "HC1"))
+gpa3 <- wooldridge::gpa3
+gpa.lm <- lm(cumgpa~sat+hsperc+tothrs+female+black+white, data=gpa3, subset=(spring==1))
+coeftest(gpa.lm)
+coeftest(gpa.lm, vcov=hccm)
+hprice1 <- wooldridge::hprice1
+hprice.lm1 <- lm(price ~ lotsize + sqrft + bdrms, data = hprice1)
+ureg1 <- lm(resid(hprice.lm1) ^ 2 ~ lotsize + sqrft + bdrms, data = hprice1)
+bpF1 <- summary(ureg1)$fstatistic
+bpF1p <- pf(bpF1[1], bpF1[2], bpF1[3], lower.tail = FALSE)
+bp1 <- bptest(hprice.lm1)
+hprice.lm2 <- lm(log(price) ~ lotsize + sqrft + bdrms, data = hprice1)
+ureg2 <- lm(resid(hprice.lm2) ^ 2 ~ lotsize + sqrft + bdrms, data = hprice1)
+bpF2 <- summary(ureg2)$fstatistic
+bpF2p <- pf(bpF2[1], bpF2[2], bpF2[3], lower.tail = FALSE)
+bp2 <- bptest(hprice.lm2)
+tutorial_options(exercise.timelimit = 60, exercise.reveal_solution = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Heteroskedasticity
+
+Heteroskedasticity does *not* affect the unbiased-ness or consistency of $\hat\beta_{OLS}$. 
+
+Heteroskedasticity *does* affect the unbiased-ness of the standard errors of $\hat\beta_{OLS}$, $\hat\sigma_{\hat\beta_{OLS}}$. 
+
+Inferences and interval estimates for $\beta$ will therefore be wrong. 
+
+### Heteroskedasticity-Robust Inference for $log(wage)$ Model
+
+Run the following code to replicate example 8.1 from the book. 
+
+```{r robustHC1, exercise = TRUE}
+wage.lm14 <-
+  lm(
+    log(wage) ~ I(married * (1 - female)) + I(married * female) + 
+      I((1 - married) * female) + educ + exper + I(exper ^ 2) + tenure +  
+      I(tenure ^ 2),data = wage1
+  )
+wage.lm14r <-
+  coeftest(wage.lm14, vcov = vcovHC(wage.lm14, type = "HC1"))
+stargazer(wage.lm14, wage.lm14r, type = 'text', digits = 4)
+```
+
+```{r robustHC1-solution}
+wage.lm14 <-
+  lm(
+    log(wage) ~ I(married * (1 - female)) + I(married * female) + 
+      I((1 - married) * female) + educ + exper + I(exper ^ 2) + tenure + 
+      I(tenure ^ 2), data = wage1
+  )
+wage.lm14r <-
+  coeftest(wage.lm14, vcov = vcovHC(wage.lm14, type = "HC1"))
+stargazer(wage.lm14, wage.lm14r, type = 'text', digits = 4)
+```
+
+```{r robustHC1-check}
+grade_this({if (!inherits(.result, c("character"))) {
+    fail("Your class of your answer should be a character list")}
+  if (.result[10] != "I(married * (1 - female))        0.2127***          0.2127*** ") { 
+    fail("The coefficient on married women don't look quite right.") }
+  pass("Note that the coefficients are the same; only the standard errors differ.")
+})
+```
+
+### Heteroskedasticity-Robust F-Test for College GPAs
+
+Run the following code to replicate example 8.2 from the book. 
+
+```{r robustF, exercise = TRUE}
+collGPA.lm <- lm(
+  cumgpa ~ sat + hsperc + tothrs + female + black + white, data = gpa3,
+  subset = (spring == 1)
+)
+collGPA.lmr <-
+  coeftest(collGPA.lm, vcov = vcovHC(collGPA.lm, type = "HC1"))
+fStat <- linearHypothesis(collGPA.lm, c('black', 'white'))
+fStat.r <-
+  linearHypothesis(collGPA.lm, c('black', 'white'), 
+                   vcov = hccm(collGPA.lm, type = "hc0"))
+stargazer(
+  collGPA.lm,
+  collGPA.lmr,
+  type = 'text',
+  digits = 4,
+  add.lines = list(
+    c('F-Test (Race)', round(fStat$F[2], 4), round(fStat.r$F[2], 4)),
+    c('Pr(>F)', round(fStat$`Pr(>F)`[2], 4), round(fStat.r$`Pr(>F)`[2], 4))
+  )
+)
+```
+
+```{r robustF-solution}
+collGPA.lm <- lm(
+  cumgpa ~ sat + hsperc + tothrs + female + black + white, data = gpa3,
+  subset = (spring == 1)
+)
+collGPA.lmr <-
+  coeftest(collGPA.lm, vcov = vcovHC(collGPA.lm, type = "HC1"))
+fStat <- linearHypothesis(collGPA.lm, c('black', 'white'))
+fStat.r <-
+  linearHypothesis(collGPA.lm, c('black', 'white'), 
+                   vcov = hccm(collGPA.lm, type = "hc0"))
+stargazer(
+  collGPA.lm,
+  collGPA.lmr,
+  type = 'text',
+  digits = 4,
+  add.lines = list(
+    c('F-Test (Race)', round(fStat$F[2], 4), round(fStat.r$F[2], 4)),
+    c('Pr(>F)', round(fStat$`Pr(>F)`[2], 4), round(fStat.r$`Pr(>F)`[2], 4))
+  )
+)
+```
+
+```{r robustF-check}
+grade_this({if (!inherits(.result, c("character"))) {
+    fail("Your class of your answer should be a character list")}
+  if (.result[32] != "F-Test (Race)                0.6796            0.7478   ") { 
+    fail("The line that should contain the partial F test doesn't look quite right.") }
+  pass()
+})
+```
+
+## Testing for Heteroskedasticity  
+
+Heteroskedasticity tests involve estimating the model by OLS followed by estimating the residuals as a function of the explanatory variables from that model. 
+
+### Breusch-Pagan Test
+
+1. Estimate the model of interest using OLS. 
+2. Regress the squared residuals from (1) on the $x$ variables from your model. 
+3. Calculate the $F$ statistic *or* the $LM$ statistic for this regression. <br>
+$F = \frac{R_{\hat{u}^2}^2/k}{(1-R_{\hat{u}^2}^2)/(n-k-1)}$<br>
+$LM = nR_{\hat{u}^2}^2$
+4. Test the statistic you calculated on $F \sim F(k, n-k-1)$ or $LM \sim \chi^2(k)$
+
+### House Prices
+
+1. Estimate `hprice.lm1` as the model of house prices given in by <br>
+$Price = \beta_0 + \beta_1LotSize + \beta_2SquareFeet + \beta_3Bedrooms + u$
+2. Estimate the regression of the squared residuals on the explanatory variables (`ureg1`). 
+3. Define the Breusch-Pagan $F$-Statistic (`bpF1`) as the F-Statistic of the residual regression and the corresponding p-value (`bpF1p`) as the probability in the *upper* tail greater than F. 
+4. Calculate the Breusch-Pagan $LM$-Statistic using `bptest`. 
+5. Repeat 1-4 using $log(Price)$ as the dependent variable. 
+6. I have built a `stargazer` table for you (you're welcome!). Notice my use of the `add.lines` option to insert the specification tests for heteroskedasticity. 
+
+```{r bpTest, exercise = TRUE}
+# Levels Model
+
+# Log Model
+
+# Table
+stargazer(hprice.lm1, hprice.lm2, type = 'text', digits = 4,
+  add.lines = list(
+    c('Breusch-Pagan F', round(bpF1[1], 4), round(bpF2[1], 4)),
+    c('Pr(>F)', round(bpF1p, 4), round(bpF2p, 4)),
+    c('Breusch-Pagan LM', round(bp1$statistic, 4), round(bp2$statistic, 4)),
+    c('Pr(>Chi-Sq)', round(bp1$p.value, 4), round(bp2$p.value, 4)
+    )
+  )
+)
+```
+
+```{r bpTest-hint1}
+# Let `bpF1` be the `fstatistic` object from `summary(ureg1)`
+```
+
+```{r bpTest-hint2}
+# The `fstatistic` object has three values: (1) the F-stat itself, (2) the numerator df, and (3) the denominator df. Keep all three in `bpF1`. 
+```
+
+```{r bpTest-hint3}
+# Use `pf(F, df1, df2)` to calculate the p-value for F using the three values from `fstatisitc`.  
+```
+
+```{r bpTest-solution}
+# Levels Model
+hprice.lm1 <- lm(price ~ lotsize + sqrft + bdrms, data = hprice1)
+ureg1 <- lm(resid(hprice.lm1) ^ 2 ~ lotsize + sqrft + bdrms, data = hprice1)
+bpF1 <- summary(ureg1)$fstatistic
+bpF1p <- pf(bpF1[1], bpF1[2], bpF1[3], lower.tail = FALSE)
+bp1 <- bptest(hprice.lm1)
+# Log Model
+hprice.lm2 <- lm(log(price) ~ lotsize + sqrft + bdrms, data = hprice1)
+ureg2 <- lm(resid(hprice.lm2) ^ 2 ~ lotsize + sqrft + bdrms, data = hprice1)
+bpF2 <- summary(ureg2)$fstatistic
+bpF2p <- pf(bpF2[1], bpF2[2], bpF2[3], lower.tail = FALSE)
+bp2 <- bptest(hprice.lm2)
+# Table
+stargazer(hprice.lm1, hprice.lm2, type = 'text', digits = 4,
+  add.lines = list(
+    c('Breusch-Pagan F', round(bpF1[1], 4), round(bpF2[1], 4)),
+    c('Pr(>F)', round(bpF1p, 4), round(bpF2p, 4)),
+    c('Breusch-Pagan LM', round(bp1$statistic, 4), round(bp2$statistic, 4)),
+    c('Pr(>Chi-Sq)', round(bp1$p.value, 4), round(bp2$p.value, 4)
+    )
+  )
+)
+```
+
+```{r bpTest-check}
+grade_this({if (!inherits(.result, c("character"))) {
+    fail("Your class of your answer should be a character list")}
+  if (.result[21] != "Breusch-Pagan F                   5.3389        1.1745    ") { 
+    fail("The line that should contain the Breusch-Pagan F test doesn't look quite right.") }
+  pass("Wait, what happened to the heteroskedasticity in the log-linear model?!?")
+})
+```
+
+### White Test
+
+The White test for heteroskedasticity is similar to the Breusch-Pagan test, except it includes all possible interactions among the variables, including with themselves (i.e. quadratic terms). 
+
+1. Estimate the model.
+2. Estimate $\hat{u}^2 = \delta_0 + \delta_1x_1 + \delta_2x_2 + \delta_3x_1^2 + \delta_4x_2^2 + \delta_5x_1x_2 + v$, <br> 
+which is equivalent to $\hat{u}^2 = \delta_0 + \delta_1\hat{y} + \delta_2\hat{y}^2 + v$.
+3. Calculate $F \sim F(2, n-3)$ or $LM \sim \chi^2(2)$ as you did in the Breusch-Pagan test. 
+
+Note: none of the degrees of freedom in $F$ or $LM$ depend on $k$ because you always only estimate three parameters in the squared-residuals regression. 
+
+### House Prices
+
+Calculate the White test for the housing models you conducted Breusch-Pagan tests for in the previous exercise. You should not need to re-estimate the regression models for house prices (`hprice.lm1` and `hprice.lm2`). 
+
+```{r white, exercise = TRUE}
+# Levels Model
+
+# Log Model
+
+# Table
+stargazer(hprice.lm1, hprice.lm2, type = 'text', digits = 4,
+  add.lines = list(
+    c('White F', round(whiteF1[1], 4), round(whiteF2[1], 4)),
+    c('Pr(>F)', round(whiteF1p, 4), round(whiteF2p, 4)),
+    c('White LM', round(white1$statistic, 4), round(white2$statistic, 4)),
+    c('Pr(>Chi-Sq)', round(white1$p.value, 4), round(white2$p.value, 4))))
+```
+
+```{r white-solution}
+ureg1w <-
+  lm(resid(hprice.lm1) ~ fitted(hprice.lm1) + I(fitted(hprice.lm1) ^ 2))
+whiteF1 <- summary(ureg1w)$fstatistic
+whiteF1p <- pf(whiteF1[1], whiteF1[2], whiteF1[3], lower.tail = FALSE)
+white1 <-
+  bptest(hprice.lm1, ~ fitted(hprice.lm1) + I(fitted(hprice.lm1) ^ 2))
+ureg2w <-
+  lm(resid(hprice.lm2) ~ fitted(hprice.lm2) + I(fitted(hprice.lm2) ^ 2))
+whiteF2 <- summary(ureg2w)$fstatistic
+whiteF2p <- pf(whiteF2[1], whiteF2[2], whiteF2[3], lower.tail = FALSE)
+white2 <-
+  bptest(hprice.lm2, ~ fitted(hprice.lm2) + I(fitted(hprice.lm2) ^ 2))
+stargazer(hprice.lm1, hprice.lm2, type = 'text', digits = 4,
+  add.lines = list(
+    c('White F', round(whiteF1[1], 4), round(whiteF2[1], 4)),
+    c('Pr(>F)', round(whiteF1p, 4), round(whiteF2p, 4)),
+    c('White LM', round(white1$statistic, 4), round(white2$statistic, 4)),
+    c('Pr(>Chi-Sq)', round(white1$p.value, 4), round(white2$p.value, 4))))
+```
+
+```{r white-check}
+grade_this({if (!inherits(.result, c("character"))) {
+    fail("Your class of your answer should be a character list")}
+  if (.result[21] != "Breusch-Pagan F                   5.3389        1.1745    ") { 
+    fail("The line that should contain the White F test doesn't look quite right.") }
+  pass("Wait, what happened to the heteroskedasticity in the log-linear model?!?")
+})
+```

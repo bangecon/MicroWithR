@@ -1,0 +1,17 @@
+"0","  question(""Do you need to install R if you already have RStudio?"","
+"0","    answer(""Yes."", correct = TRUE),"
+"0","    answer(""No."", message = ""R does not come with RStudio; you need to install R separately."")"
+"0","  )"
+"1","Question: ""Do you need to install R if you already have RStudio?""
+  type: ""learnr_radio""
+  allow_retry: FALSE
+  random_answer_order: FALSE
+  answers:
+    ✔: ""Yes.""
+    X: ""No.""; ""R does not come with RStudio; you need to install R separately.""
+  messages:
+    correct: ""Correct!""
+    incorrect: ""Incorrect"""
+"1"," "
+"1","
+"

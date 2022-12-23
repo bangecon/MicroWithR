@@ -1,0 +1,19 @@
+Package: MicroWithR
+Type: Package
+Title: Tutorials for Using R for Intermediate Microeconomics
+Version: 0.1.0
+Author: James Bang
+Maintainer: James Bang <bangjamest@sau.edu>
+Description: This package contains interactive tutorials created with the \code{learnr} package. 
+  The examples and exercises focus on ways to use tools readily available in R for graphing, 
+  solving derivatives, and choosing optimal allocations.  
+License: use_gpl3_license()
+Encoding: UTF-8
+LazyData: true
+Depends: 
+  R (>= 4.1.2),
+  learnr,
+  gradethis
+Imports: 
+  Deriv, 
+  ggplot2

@@ -1,0 +1,52 @@
+"0","grade_result("
+"0","  pass_if(~identical(.result, 42))) "
+"1","function (check_env) 
+"
+"1","{
+"
+"1","    last_value <- check_env$.last_value
+"
+"1","    env <- learnr_env(envir_prep = check_env$.envir_prep, envir_result = check_env$.envir_result)
+"
+"1","    final_grade <- legacy_graded(correct = default_correct, message = default_message)
+"
+"1","    found_grade <- FALSE
+"
+"1","    for (cond in conditions) {
+"
+"1","        grade <- evaluate_condition(cond, last_value = last_value, 
+"
+"1","            env = env)
+"
+"1","        if (length(grade)) {
+"
+"1","            final_grade <- grade
+"
+"1","            found_grade <- TRUE
+"
+"1","            break
+"
+"1","        }
+"
+"1","    }
+"
+"1","    glue_correct <- glue_correct %||% gradethis_legacy_options$gradethis.glue_correct
+"
+"1","    glue_incorrect <- glue_incorrect %||% gradethis_legacy_options$gradethis.glue_incorrect
+"
+"1","    legacy_graded(correct = final_grade$correct, message = glue_message(if (final_grade$correct) 
+"
+"1","        glue_correct
+"
+"1","    else glue_incorrect, .is_match = found_grade, .is_correct = final_grade$correct, 
+"
+"1","        .message = final_grade$message, .message_pipe_warning = NULL, 
+"
+"1","        .correct = correct, .incorrect = incorrect))
+"
+"1","}
+"
+"1","<bytecode: 0x0000017ce4fe76e0>
+"
+"1","<environment: 0x0000017ce4feaf70>
+"

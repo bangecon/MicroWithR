@@ -1,0 +1,23 @@
+"0","question(""Where do you download RStudio?"","
+"0","    answer(""[www.rstudio.com/download](www.rstudio.com/download)"", correct = TRUE, message = ""For these tutorials, download and install the RStudio Desktop Open Source License.""),"
+"0","    answer(""[cloud.r-project.org](http://cloud.r-project.org)"", message = ""This is where you download R, not RStudio.""),"
+"0","    answer(""[www.r-project.org](www.r-project.org)""),"
+"0","    answer(""[cran.rstudio.org](http://cran.rstudio.org)""),"
+"0","    allow_retry = TRUE"
+"0","  )"
+"1","Question: ""Where do you download RStudio?""
+  type: ""learnr_radio""
+  allow_retry: TRUE
+  random_answer_order: FALSE
+  answers:
+    ✔: ""<a href=""www.rstudio.com/download"">www.rstudio.com/download</a>""; ""For these tutorials, download and install the RStudio Desktop Open Source License.""
+    X: ""<a href=""http://cloud.r-project.org"">cloud.r-project.org</a>""; ""This is where you download R, not RStudio.""
+    X: ""<a href=""www.r-project.org"">www.r-project.org</a>""
+    X: ""<a href=""http://cran.rstudio.org"">cran.rstudio.org</a>""
+  messages:
+    correct: ""Correct!""
+    incorrect: ""Incorrect""
+    try_again: ""Incorrect"""
+"1"," "
+"1","
+"

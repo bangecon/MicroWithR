@@ -1,0 +1,21 @@
+"0","question(""How often should you update R?"","
+"0","    answer(""Everytime you use it"", message = ""This will be too often unless you use R very rarely!""),"
+"0","    answer(""About once a year"", correct = TRUE, ""A new version of R is released about once a year. Update sooner if you encounter a bug that you cannot explain.""),"
+"0","    answer(""Never"", message = ""A new version of R is released about once a year. I'll assume that you are using the newest version of R, which will be the fastest version with the fewest unexpected behaviors."" ),"
+"0","    allow_retry = TRUE"
+"0","  )"
+"1","Question: ""How often should you update R?""
+  type: ""learnr_radio""
+  allow_retry: TRUE
+  random_answer_order: FALSE
+  answers:
+    X: ""Everytime you use it""; ""This will be too often unless you use R very rarely!""
+    ✔: ""About once a year""; ""A new version of R is released about once a year. Update sooner if you encounter a bug that you cannot explain.""
+    X: ""Never""; ""A new version of R is released about once a year. I’ll assume that you are using the newest version of R, which will be the fastest version with the fewest unexpected behaviors.""
+  messages:
+    correct: ""Correct!""
+    incorrect: ""Incorrect""
+    try_again: ""Incorrect"""
+"1"," "
+"1","
+"

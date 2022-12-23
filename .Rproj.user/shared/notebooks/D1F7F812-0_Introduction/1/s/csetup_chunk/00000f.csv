@@ -1,0 +1,43 @@
+"0","library(learnr)"
+"2","Registered S3 method overwritten by 'htmlwidgets':
+  method           from         
+  print.htmlwidget tools:rstudio
+"
+"0","library(gradethis)"
+"2","
+Attaching package: ‘gradethis’
+
+"
+"2","The following objects are masked from ‘package:learnr’:
+
+    random_encouragement, random_praise
+
+"
+"0","library(Ryacas)"
+"2","
+Attaching package: ‘Ryacas’
+
+"
+"2","The following object is masked from ‘package:stats’:
+
+    integrate
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    %*%, diag, diag<-, lower.tri, upper.tri
+
+"
+"0","library(Deriv)"
+"0","library(Rsolnp)"
+"0","gradethis_setup()"
+"0","tutorial_options(exercise.reveal_solution = TRUE, exercise.eval = FALSE, exercise.checker = gradethis_exercise_checker)"
+"0","knitr::opts_chunk$set(echo = FALSE)"
+"0","# webshot::install_phantomjs(force = TRUE)"
+"0","# new_recorder <- function(tutorial_id, tutorial_version, "
+"0","#                          user_id, event, data) {"
+"0","#   cat(tutorial_id, "" ("", tutorial_version, ""): "","
+"0","#       user_id, "", "", event, "", "", data$label, "", "","
+"0","#       data$answers, "", "", data$correct, ""\n"", sep = """")"
+"0","#   }"
+"0","# options(tutorial.event_recorder = new_recorder)"

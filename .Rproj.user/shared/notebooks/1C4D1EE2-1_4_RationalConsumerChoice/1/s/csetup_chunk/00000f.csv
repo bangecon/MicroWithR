@@ -1,0 +1,98 @@
+"0","library(learnr)"
+"0","library(gradethis)"
+"0","library(Ryacas)"
+"0","library(Deriv)"
+"0","library(Rsolnp)"
+"0","gradethis_setup()"
+"0","tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)"
+"0","knitr::opts_chunk$set(echo = FALSE, fig.align = ""center"", fig.height = 6, fig.width = 6)"
+"0","knitr::include_graphics"
+"1","function (path, auto_pdf = getOption(""knitr.graphics.auto_pdf"", 
+"
+"1","    FALSE), dpi = NULL, rel_path = getOption(""knitr.graphics.rel_path"", 
+"
+"1","    TRUE), error = getOption(""knitr.graphics.error"", TRUE)) 
+"
+"1","{
+"
+"1","    path = native_encode(path)
+"
+"1","    if (any(i <- xfun::is_abs_path(path)) && rel_path && !is.null(d <- opts_knit$get(""output.dir""))) {
+"
+"1","        path[i] = xfun::relative_path(path[i], d, error = FALSE)
+"
+"1","        if (any(j <- xfun::is_abs_path(path[i]))) 
+"
+"1","            warning(""It is highly recommended to use relative paths for images. "", 
+"
+"1","                ""You had absolute paths: "", quote_vec(path[i][j]))
+"
+"1","    }
+"
+"1","    path = path.expand(path)
+"
+"1","    if (auto_pdf && is_latex_output()) {
+"
+"1","        path2 = with_ext(path, ""pdf"")
+"
+"1","        i = file.exists(path2)
+"
+"1","        path[i] = path2[i]
+"
+"1","    }
+"
+"1","    if (child_mode()) 
+"
+"1","        error = FALSE
+"
+"1","    if (error && length(p <- path[!xfun::is_web_path(path) & 
+"
+"1","        !file.exists(path)])) 
+"
+"1","        stop(""Cannot find the file(s): "", quote_vec(p))
+"
+"1","    structure(path, class = c(""knit_image_paths"", ""knit_asis""), 
+"
+"1","        dpi = dpi)
+"
+"1","}
+"
+"1","<bytecode: 0x0000017ce39b1a30>
+"
+"1","<environment: namespace:knitr>
+"
+"0","ux <- function(x) - x[1] ^ (alpha) * x[2] ^ (1 - alpha)"
+"0","bc <- function(x) p1 * x[1] + p2 * x[2]"
+"0","alpha = 0.25; p1 = 1.5; p2 = 1; m = 100"
+"0","equilibrium <- solnp(c(0.01, 0.01), ux, LB = c(0, 0), UB = c(Inf, Inf), "
+"0","                     ineqfun = bc, ineqLB = 0, ineqUB = m)"
+"1","
+Iter: 1 fn: -51.4942	 Pars: "
+"1"," "
+"1","16.66667"
+"1"," "
+"1","75.00000"
+"1","
+Iter: 2 fn: -51.4942	 Pars: "
+"1"," "
+"1","16.66667"
+"1"," "
+"1","75.00000"
+"1","
+solnp--> Completed in 2 iterations
+"
+"0","par(mar = c(5, 4, 1, 1))"
+"0","L <- ysym('x1^(0.25) * x2^(0.75) + lambda*(100 - 1.5*x1 - x2)')"
+"0","dL <- c(deriv(L, 'x1'), deriv(L, 'x2'), deriv(L, 'lambda'))"
+"0","MU1 <- solve(dL[[1]], 'lambda') |> y_rmvars()*p1 "
+"0","MU1 <- yac_str(MU1) |> Simplify() |> ysym()"
+"0","MU2 <- solve(dL[[2]], 'lambda') |> y_rmvars()*p2 "
+"0","MU2 <- yac_str(MU2) |> Simplify() |> ysym()"
+"0","MRS <- MU1/MU2 "
+"0","MRSsolve1 <- solve(MRS - p1/p2, 'x2') |> y_rmvars()"
+"0","BCsolve1 <- solve(dL[[3]], 'x2') |> y_rmvars()"
+"0","x1star <- solve(MRSsolve1 - BCsolve1, 'x1') |> y_rmvars() |> yac_expr() |> eval()"
+"0","MRSsolve2 <- solve(MRS - p1/p2, 'x1') |> y_rmvars()"
+"0","BCsolve2 <- solve(dL[[3]], 'x1') |> y_rmvars()"
+"0","x2star <- solve(MRSsolve2 - BCsolve2, 'x2') |> y_rmvars() |> yac_expr() |> eval()"
+"0","lambda <- parse(text = gsub('x2', x2star, gsub('x1', x1star, MU1/p1))) |> eval()"
