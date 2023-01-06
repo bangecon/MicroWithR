@@ -375,7 +375,7 @@ f(30, 30)
 
 ```
 
-```{r RTS, echo=FALSE}
+```{r double, echo=FALSE}
 question("What happens when we double the inputs in the Cobb-Douglas function?",
     answer("Output more than doubles"),
     answer("Output doubles", correct = TRUE),
@@ -404,7 +404,7 @@ Production functions with constant returns to scale correspond to constant long-
 
 A production technology has *decreasing returns to scale* whenever scaling up all inputs by the same proportion (e.g. double) increases output by less than that proportion (e.g. less than double). 
 
-```{r RTS, echo=FALSE}
+```{r isoquant, echo=FALSE}
 question("What happens to the spacing of the isoquants as output expands by equal amounts for a decreasing-returns production technology?",
     answer("They get closer together."),
     answer("They remain equally spaced."),

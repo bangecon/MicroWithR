@@ -1,10 +1,11 @@
 ---
-title: "1.1 Budget Constraint"
-author: Jim Bang
 output: 
   learnr::tutorial: 
     progressive: true
 runtime: shiny_prerendered
+title: "1.1 Budget Constraint"
+author: Jim Bang
+description: "The consumer's budget constraint"
 ---
 
 ```{r setup, include=FALSE}

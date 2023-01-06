@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="author" content="Jim Bang" />
+
+
+<meta name="progressive" content="true" />
+<meta name="allow-skip" content="false" />
+<meta name="learnr-version-prerender" content="0.11.2" />
+
+<title>2.1 Production and Production Functions</title>
+
+<!-- header-includes START -->
+<!-- HEAD_CONTENT -->
+<!-- header-includes END -->
+<!-- HEAD_CONTENT -->
+
+<!-- highlightjs -->
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+<!-- taken from https://github.com/rstudio/rmarkdown/blob/de8a9c38618903627ca509f5401d50a0876079f7/inst/rmd/h/default.html#L293-L343 -->
+<!-- tabsets -->
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+<!-- end tabsets -->
+
+
+</head>
+
+<body>
+<a class='sr-only sr-only-focusable visually-hidden-focusable' href='#learnr-tutorial-content'>Skip to Tutorial Content</a>
+
+
+
+<div class="pageContent band">
+<main class="bandContent page">
+
+<article class="topics" id="learnr-tutorial-content">
+
+<div id="section-firm-decisions" class="section level2">
+<h2>Firm Decisions</h2>
+<div id="section-three-related-decisions" class="section level3">
+<h3>Three (Related) Decisions:</h3>
+<ol style="list-style-type: decimal">
+<li>Cost-Minimizing Combination of Inputs: For a <em>given</em> level of
+(expected) output (firm demand) choose the <em>combination</em> of
+inputs that minimizes the cost of producing that amount to derive the
+cost function.</li>
+<li>Profit-Maximizing Level of Output: Choose the <em>level</em> of
+output that maximizes profits by adjusting quantity and/or price of the
+output.</li>
+<li>Profit-Maximizing Level of Inputs: Choose the <em>levels</em> of all
+inputs that maximizes profits by adjusting the quantity and/or price for
+inputs.</li>
+</ol>
+</div>
+<div id="section-components" class="section level3">
+<h3>Components</h3>
+<ol style="list-style-type: decimal">
+<li>Production Technology</li>
+<li>Resource Constraints</li>
+<li>Input/Output Choices</li>
+</ol>
+</div>
+<div id="section-complications" class="section level3">
+<h3>Complications</h3>
+<ol style="list-style-type: decimal">
+<li>Time Horizon</li>
+</ol>
+<ol style="list-style-type: lower-alpha">
+<li>Short Run</li>
+<li>Long Run</li>
+<li>Sunk versus Fixed Costs</li>
+</ol>
+<ol start="2" style="list-style-type: decimal">
+<li>Market Structure</li>
+</ol>
+<ol style="list-style-type: lower-alpha">
+<li>Price Taker</li>
+<li>Price Maker</li>
+<li>In-Between</li>
+</ol>
+<ol start="3" style="list-style-type: decimal">
+<li>Transactions Costs</li>
+</ol>
+<ol style="list-style-type: lower-alpha">
+<li>Negotiation</li>
+<li>Monitoring</li>
+<li>Enforcement</li>
+</ol>
+</div>
+</div>
+<div id="section-theory-of-the-firm" class="section level2">
+<h2>Theory of the Firm</h2>
+<p>Firms suppress market transactions.</p>
+<p>Why do they exist?</p>
+<div id="section-classicalneoclassical-approach-black-box"
+class="section level3">
+<h3>Classical/Neoclassical Approach “Black Box”</h3>
+<p>Transform inputs into outputs</p>
+<p><img src="2_1_ProductionFunctions_files/figure-html/unnamed-chunk-1-1.png" width="480" /></p>
+<details style="line-height:105%">
+<summary>
+Click here to see the code for the above figure.
+</summary>
+<p><code>par(mar = c(1, 1, 1, 1))</code><br> <code>plot.new()</code><br>
+<code>plot.window(xlim = c(0,1), ylim = c(0,0.1))</code><br>
+<code>text(0.05, 0.05, "Hire\nInputs")</code><br>
+<code>polygon(x = c(0.4, 0.6, 0.6, 0.4), y = c(0, 0, 0.1, 0.1), col = 'black')</code><br>
+<code>arrows(x0 = 0.1, y0 = 0.05, x1 = 0.4, y1 = 0.05)</code><br>
+<code>text(0.5, 0.05, "???", col = 'white')</code><br>
+<code>arrows(x0 = 0.6, y0 = 0.05, x1 = 0.9, y1 = 0.05)</code><br>
+<code>text(0.95, 0.05, "Sell\nOutputs")</code><br></p>
+</details>
+</div>
+<div id="section-bureaucratic-hierarchy" class="section level3">
+<h3>Bureaucratic Hierarchy</h3>
+<p>Manage jointly-owned resources</p>
+</div>
+<div id="section-nexus-of-contracts" class="section level3">
+<h3>“Nexus of Contracts”</h3>
+<p>Incentivize productivity and specialization within and between
+organizations</p>
+</div>
+</div>
+<div id="section-the-production-function" class="section level2">
+<h2>The Production Function</h2>
+<p><span class="math display">\[y = f(L,K),\text{ where}\]</span> <span
+class="math display">\[y\text{ is the amount of output the firm
+produces}\]</span> <span class="math display">\[L\text{ is the amount of
+labor the firm hires}\]</span> <span class="math display">\[K\text{ is
+the amount of capital the firm hires}\]</span> <span
+class="math display">\[f()\text{ describes the technology for
+transforming inputs (L and K) into output (y)}\]</span></p>
+<div id="section-basic-properties" class="section level3">
+<h3>Basic Properties</h3>
+<ol style="list-style-type: decimal">
+<li>Monotonic</li>
+<li>Diminishing Returns</li>
+</ol>
+<p>(Similar properties to utility functions; transitivity is trivial in
+industries where physical output is cardinally measurable.)</p>
+</div>
+<div id="section-cobb-douglas" class="section level3">
+<h3>Cobb-Douglas</h3>
+<p>Since production functions exhibit many of the same properties as
+utility functions, the Cobb-Douglas function is a common functional form
+for examples. In the context of production with labor and capital
+inputs, the Cobb-Douglass (production) function is:</p>
+<p><span class="math display">\[ y = AL^{\alpha}K^{(1-\alpha)},\text{
+where}\]</span></p>
+<p><span class="math display">\[\alpha\text{ is labor&#39;s productivity
+share}\]</span> <span class="math display">\[A\text{ represents
+&quot;total factor productivity,&quot; or the overall level of
+technology}\]</span></p>
+</div>
+<div id="section-other-examples" class="section level3">
+<h3>Other Examples</h3>
+<ol style="list-style-type: decimal">
+<li>Constant Elasticity of Substitution <span
+class="math display">\[U(x) = (L^r + K^r)^{\frac{1}{r}},\text{
+where}\]</span></li>
+</ol>
+<p><span class="math display">\[s=\frac{1}{1-r} \text{ is the elasticity
+of substitution.}\]</span></p>
+<ol start="2" style="list-style-type: decimal">
+<li>Polynomial (Short-Run Only?) <span class="math display">\[y = aL^3 +
+bL^2 + cL,\text{ where}\]</span> <span
+class="math display">\[a&lt;0\]</span> <span
+class="math display">\[b&gt;0\]</span> <span
+class="math display">\[c&gt;0\]</span> ### Graphical Representation</li>
+</ol>
+<p>Use the `persp(x, y, z) function in r to graph the Cobb-Douglas
+production function for <span class="math inline">\(A = 100\)</span>,
+<span class="math inline">\(0 \le L \le 50\)</span>, <span
+class="math inline">\(0 \le K \le 50\)</span>, and <span
+class="math inline">\(\alpha = 1/3\)</span>.</p>
+<div class="tutorial-exercise" data-label="CobbDouglas"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="CobbDouglas-solution"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0">
+<pre class="text"><code>x = seq(0, 10, 0.1)
+y = seq(0, 10, 0.1)
+z = outer(100*x^(1/3), y^(2/3))
+persp(x,
+      y,
+      z,
+      xlab = &quot;Labor&quot;,
+      ylab = &quot;Capital&quot;,
+      zlab = &quot;y = f(L,K)&quot;)</code></pre>
+</div>
+</div>
+</div>
+<div id="section-short-run-production-function" class="section level2">
+<h2>Short-Run Production Function</h2>
+<p>In the short run at least one input is fixed (usually capital and/or
+land). In our two-input production function this makes output a function
+of only labor.</p>
+<p>Graphically, this is like slicing a vertical cross-section of the
+production function at a specific level of the fixed input
+(capital).</p>
+<div id="section-cobb-douglas-production-function"
+class="section level3">
+<h3>Cobb-Douglas Production Function</h3>
+<p>Plot production as a function of labor for <span
+class="math inline">\(0 \le L \le 50\)</span> and <span
+class="math inline">\(K = 25\)</span>.</p>
+<div class="tutorial-exercise" data-label="cdShortRun"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="cdShortRun-solution"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0">
+<pre class="text"><code>curve(100*25^(2/3)*x^(1/3),
+  type = &#39;l&#39;,
+  xlim = c(0, 50),
+  xlab = &quot;Labor&quot;,
+  ylab = &quot;Capital&quot;
+)</code></pre>
+</div>
+</div>
+<div id="section-polynomial-production-function" class="section level3">
+<h3>Polynomial Production Function</h3>
+<p>Define and graph an expression for the following short-run production
+function:</p>
+<p><span class="math display">\[y = -L^3 + 60L^2 + 25L\]</span></p>
+<div class="tutorial-exercise" data-label="polynomial"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="polynomial-solution"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0">
+<pre class="text"><code>polynomial &lt;- function(x) {
+  -x^3 + 60*x^2 + 25*x
+}
+curve(polynomial, 
+      type = &#39;l&#39;, 
+      xlim = c(0, 50), 
+      xlab = &quot;Labor&quot;,
+      ylab = &quot;Output&quot;
+)</code></pre>
+</div>
+<p>The <em>marginal product of labor</em> is the <em>change</em> in
+(i.e. slope, derivative of) the total production function with respect
+to <span class="math inline">\(L\)</span>.</p>
+<p>The <em>average product of labor</em> is the amount (i.e. level) of
+output <em>per-worker</em>.</p>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="MPLvAPL" class="tutorial-question panel-body">
+<div id="MPLvAPL-answer_container" class="shiny-html-output"></div>
+<div id="MPLvAPL-message_container" class="shiny-html-output"></div>
+<div id="MPLvAPL-action_button_container" class="shiny-html-output"></div>
+<script>if (Tutorial.triggerMathJax) Tutorial.triggerMathJax()</script>
+</div>
+</div>
+</div>
+</div>
+<div id="section-marginal-and-average-product-product-of-labor"
+class="section level2">
+<h2>Marginal and Average Product Product of Labor</h2>
+<div id="section-marginal-product-of-labor" class="section level3">
+<h3>Marginal Product of Labor</h3>
+<p>The marginal product of labor is the rate of change in output for a
+given change in labor hired.</p>
+<p><span class="math display">\[MP_L = \frac{df(L,K)}{dL}\]</span></p>
+<p>Graphically, the marginal product is the slope of the production
+function, holding the level of capital fixed.</p>
+</div>
+<div id="section-average-product" class="section level3">
+<h3>Average Product</h3>
+<p><span class="math display">\[AP_L = \frac{f(L,K)}{L}\]</span></p>
+</div>
+<div id="section-graphical-representation" class="section level3">
+<h3>Graphical Representation</h3>
+<p>Add <code>curve()</code> functions to the following code to graph the
+marginal and average products of labor from <span
+class="math inline">\(0 \le L \le 50\)</span> in a single plot area. Use
+<span class="math inline">\((-1250, 1250)\)</span> as the limits for the
+vertical (output) axis and label your axes “Labor” and “Output.”</p>
+<div class="tutorial-exercise" data-label="MPL" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>dl.polynomial &lt;- 
+  ysym(deparse(polynomial)[[3]]) |&gt; # Convert the &quot;polynomial&quot; function into a yac_sym. 
+  deriv(&#39;x&#39;) |&gt;                     # Take the derivative with respect to x. 
+  yac_expr()                        # Convert the result into an r expression
+yl.polynomial &lt;- 
+  (ysym(deparse(polynomial)[[3]]) / ysym(&#39;x&#39;)) |&gt; # Divide converted polynomial by x.
+  yac_expr()                                      # Convert the result into an r expression
+polynomial.mpl &lt;- function(x) {
+  eval(dl.polynomial[[1]])
+}                                   # Define the mpl as a function. 
+polynomial.apl &lt;- function(x) {
+  eval(yl.polynomial[[1]])
+}                                   # Define the apl as a function. </code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="MPL-solution"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0">
+<pre class="text"><code>dl.polynomial &lt;- ysym(deparse(polynomial)[[3]]) |&gt;
+  deriv(&#39;x&#39;) |&gt;
+  yac_expr()
+yl.polynomial &lt;- (ysym(deparse(polynomial)[[3]]) / ysym(&#39;x&#39;)) |&gt;
+  yac_expr()
+polynomial.mpl &lt;- function(x) {
+  eval(dl.polynomial[[1]])
+}
+polynomial.apl &lt;- function(x) {
+  eval(yl.polynomial[[1]])
+}
+curve(
+  polynomial.mpl,
+  type = &#39;l&#39;,
+  xlim = c(0, 50),
+  ylim = c(-1250, 1250),
+  xlab = &quot;Labor&quot;,
+  ylab = &quot;Output&quot;
+)
+curve(polynomial.apl, add = TRUE)</code></pre>
+</div>
+</div>
+</div>
+<div id="section-production-in-the-long-run" class="section level2">
+<h2>Production in the Long Run</h2>
+<p>Flexibility of input choices</p>
+<div id="section-isoquants-and-their-properties" class="section level3">
+<h3>Isoquants and their Properties</h3>
+<p>Based on the preference axioms introduced earlier, we can derive
+three properties for indifference curves.</p>
+<ol style="list-style-type: decimal">
+<li>Isoquants farther from the origin represent <em>greater output</em>
+(monotonicity);</li>
+<li>Isoquants <em>do not cross</em> (transitivity);</li>
+<li>Isoquants slope <em>downward</em> (monotonicity + diminishing
+returns);</li>
+<li>Isoquants are <em>bowed inward</em> (convexity - a mix of inputs is
+usually more productive).</li>
+</ol>
+<p>Graphically, an isoquant is a horizontal cross-section of the
+production function at a fixed level of output.</p>
+<p>For the Cobb-Douglass example with <span class="math inline">\(\alpha
+= 1/3\)</span> and <span class="math inline">\(A = 100\)</span>, plot
+the isoquant curves for <span class="math inline">\(y = 1000\)</span>
+and <span class="math inline">\(y = 2500\)</span> for <span
+class="math inline">\(0 \le x_1 \le 50\)</span> and <span
+class="math inline">\(0 \le x_2 \le 50\)</span>.</p>
+<div class="tutorial-exercise" data-label="cdIsoquants"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="cdIsoquants-solution"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0">
+<pre class="text"><code>curve((1000 / 100*x^(1/3))^(3/2),
+  type = &#39;l&#39;,
+  ylim = c(0, 50),
+  xlim = c(0, 50),
+  xlab = &quot;Labor&quot;,
+  ylab = &quot;Capital&quot;
+)
+curve((2500 / 100*x^(1/3))^(3/2), add = TRUE)</code></pre>
+</div>
+</div>
+<div id="section-marginal-rate-of-technical-substitution"
+class="section level3">
+<h3>Marginal Rate of Technical Substitution</h3>
+<p>The <em>marginal rate of technical substitution</em> between two
+inputs (e.g. labor and capital, <span
+class="math inline">\(MRTS_{LK}\)</span>) is the ratio of the marginal
+productivities, <span class="math inline">\(\frac{MP_L}{MP_K}\)</span>.
+The MRTS tells us the firm’s ability (through the available production
+technology) to exchange capital for labor on the margin in such a way
+that the firm produces the same total amount of output. Hence, the MRS
+also represents the slope of the isoquant curve through any given values
+of <span class="math inline">\(L\)</span> and <span
+class="math inline">\(K\)</span>.</p>
+<p>Use the <code>Simplify</code> function from the <code>Deriv</code>
+package to get <span class="math inline">\(MRTS_{LK} =
+\frac{MP_L}{MP_K}\)</span> for the previous exercise. Remember that
+marginal utility results stored as <code>yac_symbol</code> objects, so
+you need to convert them to strings before applying
+<code>Simplify</code>, and then finally converting it back to a
+<code>ysym</code>. Try using piping to keep it readable! <br>(Note:
+<code>Ryacas</code> has a <code>simplify</code> function, but it just
+doesn’t work as well for the functions we’re trying to simplify.)</p>
+<div class="tutorial-exercise" data-label="marginalRateOfSubstitution"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<div class="tutorial-exercise-support"
+data-label="marginalRateOfSubstitution-solution" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>y &lt;- ysym(&#39;100 * L^(1/3) * K^(2/3)&#39;)
+MRTS &lt;- (deriv(y, &#39;L&#39;) / deriv(y, &#39;K&#39;)) |&gt;
+  yac_str() |&gt; 
+  Simplify() |&gt;
+  ysym()
+MRTS</code></pre>
+</div>
+</div>
+<div id="section-general-form" class="section level3">
+<h3>General Form</h3>
+<p><span class="math display">\[\frac{\alpha  K}{L \left( 1 - \alpha
+\right) }\]</span></p>
+</div>
+</div>
+<div id="section-returns-to-scale" class="section level2">
+<h2>Returns to Scale</h2>
+<p>Let’s see what happens when we scale up <em>all</em> of the inputs in
+the production function.</p>
+<p>Evaluate the Cobb Douglas production function from our example for
+<span class="math inline">\((L,K) = {(10,10), (20,20),
+(30,30)}\)</span>. (Hint: create a new function of <code>L</code> and
+<code>K</code> called <code>f</code> that converts the
+<code>yac_symbol</code> <code>y</code> into an <code>r</code> expression
+<span class="math display">\[`yac_expr&#39;\]</span> and evaluates it
+<span class="math display">\[`eval`\]</span>.)</p>
+<div class="tutorial-exercise" data-label="RTS" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>f &lt;- function(L, K) {eval(yac_expr(y))}</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="RTS-solution"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0">
+<pre class="text"><code>f &lt;- function(L, K) {eval(yac_expr(y))}
+f(10, 10)
+f(20, 20)
+f(30, 30)</code></pre>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="double" class="tutorial-question panel-body">
+<div id="double-answer_container" class="shiny-html-output"></div>
+<div id="double-message_container" class="shiny-html-output"></div>
+<div id="double-action_button_container" class="shiny-html-output"></div>
+<script>if (Tutorial.triggerMathJax) Tutorial.triggerMathJax()</script>
+</div>
+</div>
+<div id="section-constant-returns-to-scale" class="section level3">
+<h3>Constant Returns to Scale</h3>
+<p>A production technology has <em>constant returns to scale</em>
+whenever scaling up all inputs by the same proportion (e.g. double)
+increases output by the same proportion (e.g. double).</p>
+<p>Examples of constant returns to scale production functions:</p>
+<ol style="list-style-type: decimal">
+<li>Cobb-Douglas <span class="math inline">\(y =
+AL^{\alpha}K^{1-\alpha}\)</span></li>
+<li>Constant Elasticity of Substitution <span class="math inline">\(y =
+(aL^r + bK^r)^{1/r}\)</span></li>
+<li>Linear (Perfect Substitutes) <span class="math inline">\(y = aL +
+bK\)</span></li>
+<li>Perfect Complements (Linear Expansion Path) <span
+class="math inline">\(y = min\{aL, bK\}\)</span></li>
+</ol>
+<p>Isoquants for a constant-returns technology are evenly spaced as the
+firm chooses to expand production.</p>
+<p>Production functions with constant returns to scale correspond to
+constant long-run average costs.</p>
+</div>
+<div id="section-decreasing-returns-to-scale" class="section level3">
+<h3>Decreasing Returns to Scale</h3>
+<p>A production technology has <em>decreasing returns to scale</em>
+whenever scaling up all inputs by the same proportion (e.g. double)
+increases output by less than that proportion (e.g. less than
+double).</p>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="isoquant" class="tutorial-question panel-body">
+<div id="isoquant-answer_container" class="shiny-html-output"></div>
+<div id="isoquant-message_container" class="shiny-html-output"></div>
+<div id="isoquant-action_button_container" class="shiny-html-output"></div>
+<script>if (Tutorial.triggerMathJax) Tutorial.triggerMathJax()</script>
+</div>
+</div>
+<p>Production functions with <em>decreasing</em> returns to scale
+correspond to <em>increasing</em> long-run average costs (diseconomies
+of scale).</p>
+</div>
+<div id="section-increasing-returns-to-scale" class="section level3">
+<h3>Increasing Returns to Scale</h3>
+<p>A production technology has <em>increasing returns to scale</em>
+whenever scaling up all inputs by the same proportion (e.g. double)
+increases output by more than that proportion (e.g. more than
+double).</p>
+<p>Production functions with <em>increasing</em> returns to scale
+correspond to <em>decreasing</em> long-run average costs (economies of
+scale). 
+<script type="application/shiny-prerendered" data-context="server-start">
+library(learnr)
+library(gradethis)
+library(Ryacas)
+library(Deriv)
+gradethis_setup(exercise.reveal_solution = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+polynomial <- function(x) {
+  -x^3 + 60*x^2 + 25*x
+}
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::register_http_handlers(session, metadata = NULL)
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::prepare_tutorial_state(session)
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::i18n_observe_tutorial_language(input, session)
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+session$onSessionEnded(function() {
+        learnr:::event_trigger(session, "session_stop")
+      })
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-CobbDouglas-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-CobbDouglas-code-editor`)), session)
+output$`tutorial-exercise-CobbDouglas-output` <- renderUI({
+  `tutorial-exercise-CobbDouglas-result`()
+})
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "CobbDouglas", global_setup = structure(c("library(learnr)", 
+"library(gradethis)", "library(Ryacas)", "library(Deriv)", "gradethis_setup(exercise.reveal_solution = TRUE)", 
+"knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)", 
+"polynomial <- function(x) {", "  -x^3 + 60*x^2 + 25*x", "}"), chunk_opts = list(
+    label = "setup", include = FALSE)), setup = NULL, chunks = list(
+    list(label = "CobbDouglas", code = "", opts = list(label = "\"CobbDouglas\"", 
+        exercise = "TRUE", exercise.reveal_solution = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = structure("grade_code() ", chunk_opts = list(label = "CobbDouglas-check")), 
+    solution = structure(c("x = seq(0, 10, 0.1)", "y = seq(0, 10, 0.1)", 
+    "z = outer(100*x^(1/3), y^(2/3))", "persp(x,", "      y,", 
+    "      z,", "      xlab = \"Labor\",", "      ylab = \"Capital\",", 
+    "      zlab = \"y = f(L,K)\")"), chunk_opts = list(label = "CobbDouglas-solution")), 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "2_1_ProductionFunctions_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "2_1_ProductionFunctions_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6, fig.height = 6, fig.env = "figure", fig.cap = NULL, 
+        fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 576, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (label = NULL, solution_code = NULL, user_code = NULL, \n    check_code = NULL, envir_result = NULL, evaluate_result = NULL, \n    envir_prep = NULL, last_value = NULL, stage = NULL, ...) \n{\n    (utils::getFromNamespace(\"check_exercise\", \"gradethis\"))(label = label, \n        solution_code = solution_code, user_code = user_code, \n        check_code = check_code, envir_result = envir_result, \n        evaluate_result = evaluate_result, envir_prep = envir_prep, \n        last_value = last_value, stage = stage, ...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        exercise.reveal_solution = TRUE, label = "CobbDouglas", 
+        exercise = TRUE, code = "", out.width.px = 576, out.height.px = 576, 
+        params.src = "CobbDouglas, exercise=TRUE, exercise.reveal_solution = TRUE", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-cdShortRun-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-cdShortRun-code-editor`)), session)
+output$`tutorial-exercise-cdShortRun-output` <- renderUI({
+  `tutorial-exercise-cdShortRun-result`()
+})
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "cdShortRun", global_setup = structure(c("library(learnr)", 
+"library(gradethis)", "library(Ryacas)", "library(Deriv)", "gradethis_setup(exercise.reveal_solution = TRUE)", 
+"knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)", 
+"polynomial <- function(x) {", "  -x^3 + 60*x^2 + 25*x", "}"), chunk_opts = list(
+    label = "setup", include = FALSE)), setup = NULL, chunks = list(
+    list(label = "cdShortRun", code = "", opts = list(label = "\"cdShortRun\"", 
+        exercise = "TRUE", exercise.reveal_solution = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = structure("grade_code() ", chunk_opts = list(label = "cdShortRun-check")), 
+    solution = structure(c("curve(100*25^(2/3)*x^(1/3),", "  type = 'l',", 
+    "  xlim = c(0, 50),", "  xlab = \"Labor\",", "  ylab = \"Capital\"", 
+    ")"), chunk_opts = list(label = "cdShortRun-solution")), 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "2_1_ProductionFunctions_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "2_1_ProductionFunctions_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6, fig.height = 6, fig.env = "figure", fig.cap = NULL, 
+        fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 576, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (label = NULL, solution_code = NULL, user_code = NULL, \n    check_code = NULL, envir_result = NULL, evaluate_result = NULL, \n    envir_prep = NULL, last_value = NULL, stage = NULL, ...) \n{\n    (utils::getFromNamespace(\"check_exercise\", \"gradethis\"))(label = label, \n        solution_code = solution_code, user_code = user_code, \n        check_code = check_code, envir_result = envir_result, \n        evaluate_result = evaluate_result, envir_prep = envir_prep, \n        last_value = last_value, stage = stage, ...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        exercise.reveal_solution = TRUE, label = "cdShortRun", 
+        exercise = TRUE, code = "", out.width.px = 576, out.height.px = 576, 
+        params.src = "cdShortRun, exercise=TRUE, exercise.reveal_solution = TRUE", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-polynomial-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-polynomial-code-editor`)), session)
+output$`tutorial-exercise-polynomial-output` <- renderUI({
+  `tutorial-exercise-polynomial-result`()
+})
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "polynomial", global_setup = structure(c("library(learnr)", 
+"library(gradethis)", "library(Ryacas)", "library(Deriv)", "gradethis_setup(exercise.reveal_solution = TRUE)", 
+"knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)", 
+"polynomial <- function(x) {", "  -x^3 + 60*x^2 + 25*x", "}"), chunk_opts = list(
+    label = "setup", include = FALSE)), setup = NULL, chunks = list(
+    list(label = "polynomial", code = "", opts = list(label = "\"polynomial\"", 
+        exercise = "TRUE", exercise.reveal_solution = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = structure("", chunk_opts = list(label = "polynomial-check")), 
+    solution = structure(c("polynomial <- function(x) {", "  -x^3 + 60*x^2 + 25*x", 
+    "}", "curve(polynomial, ", "      type = 'l', ", "      xlim = c(0, 50), ", 
+    "      xlab = \"Labor\",", "      ylab = \"Output\"", ")"
+    ), chunk_opts = list(label = "polynomial-solution")), tests = NULL, 
+    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "2_1_ProductionFunctions_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "2_1_ProductionFunctions_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6, fig.height = 6, fig.env = "figure", fig.cap = NULL, 
+        fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 576, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (label = NULL, solution_code = NULL, user_code = NULL, \n    check_code = NULL, envir_result = NULL, evaluate_result = NULL, \n    envir_prep = NULL, last_value = NULL, stage = NULL, ...) \n{\n    (utils::getFromNamespace(\"check_exercise\", \"gradethis\"))(label = label, \n        solution_code = solution_code, user_code = user_code, \n        check_code = check_code, envir_result = envir_result, \n        evaluate_result = evaluate_result, envir_prep = envir_prep, \n        last_value = last_value, stage = stage, ...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        exercise.reveal_solution = TRUE, label = "polynomial", 
+        exercise = TRUE, code = "", out.width.px = 576, out.height.px = 576, 
+        params.src = "polynomial, exercise = TRUE, exercise.reveal_solution = TRUE", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "MPLvAPL", question = structure("When the marginal product curve reaches its maximum, the average product curve", html = TRUE, class = c("html", 
+"character")), answers = list(structure(list(id = "lnr_ans_8af181a", 
+    option = "also reaches its maximum", value = "also reaches its maximum", 
+    label = structure("also reaches its maximum", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_e3366f0", 
+    option = "lies above the marginal product curve ", value = "lies above the marginal product curve ", 
+    label = structure("lies above the marginal product curve", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_33636be", 
+    option = "continues to rise", value = "continues to rise", 
+    label = structure("continues to rise", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_1201325", 
+    option = "is negative", value = "is negative", label = structure("is negative", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
+"tutorial_quiz_answer"))), button_labels = list(submit = structure("<span data-i18n=\"button.questionsubmit\">Submit Answer<\u002fspan>", html = TRUE, class = c("html", 
+"character")), try_again = structure("<span data-i18n=\"button.questiontryagain\">Try Again<\u002fspan>", html = TRUE, class = c("html", 
+"character"))), messages = list(correct = structure("Correct!", html = TRUE, class = c("html", 
+"character")), try_again = structure("Incorrect", html = TRUE, class = c("html", 
+"character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
+"character")), message = NULL, post_message = NULL), ids = list(
+    answer = "MPLvAPL-answer", question = "MPLvAPL"), loading = NULL, 
+    random_answer_order = FALSE, allow_retry = TRUE, seed = 1527140925.78887, 
+    options = list()), class = c("learnr_radio", "tutorial_question"
+)), session = session)
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-MPL-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-MPL-code-editor`)), session)
+output$`tutorial-exercise-MPL-output` <- renderUI({
+  `tutorial-exercise-MPL-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "MPL", global_setup = structure(c("library(learnr)", 
+"library(gradethis)", "library(Ryacas)", "library(Deriv)", "gradethis_setup(exercise.reveal_solution = TRUE)", 
+"knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)", 
+"polynomial <- function(x) {", "  -x^3 + 60*x^2 + 25*x", "}"), chunk_opts = list(
+    label = "setup", include = FALSE)), setup = NULL, chunks = list(
+    list(label = "MPL", code = "dl.polynomial <- \n  ysym(deparse(polynomial)[[3]]) |> # Convert the \"polynomial\" function into a yac_sym. \n  deriv('x') |>                     # Take the derivative with respect to x. \n  yac_expr()                        # Convert the result into an r expression\nyl.polynomial <- \n  (ysym(deparse(polynomial)[[3]]) / ysym('x')) |> # Divide converted polynomial by x.\n  yac_expr()                                      # Convert the result into an r expression\npolynomial.mpl <- function(x) {\n  eval(dl.polynomial[[1]])\n}                                   # Define the mpl as a function. \npolynomial.apl <- function(x) {\n  eval(yl.polynomial[[1]])\n}                                   # Define the apl as a function. \n\n", 
+        opts = list(label = "\"MPL\"", exercise = "TRUE", exercise.reveal_solution = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = structure("", chunk_opts = list(label = "MPL-check")), 
+    solution = structure(c("dl.polynomial <- ysym(deparse(polynomial)[[3]]) |>", 
+    "  deriv('x') |>", "  yac_expr()", "yl.polynomial <- (ysym(deparse(polynomial)[[3]]) / ysym('x')) |>", 
+    "  yac_expr()", "polynomial.mpl <- function(x) {", "  eval(dl.polynomial[[1]])", 
+    "}", "polynomial.apl <- function(x) {", "  eval(yl.polynomial[[1]])", 
+    "}", "curve(", "  polynomial.mpl,", "  type = 'l',", "  xlim = c(0, 50),", 
+    "  ylim = c(-1250, 1250),", "  xlab = \"Labor\",", "  ylab = \"Output\"", 
+    ")", "curve(polynomial.apl, add = TRUE)"), chunk_opts = list(
+        label = "MPL-solution")), tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "2_1_ProductionFunctions_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "2_1_ProductionFunctions_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6, fig.height = 6, fig.env = "figure", fig.cap = NULL, 
+        fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 576, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (label = NULL, solution_code = NULL, user_code = NULL, \n    check_code = NULL, envir_result = NULL, evaluate_result = NULL, \n    envir_prep = NULL, last_value = NULL, stage = NULL, ...) \n{\n    (utils::getFromNamespace(\"check_exercise\", \"gradethis\"))(label = label, \n        solution_code = solution_code, user_code = user_code, \n        check_code = check_code, envir_result = envir_result, \n        evaluate_result = evaluate_result, envir_prep = envir_prep, \n        last_value = last_value, stage = stage, ...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        exercise.reveal_solution = TRUE, label = "MPL", exercise = TRUE, 
+        code = c("dl.polynomial <- ", "  ysym(deparse(polynomial)[[3]]) |> # Convert the \"polynomial\" function into a yac_sym. ", 
+        "  deriv('x') |>                     # Take the derivative with respect to x. ", 
+        "  yac_expr()                        # Convert the result into an r expression", 
+        "yl.polynomial <- ", "  (ysym(deparse(polynomial)[[3]]) / ysym('x')) |> # Divide converted polynomial by x.", 
+        "  yac_expr()                                      # Convert the result into an r expression", 
+        "polynomial.mpl <- function(x) {", "  eval(dl.polynomial[[1]])", 
+        "}                                   # Define the mpl as a function. ", 
+        "polynomial.apl <- function(x) {", "  eval(yl.polynomial[[1]])", 
+        "}                                   # Define the apl as a function. ", 
+        "", ""), out.width.px = 576, out.height.px = 576, params.src = "MPL, exercise = TRUE, exercise.reveal_solution = TRUE", 
+        fig.num = 0, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-cdIsoquants-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-cdIsoquants-code-editor`)), session)
+output$`tutorial-exercise-cdIsoquants-output` <- renderUI({
+  `tutorial-exercise-cdIsoquants-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "cdIsoquants", global_setup = structure(c("library(learnr)", 
+"library(gradethis)", "library(Ryacas)", "library(Deriv)", "gradethis_setup(exercise.reveal_solution = TRUE)", 
+"knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)", 
+"polynomial <- function(x) {", "  -x^3 + 60*x^2 + 25*x", "}"), chunk_opts = list(
+    label = "setup", include = FALSE)), setup = NULL, chunks = list(
+    list(label = "cdIsoquants", code = "", opts = list(label = "\"cdIsoquants\"", 
+        exercise = "TRUE", exercise.reveal_solution = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = structure("grade_code() ", chunk_opts = list(label = "cdIsoquants-check")), 
+    solution = structure(c("curve((1000 / 100*x^(1/3))^(3/2),", 
+    "  type = 'l',", "  ylim = c(0, 50),", "  xlim = c(0, 50),", 
+    "  xlab = \"Labor\",", "  ylab = \"Capital\"", ")", "curve((2500 / 100*x^(1/3))^(3/2), add = TRUE)"
+    ), chunk_opts = list(label = "cdIsoquants-solution")), tests = NULL, 
+    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "2_1_ProductionFunctions_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "2_1_ProductionFunctions_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6, fig.height = 6, fig.env = "figure", fig.cap = NULL, 
+        fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 576, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (label = NULL, solution_code = NULL, user_code = NULL, \n    check_code = NULL, envir_result = NULL, evaluate_result = NULL, \n    envir_prep = NULL, last_value = NULL, stage = NULL, ...) \n{\n    (utils::getFromNamespace(\"check_exercise\", \"gradethis\"))(label = label, \n        solution_code = solution_code, user_code = user_code, \n        check_code = check_code, envir_result = envir_result, \n        evaluate_result = evaluate_result, envir_prep = envir_prep, \n        last_value = last_value, stage = stage, ...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        exercise.reveal_solution = TRUE, label = "cdIsoquants", 
+        exercise = TRUE, code = "", out.width.px = 576, out.height.px = 576, 
+        params.src = "cdIsoquants, exercise=TRUE, exercise.reveal_solution = TRUE", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-marginalRateOfSubstitution-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-marginalRateOfSubstitution-code-editor`)), session)
+output$`tutorial-exercise-marginalRateOfSubstitution-output` <- renderUI({
+  `tutorial-exercise-marginalRateOfSubstitution-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "marginalRateOfSubstitution", global_setup = structure(c("library(learnr)", 
+"library(gradethis)", "library(Ryacas)", "library(Deriv)", "gradethis_setup(exercise.reveal_solution = TRUE)", 
+"knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)", 
+"polynomial <- function(x) {", "  -x^3 + 60*x^2 + 25*x", "}"), chunk_opts = list(
+    label = "setup", include = FALSE)), setup = NULL, chunks = list(
+    list(label = "marginalRateOfSubstitution", code = "", opts = list(
+        label = "\"marginalRateOfSubstitution\"", exercise = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = structure("grade_code() ", chunk_opts = list(label = "marginalRateOfSubstitution-check")), 
+    solution = structure(c("y <- ysym('100 * L^(1/3) * K^(2/3)')", 
+    "MRTS <- (deriv(y, 'L') / deriv(y, 'K')) |>", "  yac_str() |> ", 
+    "  Simplify() |>", "  ysym()", "MRTS"), chunk_opts = list(
+        label = "marginalRateOfSubstitution-solution")), tests = NULL, 
+    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "2_1_ProductionFunctions_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "2_1_ProductionFunctions_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6, fig.height = 6, fig.env = "figure", fig.cap = NULL, 
+        fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 576, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (label = NULL, solution_code = NULL, user_code = NULL, \n    check_code = NULL, envir_result = NULL, evaluate_result = NULL, \n    envir_prep = NULL, last_value = NULL, stage = NULL, ...) \n{\n    (utils::getFromNamespace(\"check_exercise\", \"gradethis\"))(label = label, \n        solution_code = solution_code, user_code = user_code, \n        check_code = check_code, envir_result = envir_result, \n        evaluate_result = evaluate_result, envir_prep = envir_prep, \n        last_value = last_value, stage = stage, ...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        exercise.reveal_solution = TRUE, label = "marginalRateOfSubstitution", 
+        exercise = TRUE, code = "", out.width.px = 576, out.height.px = 576, 
+        params.src = "marginalRateOfSubstitution, exercise = TRUE", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-RTS-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-RTS-code-editor`)), session)
+output$`tutorial-exercise-RTS-output` <- renderUI({
+  `tutorial-exercise-RTS-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "RTS", global_setup = structure(c("library(learnr)", 
+"library(gradethis)", "library(Ryacas)", "library(Deriv)", "gradethis_setup(exercise.reveal_solution = TRUE)", 
+"knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)", 
+"polynomial <- function(x) {", "  -x^3 + 60*x^2 + 25*x", "}"), chunk_opts = list(
+    label = "setup", include = FALSE)), setup = NULL, chunks = list(
+    list(label = "RTS", code = "f <- function(L, K) {eval(yac_expr(y))}\n", 
+        opts = list(label = "\"RTS\"", exercise = "TRUE", exercise.reveal_solution = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = structure("", chunk_opts = list(label = "RTS-check")), 
+    solution = structure(c("f <- function(L, K) {eval(yac_expr(y))}", 
+    "f(10, 10)", "f(20, 20)", "f(30, 30)"), chunk_opts = list(
+        label = "RTS-solution")), tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "2_1_ProductionFunctions_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "2_1_ProductionFunctions_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6, fig.height = 6, fig.env = "figure", fig.cap = NULL, 
+        fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 576, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (label = NULL, solution_code = NULL, user_code = NULL, \n    check_code = NULL, envir_result = NULL, evaluate_result = NULL, \n    envir_prep = NULL, last_value = NULL, stage = NULL, ...) \n{\n    (utils::getFromNamespace(\"check_exercise\", \"gradethis\"))(label = label, \n        solution_code = solution_code, user_code = user_code, \n        check_code = check_code, envir_result = envir_result, \n        evaluate_result = evaluate_result, envir_prep = envir_prep, \n        last_value = last_value, stage = stage, ...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        exercise.reveal_solution = TRUE, label = "RTS", exercise = TRUE, 
+        code = c("f <- function(L, K) {eval(yac_expr(y))}", ""
+        ), out.width.px = 576, out.height.px = 576, params.src = "RTS, exercise = TRUE, exercise.reveal_solution = TRUE", 
+        fig.num = 0, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "double", question = structure("What happens when we double the inputs in the Cobb-Douglas function?", html = TRUE, class = c("html", 
+"character")), answers = list(structure(list(id = "lnr_ans_e39d8e", 
+    option = "Output more than doubles", value = "Output more than doubles", 
+    label = structure("Output more than doubles", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_cc14b40", 
+    option = "Output doubles", value = "Output doubles", label = structure("Output doubles", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_2ae7a4b", 
+    option = "Output increases by less than double", value = "Output increases by less than double", 
+    label = structure("Output increases by less than double", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_5e2c00f", 
+    option = "Output decreases", value = "Output decreases", 
+    label = structure("Output decreases", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
+"tutorial_quiz_answer"))), button_labels = list(submit = structure("<span data-i18n=\"button.questionsubmit\">Submit Answer<\u002fspan>", html = TRUE, class = c("html", 
+"character")), try_again = structure("<span data-i18n=\"button.questiontryagain\">Try Again<\u002fspan>", html = TRUE, class = c("html", 
+"character"))), messages = list(correct = structure("Correct!", html = TRUE, class = c("html", 
+"character")), try_again = structure("Incorrect", html = TRUE, class = c("html", 
+"character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
+"character")), message = NULL, post_message = NULL), ids = list(
+    answer = "double-answer", question = "double"), loading = NULL, 
+    random_answer_order = FALSE, allow_retry = TRUE, seed = 1864831180.13162, 
+    options = list()), class = c("learnr_radio", "tutorial_question"
+)), session = session)
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "isoquant", question = structure("What happens to the spacing of the isoquants as output expands by equal amounts for a decreasing-returns production technology?", html = TRUE, class = c("html", 
+"character")), answers = list(structure(list(id = "lnr_ans_4ed696c", 
+    option = "They get closer together.", value = "They get closer together.", 
+    label = structure("They get closer together.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_4a48c4d", 
+    option = "They remain equally spaced.", value = "They remain equally spaced.", 
+    label = structure("They remain equally spaced.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_c1adda7", 
+    option = "They get farther apart.", value = "They get farther apart.", 
+    label = structure("They get farther apart.", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_34ad51b", 
+    option = "The spacing cannot be determined with the given information.", 
+    value = "The spacing cannot be determined with the given information.", 
+    label = structure("The spacing cannot be determined with the given information.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
+"tutorial_quiz_answer"))), button_labels = list(submit = structure("<span data-i18n=\"button.questionsubmit\">Submit Answer<\u002fspan>", html = TRUE, class = c("html", 
+"character")), try_again = structure("<span data-i18n=\"button.questiontryagain\">Try Again<\u002fspan>", html = TRUE, class = c("html", 
+"character"))), messages = list(correct = structure("Correct!", html = TRUE, class = c("html", 
+"character")), try_again = structure("Incorrect", html = TRUE, class = c("html", 
+"character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
+"character")), message = NULL, post_message = NULL), ids = list(
+    answer = "isoquant-answer", question = "isoquant"), loading = NULL, 
+    random_answer_order = FALSE, allow_retry = TRUE, seed = 1344732160.87381, 
+    options = list()), class = c("learnr_radio", "tutorial_question"
+)), session = session)
+</script>
+</p>
+<!--html_preserve-->
+<script type="application/shiny-prerendered" data-context="dependencies">
+{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["header-attrs"]},{"type":"character","attributes":{},"value":["2.19"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/pandoc"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["header-attrs.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.19"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["jquery"]},{"type":"character","attributes":{},"value":["3.6.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/3.6.0"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquery-3.6.0.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquerylib"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.1.4"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["bootstrap"]},{"type":"character","attributes":{},"value":["3.3.5"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/bootstrap"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["viewport"]}},"value":[{"type":"character","attributes":{},"value":["width=device-width, initial-scale=1"]}]},{"type":"character","attributes":{},"value":["js/bootstrap.min.js","shim/html5shiv.min.js","shim/respond.min.js"]},{"type":"character","attributes":{},"value":["css/cerulean.min.css"]},{"type":"character","attributes":{},"value":["<style>h1 {font-size: 34px;}\n       h1.title {font-size: 38px;}\n       h2 {font-size: 30px;}\n       h3 {font-size: 24px;}\n       h4 {font-size: 18px;}\n       h5 {font-size: 16px;}\n       h6 {font-size: 12px;}\n       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}\n       pre:not([class]) { background-color: white }<\/style>"]},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.19"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["pagedtable"]},{"type":"character","attributes":{},"value":["1.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/pagedtable-1.1"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["js/pagedtable.js"]},{"type":"character","attributes":{},"value":["css/pagedtable.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.19"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["highlightjs"]},{"type":"character","attributes":{},"value":["9.12.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/highlightjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["highlight.js"]},{"type":"character","attributes":{},"value":["textmate.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.19"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial"]},{"type":"character","attributes":{},"value":["0.11.2"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/tutorial"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial.js"]},{"type":"character","attributes":{},"value":["tutorial.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["i18n"]},{"type":"character","attributes":{},"value":["21.6.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/i18n"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["i18next.min.js","tutorial-i18n-init.js"]},{"type":"NULL"},{"type":"character","attributes":{},"value":["<script id=\"i18n-cstm-trns\" type=\"application/json\">{\"language\":\"en\",\"resources\":{\"en\":{\"translation\":{\"button\":{\"runcode\":\"Run Code\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Hint\",\"hint_plural\":\"Hints\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Next Hint\",\"hintprev\":\"Previous Hint\",\"solution\":\"Solution\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Copy to Clipboard\",\"startover\":\"Start Over\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Continue\",\"submitanswer\":\"Submit Answer\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Previous Topic\",\"nexttopic\":\"Next Topic\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Try Again\"},\"text\":{\"startover\":\"Start Over\",\"areyousure\":\"Are you sure you want to start over? (all exercise progress will be reset)\",\"youmustcomplete\":\"You must complete the\",\"exercise\":\"exercise\",\"exercise_plural\":\"exercises\",\"inthissection\":\"in this section before continuing.\",\"code\":\"Code\",\"enginecap\":\"{{engine}} $t(text.code)\",\"quiz\":\"Quiz\",\"blank\":\"blank\",\"blank_plural\":\"blanks\",\"exercisecontainsblank\":\"This exercise contains {{count}} $t(text.blank).\",\"pleasereplaceblank\":\"Please replace {{blank}} with valid code.\",\"unparsable\":\"It looks like this might not be valid R code. R cannot determine how to turn your text into a complete command. You may have forgotten to fill in a blank, to remove an underscore, to include a comma between arguments, or to close an opening <code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code> or <code>{<\\/code> with a matching <code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code> or <code>}<\\/code>.\\n\",\"unparsablequotes\":\"<p>It looks like your R code contains specially formatted quotation marks or &quot;curly&quot; quotes (<code>{{character}}<\\/code>) around character strings, making your code invalid. R requires character values to be contained in straight quotation marks (<code>&quot;<\\/code> or <code>'<\\/code>).<\\/p> {{code}} <p>Don't worry, this is a common source of errors when you copy code from another app that applies its own formatting to text. You can try replacing the code on that line with the following. There may be other places that need to be fixed, too.<\\/p> {{suggestion}}\\n\",\"unparsableunicode\":\"<p>It looks like your R code contains an unexpected special character (<code>{{character}}<\\/code>) that makes your code invalid.<\\/p> {{code}} <p>Sometimes your code may contain a special character that looks like a regular character, especially if you copy and paste the code from another app. Try deleting the special character from your code and retyping it manually.<\\/p>\\n\",\"unparsableunicodesuggestion\":\"<p>It looks like your R code contains an unexpected special character (<code>{{character}}<\\/code>) that makes your code invalid.<\\/p> {{code}} <p>Sometimes your code may contain a special character that looks like a regular character, especially if you copy and paste the code from another app. You can try replacing the code on that line with the following. There may be other places that need to be fixed, too.<\\/p> {{suggestion}}\\n\",\"and\":\"and\",\"or\":\"or\",\"listcomma\":\", \",\"oxfordcomma\":\",\"}}},\"fr\":{\"translation\":{\"button\":{\"runcode\":\"Lancer le Code\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Indication\",\"hint_plural\":\"Indications\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Indication Suivante\",\"hintprev\":\"Indication Précédente\",\"solution\":\"Solution\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Copier dans le Presse-papier\",\"startover\":\"Recommencer\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Continuer\",\"submitanswer\":\"Soumettre\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Chapitre Précédent\",\"nexttopic\":\"Chapitre Suivant\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Réessayer\"},\"text\":{\"startover\":\"Recommencer\",\"areyousure\":\"Êtes-vous certains de vouloir recommencer? (La progression sera remise à zéro)\",\"youmustcomplete\":\"Vous devez d'abord compléter\",\"exercise\":\"l'exercice\",\"exercise_plural\":\"des exercices\",\"inthissection\":\"de cette section avec de continuer.\",\"code\":\"Code\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Quiz\",\"and\":\"et\",\"or\":\"ou\",\"oxfordcomma\":\"\"}}},\"es\":{\"translation\":{\"button\":{\"runcode\":\"Ejecutar código\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Pista\",\"hint_plural\":\"Pistas\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Siguiente pista\",\"hintprev\":\"Pista anterior\",\"solution\":\"Solución\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Copiar al portapapeles\",\"startover\":\"Reiniciar\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Continuar\",\"submitanswer\":\"Enviar respuesta\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Tema anterior\",\"nexttopic\":\"Tema siguiente\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Volver a intentar\"},\"text\":{\"startover\":\"Reiniciar\",\"areyousure\":\"¿De verdad quieres empezar de nuevo? (todo el progreso del ejercicio se perderá)\",\"youmustcomplete\":\"Debes completar\",\"exercise\":\"el ejercicio\",\"exercise_plural\":\"los ejercicios\",\"inthissection\":\"en esta sección antes de continuar.\",\"code\":\"Código\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Cuestionario\",\"and\":\"y\",\"or\":\"o\",\"oxfordcomma\":\"\"}}},\"pt\":{\"translation\":{\"button\":{\"runcode\":\"Executar código\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Dica\",\"hint_plural\":\"Dicas\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Próxima dica\",\"hintprev\":\"Dica anterior\",\"solution\":\"Solução\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Copiar para a área de transferência\",\"startover\":\"Reiniciar\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Continuar\",\"submitanswer\":\"Enviar resposta\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Tópico anterior\",\"nexttopic\":\"Próximo tópico\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Tentar novamente\"},\"text\":{\"startover\":\"Reiniciar\",\"areyousure\":\"Tem certeza que deseja começar novamente? (todo o progresso feito será perdido)\",\"youmustcomplete\":\"Você deve completar\",\"exercise\":\"o exercício\",\"exercise_plural\":\"os exercícios\",\"inthissection\":\"nesta seção antes de continuar.\",\"code\":\"Código\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Quiz\",\"and\":\"e\",\"or\":\"ou\",\"oxfordcomma\":\"\"}}},\"tr\":{\"translation\":{\"button\":{\"runcode\":\"Çalıştırma Kodu\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Ipucu\",\"hint_plural\":\"İpuçları\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Sonraki İpucu\",\"hintprev\":\"Önceki İpucu\",\"solution\":\"Çözüm\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Pano'ya Kopyala\",\"startover\":\"Baştan Başlamak\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Devam et\",\"submitanswer\":\"Cevabı onayla\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Önceki Konu\",\"nexttopic\":\"Sonraki Konu\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Tekrar Deneyin\"},\"text\":{\"startover\":\"Baştan Başlamak\",\"areyousure\":\"Baştan başlamak istediğinizden emin misiniz? (tüm egzersiz ilerlemesi kaybolacak)\",\"youmustcomplete\":\"Tamamlamalısın\",\"exercise\":\"egzersiz\",\"exercise_plural\":\"egzersizler\",\"inthissection\":\"devam etmeden önce bu bölümde\",\"code\":\"Kod\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Sınav\",\"oxfordcomma\":\"\"}}},\"emo\":{\"translation\":{\"button\":{\"runcode\":\"🏃\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"💡\",\"hint_plural\":\"$t(button.hint)\",\"hinttitle\":\"$t(button.hint)\",\"solution\":\"🎯\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"📋\",\"startover\":\"⏮\",\"startovertitle\":\"Start Over\",\"continue\":\"✅\",\"submitanswer\":\"🆗\",\"submitanswertitle\":\"Submit Answer\",\"previoustopic\":\"⬅\",\"nexttopic\":\"➡\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"🔁\"},\"text\":{\"startover\":\"⏮\",\"areyousure\":\"🤔\",\"youmustcomplete\":\"⚠️ 👉 🧑‍💻\",\"exercise\":\"\",\"exercise_plural\":\"\",\"inthissection\":\"\",\"code\":\"💻\",\"enginecap\":\"$t(text.code) {{engine}}\",\"oxfordcomma\":\"\"}}},\"eu\":{\"translation\":{\"button\":{\"runcode\":\"Kodea egikaritu\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Laguntza\",\"hint_plural\":\"Laguntza\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Aurreko laguntza\",\"hintprev\":\"Hurrengo laguntza\",\"solution\":\"Ebazpena\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Arbelean kopiatu\",\"startover\":\"Berrabiarazi\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Jarraitu\",\"submitanswer\":\"Erantzuna bidali\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Aurreko atala\",\"nexttopic\":\"Hurrengo atala\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Berriro saiatu\"},\"text\":{\"startover\":\"Berrabiarazi\",\"areyousure\":\"Berriro hasi nahi duzu? (egindako lana galdu egingo da)\",\"youmustcomplete\":\"Aurrera egin baino lehen atal honetako\",\"exercise\":\"ariketa egin behar duzu.\",\"exercise_plural\":\"ariketak egin behar dituzu.\",\"inthissection\":\"\",\"code\":\"Kodea\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Galdetegia\",\"oxfordcomma\":\"\"}}},\"de\":{\"translation\":{\"button\":{\"runcode\":\"Code ausführen\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Tipp\",\"hint_plural\":\"Tipps\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Nächster Tipp\",\"hintprev\":\"Vorheriger Tipp\",\"solution\":\"Lösung\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"In die Zwischenablage kopieren\",\"startover\":\"Neustart\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Weiter\",\"submitanswer\":\"Antwort einreichen\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Vorheriges Kapitel\",\"nexttopic\":\"Nächstes Kapitel\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Nochmal versuchen\"},\"text\":{\"startover\":\"Neustart\",\"areyousure\":\"Bist du sicher, dass du neustarten willst? (der gesamte Lernfortschritt wird gelöscht)\",\"youmustcomplete\":\"Vervollstädinge\",\"exercise\":\"die Übung\",\"exercise_plural\":\"die Übungen\",\"inthissection\":\"in diesem Kapitel, bevor du fortfährst.\",\"code\":\"Code\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Quiz\",\"blank\":\"Lücke\",\"blank_plural\":\"Lücken\",\"pleasereplaceblank\":\"Bitte ersetze {{blank}} mit gültigem Code.\",\"unparsable\":\"Dies scheint kein gültiger R Code zu sein. R kann deinen Text nicht in einen gültigen Befehl übersetzen. Du hast vielleicht vergessen, die Lücke zu füllen, einen Unterstrich zu entfernen, ein Komma zwischen Argumente zu setzen oder ein eröffnendes <code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code> oder <code>{<\\/code> mit einem zugehörigen <code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code> oder <code>}<\\/code> zu schließen.\\n\",\"and\":\"und\",\"or\":\"oder\",\"listcomma\":\", \",\"oxfordcomma\":\",\"}}},\"ko\":{\"translation\":{\"button\":{\"runcode\":\"코드 실행\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"힌트\",\"hint_plural\":\"힌트들\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"다음 힌트\",\"hintprev\":\"이전 힌트\",\"solution\":\"솔루션\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"클립보드에 복사\",\"startover\":\"재학습\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"다음 학습으로\",\"submitanswer\":\"정답 제출\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"이전 토픽\",\"nexttopic\":\"다음 토픽\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"재시도\"},\"text\":{\"startover\":\"재학습\",\"areyousure\":\"다시 시작 하시겠습니까? (모든 예제의 진행 정보가 재설정됩니다)\",\"youmustcomplete\":\"당신은 완료해야 합니다\",\"exercise\":\"연습문제\",\"exercise_plural\":\"연습문제들\",\"inthissection\":\"이 섹션을 실행하기 전에\",\"code\":\"코드\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"퀴즈\",\"blank\":\"공백\",\"blank_plural\":\"공백들\",\"exercisecontainsblank\":\"이 연습문제에는 {{count}}개의 $t(text.blank)이 포함되어 있습니다.\",\"pleasereplaceblank\":\"{{blank}}를 유효한 코드로 바꾸십시오.\",\"unparsable\":\"이것은 유효한 R 코드가 아닐 수 있습니다. R은 텍스트를 완전한 명령으로 변환하는 방법을 결정할 수 없습니다. 당신은 공백이나 밑줄을 대체하여 채우기, 인수를 컴마로 구분하기, 또는 <code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code> , <code>{<\\/code>로 시작하는 구문을 닫는 <code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code>, <code>}<\\/code>을 잊었을 수도 있습니다.\\n\",\"and\":\"그리고\",\"or\":\"혹은\",\"listcomma\":\", \",\"oxfordcomma\":\"\"}}},\"zh\":{\"translation\":{\"button\":{\"runcode\":\"运行代码\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"提示\",\"hint_plural\":\"提示\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"下一个提示\",\"hintprev\":\"上一个提示\",\"solution\":\"答案\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"复制到剪切板\",\"startover\":\"重新开始\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"继续\",\"submitanswer\":\"提交答案\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"上一专题\",\"nexttopic\":\"下一专题\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"再试一次\"},\"text\":{\"startover\":\"重置\",\"areyousure\":\"你确定要重新开始吗? (所有当前进度将被重置)\",\"youmustcomplete\":\"你必须完成\",\"exercise\":\"练习\",\"exercise_plural\":\"练习\",\"inthissection\":\"在进行本节之前\",\"code\":\"代码\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"测试\",\"blank\":\"空\",\"blank_plural\":\"空\",\"exercisecontainsblank\":\"本练习包含{{count}}个$t(text.blank)\",\"pleasereplaceblank\":\"请在{{blank}}内填写恰当的代码\",\"unparsable\":\"这似乎不是有效的R代码。 R不知道如何将您的文本转换为完整的命令。 您是否忘了填空，忘了删除下划线，忘了在参数之间包含逗号，或者是忘了用<code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code>,<code>}<\\/code>来封闭<code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code>。 or <code>{<\\/code>。\\n\",\"unparsablequotes\":\"<p>您的R代码中似乎含有特殊格式的引号，或者弯引号(<code>{{character}}<\\/code>) 在字符串前后，在R中字符串应该被直引号(<code>&quot;<\\/code> 或者 <code>'<\\/code>)包裹。<\\/p> {{code}} <p>别担心，该错误经常在复制粘贴包含格式的代码时遇到， 您可以尝试将该行中的代码替换为以下代码，也许还有其他地方需要修改。<\\/p> {{suggestion}}\\n\",\"unparsableunicode\":\"<p>您的代码中似乎包含有异常字符(<code>{{character}}<\\/code>),导致代码无效。<\\/p> {{code}} <p>有时候你的代码可能含有看似正常字符的特殊字符，特别是当你复制粘贴其他来源代码的时候。 请试着删除这些特殊字符,重新输入<\\/p>\\n\",\"unparsableunicodesuggestion\":\"<p>您的代码中似乎包含有异常字符(<code>{{character}}<\\/code>),导致代码无效。<\\/p> {{code}} <p>有时候你的代码可能含有看似正常字符的特殊字符，特别是当你复制粘贴其他来源代码的时候。 请试着删除这些特殊字符,重新输入<\\/p>\\n\",\"and\":\"且\",\"or\":\"或\",\"listcomma\":\",\",\"oxfordcomma\":\",\"}}},\"pl\":{\"translation\":{\"button\":{\"runcode\":\"Uruchom kod\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Podpowiedź\",\"hint_plural\":\"Podpowiedzi\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Następna podpowiedź\",\"hintprev\":\"Poprzednia podpowiedź\",\"solution\":\"Rozwiązanie\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Kopiuj do schowka\",\"startover\":\"Zacznij od początku\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Kontynuuj\",\"submitanswer\":\"Wyślij\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Poprzednia sekcja\",\"nexttopic\":\"Następna sekcja\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Spróbuj ponownie\"},\"text\":{\"startover\":\"Zacznij od początku\",\"areyousure\":\"Czy na pewno chcesz zacząć od początku? (cały postęp w zadaniu zostanie utracony)\",\"youmustcomplete\":\"Musisz ukończyć\",\"exercise\":\"ćwiczenie\",\"exercise_plural\":\"ćwiczenia\",\"inthissection\":\"w tej sekcji przed kontynuowaniem\",\"code\":\"Kod\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Quiz\",\"blank\":\"luka\",\"blank_plural\":\"luk(i)\",\"exercisecontainsblank\":\"To ćwiczenie zawiera {{count}} $t(text.blank).\",\"pleasereplaceblank\":\"Proszę uzupełnić {{blank}} prawidłowym kodem.\",\"unparsable\":\"Wygląda na to, że może to nie być prawidłowy kod R. R nie jest w stanie przetworzyć Twojego tekstu na polecenie. Mogłeś(-aś) zapomnieć wypełnić luki, usunąć podkreślnik, umieścić przecinka między argumentami, lub zamknąć znak <code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code> lub <code>{<\\/code> odpowiadającym <code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code> lub <code>}<\\/code>.\\n\",\"unparsablequotes\":\"<p>Wygląda na to, że Twój kod zawiera szczególnie sformatowane cudzysłowy lub cudzysłowy typograficzne (<code>{{character}}<\\/code>) przy ciągach znaków, co sprawia, że kod jest niepoprawny. R wymaga cudzysłowów prostych (<code>&quot;<\\/code> albo <code>'<\\/code>).<\\/p> {{code}} <p>Nie martw się, to powszechne źródło błędów, gdy kopiuje się kod z innego programu, który sam formatuje teskt. Możesz spróbować zastąpić swój kod następującym kodem. Mogą być też inne miejsca, które wymagają poprawienia.<\\/p> {{suggestion}}\\n\",\"unparsableunicode\":\"<p>Wygląda na to, że Twój kod zawiera niespodziewany znak specjalny (<code>{{character}}<\\/code>), co sprawia, że kod jest niepoprawny.<\\/p> {{code}} <p>Czasami Twój kod może zawierać znak specjalny, który wygląda jak zwykły znak, zwłaszcza jeśli kopiujesz kod z innego programu. Spróbuj usunąć znak specjalny i wpisać do ponownie ręcznie.<\\/p>\\n\",\"unparsableunicodesuggestion\":\"<p>Wygląda na to, że Twój kod zawiera niespodziewany znak specjalny (<code>{{character}}<\\/code>), co sprawia, że kod jest niepoprawny.<\\/p> {{code}} <p>Czasami Twój kod może zawierać znak specjalny, który wygląda jak zwykły znak, zwłaszcza jeśli kopiujesz kod z innego programu. Możesz spróbować zastąpić swój kod następującym kodem. Mogą być też inne miejsca, które wymagają poprawienia.<\\/p> {{suggestion}}\\n\",\"and\":\"i\",\"or\":\"lub\",\"listcomma\":\", \",\"oxfordcomma\":\"\"}}}}}<\/script>"]},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial-format"]},{"type":"character","attributes":{},"value":["0.11.2"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmarkdown/templates/tutorial/resources"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial-format.js"]},{"type":"character","attributes":{},"value":["tutorial-format.css","rstudio-theme.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["jquery"]},{"type":"character","attributes":{},"value":["3.6.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/3.6.0"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquery-3.6.0.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquerylib"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.1.4"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["navigation"]},{"type":"character","attributes":{},"value":["1.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/navigation-1.1"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tabsets.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.19"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["highlightjs"]},{"type":"character","attributes":{},"value":["9.12.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/highlightjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["highlight.js"]},{"type":"character","attributes":{},"value":["default.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.19"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["jquery"]},{"type":"character","attributes":{},"value":["3.6.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/3.6.0"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquery-3.6.0.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquerylib"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.1.4"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["font-awesome"]},{"type":"character","attributes":{},"value":["5.1.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/fontawesome"]}]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["css/all.css","css/v4-shims.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.19"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["bootbox"]},{"type":"character","attributes":{},"value":["5.5.2"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/bootbox"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["bootbox.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["idb-keyvalue"]},{"type":"character","attributes":{},"value":["3.2.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/idb-keyval"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["idb-keyval-iife-compat.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[false]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial"]},{"type":"character","attributes":{},"value":["0.11.2"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/tutorial"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial.js"]},{"type":"character","attributes":{},"value":["tutorial.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.2"]}]}]}
+</script>
+<!--/html_preserve-->
+<!--html_preserve-->
+<script type="application/shiny-prerendered" data-context="execution_dependencies">
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55]}},"value":[{"type":"character","attributes":{},"value":["backports","base","bslib","cachem","checkmate","cli","commonmark","compiler","curl","datasets","Deriv","digest","ellipsis","evaluate","fastmap","glue","gradethis","graphics","grDevices","highr","htmltools","htmlwidgets","httpuv","jquerylib","jsonlite","knitr","later","learnr","lifecycle","magrittr","markdown","methods","mime","pkgload","promises","R6","Rcpp","renv","rlang","rmarkdown","rprojroot","rstudioapi","Ryacas","sass","shiny","stats","stringi","stringr","tools","utils","vctrs","withr","xfun","xtable","yaml"]},{"type":"character","attributes":{},"value":["1.4.1","4.2.2","0.4.2","1.0.6","2.1.0","3.4.1","1.8.1","4.2.2","4.3.3","4.2.2","4.1.3","0.6.31","0.3.2","0.19","1.1.0","1.6.2","0.2.8.9000","4.2.2","4.2.2","0.10","0.5.4","1.6.0","1.6.7","0.1.4","1.8.4","1.41","1.3.0","0.11.2","1.0.3","2.0.3","1.4","4.2.2","0.12","1.3.2","1.2.0.1","2.5.1","1.0.9","0.16.0","1.0.6","2.19","2.0.3","0.14","1.1.3.1","0.4.4","1.7.4","4.2.2","1.7.8","1.5.0","4.2.2","4.2.2","0.5.1","2.5.0","0.36","1.8-4","2.3.6"]}]}]}
+</script>
+<!--/html_preserve-->
+</div>
+</div>
+
+</article> <!-- topics -->
+
+<div class="topicsContainer">
+<div class="topicsPositioner">
+<div class="band">
+<div class="bandContent topicsListContainer">
+
+<!-- begin doc-metadata -->
+<div id="doc-metadata">
+<h1 class="title toc-ignore" style="display:none;">2.1 Production and
+Production Functions</h1>
+<h4 class="author"><em>Jim Bang</em></h4>
+</div>
+<!-- end doc-metadata -->
+
+</div> <!-- bandContent.topicsListContainer -->
+</div> <!-- band -->
+</div> <!-- topicsPositioner -->
+</div> <!-- topicsContainer -->
+
+
+</main> <!-- bandContent page -->
+</div> <!-- pageContent band -->
+
+
+
+<!-- Build Tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("section-TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<script>
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+
+</body>
+
+</html>
