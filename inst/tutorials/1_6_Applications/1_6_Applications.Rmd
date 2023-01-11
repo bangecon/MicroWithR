@@ -14,7 +14,7 @@ library(Ryacas)
 library(Deriv)
 library(Rsolnp)
 gradethis_setup()
-tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)
+tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = FALSE)
 knitr::opts_chunk$set(echo = FALSE, fig.width = 6, fig.height = 8,
   fig.align='center', out.width = '75%')
 par(mar = c(4, 4, 1, 1))

@@ -7,6 +7,14 @@ output:
 runtime: shiny_prerendered
 ---
 
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+</style>
+
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
@@ -196,7 +204,7 @@ where $s=\frac{1}{1-r}$ is the elasticity of substitution.
 The *marginal utility* of each good is the amount that utility changes as a result of a (very small?) change in the amount of that good. Mathematically, for *inifinitesimal* changes, marginal utility is the *derivative* of $u(x)$ with respect to $x_i$, or: 
 $$MU_i = \frac{d}{dx_i}u(x_1, x_2, ...,x_n)$$
 
-Use the `deriv` function to obtain the function for the marginal utility of $u(x) = x_1^{0.25}x_2^{0.75}$ with respect to $x_1$ and $x_2$. Name these derivatives `MU1` and `MU2`, respectively and print them.
+Use the `deriv` function to obtain the function for the marginal utility of $u(x) = x_1^{0.25}x_2^{0.75}$ with respect to $x_1$ and $x_2$. Name these derivatives `MU1` and `MU2`, respectively.
 
 ```{r marginalUtility, exercise = TRUE, exercise.reveal_solution = TRUE}
 
@@ -206,15 +214,13 @@ Use the `deriv` function to obtain the function for the marginal utility of $u(x
 u <- ysym('x1^0.25 * x2^0.75')
 MU1 <- deriv(u, 'x1')
 MU2 <- deriv(u, 'x2')
-print(c(MU1, MU2))
 ```
 
 ```{r marginalUtility-check}
 grade_this({if (!inherits(.result, c("yac_symbol"))) {
     fail("Your class of your answer should be a yac_symbol")}
-  if (.result$yacas_cmd != "{0.25*x1^(-0.75)*x2^0.75,0.75*x1^0.25*x2^(-0.25)}") { 
-    fail("The marginal utilities should be 0.25*x1^(-0.75)*x2^0.75 and
-         0.75*x1^0.25*x2^(-0.25).") }
+  if (.result != "y: 0.75*x1^0.25*x2^(-0.25)") { 
+    fail("The marginal utility of good 2 should be 0.75*(x1/x2)^0.25.") }
   pass()
 })
 ```
@@ -257,13 +263,13 @@ grade_this({if (!inherits(.result, c("yac_symbol"))) {
 })
 ```
 
-Look at all the cancelling `R` did for you!
-
 $$`r tex(MRS)`$$
 
 ### General Form 
 
 We can do the same thing with the symbolic parameters to get the general form of the MRS for the Cobb-Douglas utility function. Define `v` as the general form of the utility function from the previous exercise using the parameter name "alpha" instead of the numerical value of 0.25 and repeat the steps to produce the MRS, `MRSv`. 
+
+In addition, we can take derivatives with respect to both goods in one line, which will give you a vector of derivative functions. The fancy math name for this is the *gradient* of $f$ with respect to $x$, denoted $\nabla f(x_1, x_2)$. Try this in your code. You can then get the $MRS$ by dividing the marginal utilities (dividing the first element of the gradient by the second). 
 
 ```{r generalMRS, exercise=TRUE, exercise.reveal_solution = TRUE}
 
@@ -271,9 +277,8 @@ We can do the same thing with the symbolic parameters to get the general form of
 
 ```{r generalMRS-solution}
 v <- ysym('x1^alpha * x2^(1-alpha)')
-MV1 <- deriv(v, 'x1')
-MV2 <- deriv(v, 'x2')
-MRSv <- (MV1/MV2) |>
+MV <- deriv(v, c('x1', 'x2'))
+MRSv <- (MV[1]/MV[2]) |>
   yac_str() |> 
   Simplify() |>
   ysym()
@@ -583,59 +588,8 @@ grade_code()
 
 With a neutral good, utility does not depend at all on the quantity of the neutral good. Run the following code to graph a set of indifference curves for the case where one good is "neutral." 
 
-```{r neutralGood, exercise = TRUE, exercise.reveal_solution = TRUE}
-plot(
-  x = c(rep(10, 11)),
-  y = c(seq(0, 60, 6)),
-  type = 'l',
-  xlim = c(0, 60),
-  ylim = c(0, 60),
-  xlab = 'Donuts',
-  ylab = 'Non-Alcoholic Beer',
-  col = 'red', 
-  main = 'Non-Alcoholic Beer is a Neutral Good'
-) 
-segments(
-  x0 = 20, 
-  x1 = 20, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'orange'
-)
-segments(
-  x0 = 30, 
-  x1 = 30, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'yellow'
-)
-segments(
-  x0 = 40, 
-  x1 = 40, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'green'
-)
-segments(
-  x0 = 50, 
-  x1 = 50, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'blue'
-)
-segments(
-  x0 = 60, 
-  x1 = 60, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'violet'
-)
-arrows(
-  x0 = 10, 
-  x1 = 60, 
-  y0 = 30, 
-  y1 = 30
-)
+```{r neutralGood}
+
 ```
 
 ```{r neutralGood-solution}
@@ -694,6 +648,122 @@ arrows(
 ```
 
 ```{r neutralGood-check}
+grade_code()
+```
+
+### Economic Bads
+
+```{r economicBad, fig.height = 5, fig.width = 5}
+plot(
+  x = c(seq(10, 20, 1)),
+  y = c(seq(0, 70, 7)),
+  type = 'l',
+  xlim = c(0, 70),
+  ylim = c(0, 70),
+  xlab = 'Donuts',
+  ylab = 'Pants',
+  col = 'red', 
+  main = 'Pants as an Economic Bad'
+) 
+segments(
+  x0 = 20, 
+  x1 = 30, 
+  y0 = 0, 
+  y1 = 70, 
+  col = 'orange'
+)
+segments(
+  x0 = 30, 
+  x1 = 40, 
+  y0 = 0, 
+  y1 = 70, 
+  col = 'yellow'
+)
+segments(
+  x0 = 40, 
+  x1 = 50, 
+  y0 = 0, 
+  y1 = 70, 
+  col = 'green'
+)
+segments(
+  x0 = 50, 
+  x1 = 60, 
+  y0 = 0, 
+  y1 = 70, 
+  col = 'blue'
+)
+segments(
+  x0 = 60, 
+  x1 = 70, 
+  y0 = 0, 
+  y1 = 70, 
+  col = 'violet'
+)
+arrows(
+  x0 = 15.7, 
+  x1 = 64.2, 
+  y0 = 40, 
+  y1 = 30
+)
+```
+
+```{r economicBad-solution}
+plot(
+  x = c(seq(10, 20, 1)),
+  y = c(seq(0, 70, 7)),
+  type = 'l',
+  xlim = c(0, 70),
+  ylim = c(0, 70),
+  xlab = 'Donuts',
+  ylab = 'Pants',
+  col = 'red', 
+  main = 'Pants as an Economic Bad'
+) 
+segments(
+  x0 = 20, 
+  x1 = 30, 
+  y0 = 0, 
+  y1 = 70, 
+  col = 'orange'
+)
+segments(
+  x0 = 30, 
+  x1 = 40, 
+  y0 = 0, 
+  y1 = 70, 
+  col = 'yellow'
+)
+segments(
+  x0 = 40, 
+  x1 = 50, 
+  y0 = 0, 
+  y1 = 70, 
+  col = 'green'
+)
+segments(
+  x0 = 50, 
+  x1 = 60, 
+  y0 = 0, 
+  y1 = 70, 
+  col = 'blue'
+)
+segments(
+  x0 = 60, 
+  x1 = 70, 
+  y0 = 0, 
+  y1 = 70, 
+  col = 'violet'
+)
+arrows(
+  x0 = 15.7, 
+  x1 = 64.2, 
+  y0 = 40, 
+  y1 = 30
+)
+```
+
+```{r economicBad-check}
 grade_code()
 ```
 

@@ -1,0 +1,74 @@
+---
+title: "Introduction to Mathing with R"
+author: Jim Bang
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(Ryacas)
+library(Deriv)
+library(Rsolnp)
+library(nleqslv)
+gradethis_setup()
+tutorial_options(exercise.reveal_solution = FALSE, exercise.eval = FALSE, exercise.checker = gradethis_exercise_checker)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Solving a System of Equations: Supply and Demand
+
+Given the following (inverse) supply and demand functions: 
+
+$$P = \frac{10}{Q_d}$$
+
+$$P = Q_s^2$$
+
+1. Solve for the equilibrium price and quantity using `nleqslv::nleqslv`. 
+
+```{r equilibrium, exercise = TRUE}
+
+```
+
+```{r equilibrium-solution}
+market <- function(x) {
+    supply <- x[1]^2 - x[2]
+    demand <- 10/x[1] - x[2]
+    return(c(supply, demand))
+}
+equilibrium <- nleqslv(c(2,2), market)
+```
+
+```{r equilibrium-check}
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(.result$x, 2) != c(2.15, 4.64)) { 
+    fail("The equilibrium quantity and price are about 2.15 and 4.64)") }
+  pass()
+})
+```
+
+2. Graph the market equilibrium. 
+
+```{r equilibriumPlot, exercise = TRUE}
+
+```
+
+```{r equilibriumPlot-solution}
+curve(10/x,
+      from = 0 ,
+      to = 5,
+      col = 'blue',
+      ylim = c(0, 10))
+curve(x^2, col = 'darkorange', add = TRUE)
+segments(x0 = 0, y0 = equilibrium$x[2], x1 = equilibrium$x[1], y1 = equilibrium$x[2])
+segments(x0 = equilibrium$x[1], y0 = 0, x1 = equilibrium$x[1], y1 = equilibrium$x[2])
+```
+
+```{r equilibriumPlot-check}
+
+```
+

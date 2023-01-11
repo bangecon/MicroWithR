@@ -1,0 +1,97 @@
+---
+title: "1.3 Utility Functions"
+author: Jim Bang
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(Deriv)
+library(Ryacas)
+gradethis_setup()
+tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
+knitr::include_graphics
+```
+
+## Constant Elasticity of Substitution
+
+Suppose that we can describe a consumer's preferences between two goods using a constant elasticity of substitution utility function with $r = 1/2$: 
+
+$$U(x) = (x_1^{1/2} + x_2^{1/2})^2, $$ 
+
+so that the elasticity of substitution is $\sigma = \frac{1}{1-r} = 2$. 
+
+1. Graph the indifference curves for this utility function for $U(*) = 10$ and $U(*) = 25$. 
+
+```{r plotCES, exercise=TRUE}
+
+```
+
+```{r plotCES-solution}
+
+```
+
+```{r simpleUtility-check}
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (.result$y[1] != Inf) { 
+    fail("The y-intercept should approach infinity.") }
+  pass()
+})
+```
+
+
+### Marginal Utility
+
+The *marginal utility* of each good is the amount that utility changes as a result of a (very small?) change in the amount of that good. Mathematically, for *inifinitesimal* changes, marginal utility is the *derivative* of $u(x)$ with respect to $x_i$, or: 
+$$MU_i = \frac{d}{dx_i}u(x_1, x_2, ...,x_n)$$
+
+2. Find the marginal utility functions with respect to goods 1 and 2. 
+
+```{r marginalUtility, exercise = TRUE}
+
+```
+
+```{r marginalUtility-solution}
+u <- ysym('(x1^0.5 + x2^0.5)^2')
+MU <- deriv(u, c('x1', 'x2'))
+```
+
+```{r marginalUtility-check}
+grade_this({if (!inherits(.result, c("yac_symbol"))) {
+    fail("Your class of your answer should be a yac_symbol")}
+  if (.result != "{x1^(-0.5)*(x1^0.5+x2^0.5), x2^(-0.5)*(x1^0.5+x2^0.5)}") { 
+    fail("The marginal utilities should be x1^(-0.5)*(x1^0.5+x2^0.5) and
+         x2^(-0.5)*(x1^0.5+x2^0.5).") }
+  pass()
+})
+```
+
+3. Find $MRS_{12} = \frac{MU_1}{MU_2}$. Simplify your result. 
+
+```{r marginalRateOfSubstitution, exercise = TRUE}
+
+```
+
+```{r marginalRateOfSubstitution-solution}
+MRS <- (MU[1]/MU[2]) |>
+  yac_str() |> 
+  Simplify() |>
+  ysym()
+MRS
+```
+
+```{r marginalRateOfSubstitution-check}
+grade_this({if (!inherits(.result, c("yac_symbol"))) {
+    fail("Your class of your answer should be a yac_symbol")}
+  if (.result$yacas_cmd != "sqrt(x2)/sqrt(x1)") { 
+    fail("The MRS should be sqrt(x2)/sqrt(x1)") }
+  pass()
+})
+```
+

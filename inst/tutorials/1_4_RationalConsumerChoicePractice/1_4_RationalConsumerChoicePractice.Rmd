@@ -1,0 +1,99 @@
+---
+title: "1.4 Rational Consumer Choice"
+author: Jim Bang
+output: 
+  learnr::tutorial:
+    progressive: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include = FALSE}
+library(learnr)
+library(gradethis)
+library(Ryacas)
+library(Deriv)
+library(Rsolnp)
+gradethis_setup()
+tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
+knitr::include_graphics
+```
+
+## Constant Elasticity of Substitution
+
+Suppose that we can describe a consumer's preferences between two goods using a constant elasticity of substitution utility function with $r = 1/2$: 
+
+$$U(x) = (x_1^{1/2} + x_2^{1/2})^2, $$ 
+
+so that the elasticity of substitution is $\sigma = \frac{1}{1-r} = 2$. 
+
+Suppose as well that the consumer has income of \$100 and that the prices of good one and good two are \$2 and \$1, respectively. 
+
+1. Computational solution. Find the optimal bundle using `solnp`
+
+```{r computeSolve, exercise = TRUE, exercise.reveal_solution = TRUE}
+
+```
+
+```{r computeSolve-solution}
+r = 0.5
+p1 = 2
+p2 = 1
+m = 100
+ux <- function(x) {
+  - (x[1]^r + x[2] ^ r) ^ (1/r)
+}
+bc <- function(x) {
+  p1 * x[1] + p2 * x[2]
+}
+equilibrium <- solnp(
+  c(1, 1),
+  ux,
+  ineqfun = bc,
+  ineqLB = 0,
+  ineqUB = m,
+  LB = c(0, 0),
+  UB = c(Inf, Inf)
+)
+equilibrium$pars
+-equilibrium$lagrange
+-tail(equilibrium$values, 1)
+```
+
+```{r computeSolve-check}
+grade_this({if (!inherits(.result, c("numeric"))) {
+    fail("Your class of your answer should be a numeric scalar")}
+  if (abs(tail(.result$values, 1)) != 1250) { 
+    fail("The maximum of the utility function should be 1,250") }
+  pass()
+})
+```
+
+2. Graphical solution. Graph the budget constraint with the optimal bundle and its indifference curve. 
+
+```{r graph, exercise = TRUE, exercise.reveal_solution = TRUE, fig.height=6.5, fig.width=4.5, fig.align='center'}
+
+```
+
+```{r graph-solution}
+curve(
+  ((-tail(equilibrium$values, 1))^r - x^r) ^ (1/r),
+  0,
+  m / p1,
+  xlab = expression(x[1]),
+  ylab = expression(x[2]),
+  xlim = c(0, m / p1),
+  ylim = c(0, m / p2),
+  col = 'darkgreen'
+)
+abline(m / p2, -p1 / p2,
+       col = 'red')
+points(equilibrium$pars[1],
+       equilibrium$pars[2],
+       col = 'blue',
+       pch = 20)
+```
+
+```{r graph-check}
+
+```

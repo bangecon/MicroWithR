@@ -10,6 +10,14 @@ editor_options:
     wrap: 72
 ---
 
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+</style>
+
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
@@ -21,11 +29,23 @@ tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
 knitr::include_graphics
 par(mar = c(4, 4, 1, 1))
-ux <- function(x) -x[1] ^ (alpha) * x[2] ^ (1 - alpha)
+u <- ysym('x1^(alpha) * x2^(1-alpha)')
+L <- u + ysym('lambda*(m - p1*x1 - p2*x2)')
+dL <- deriv(L, c('x1', 'x2', 'lambda'))
+MU <- deriv(u, c('x1', 'x2'))
+MRS <- yac_str(MU[1]/MU[2]) |> 
+  Simplify() |> 
+  ysym()
+D <- solve(c(MRS, dL[[3]]), c(ysym('p1/p2'), 0), c('x1', 'x2')) |> 
+  y_rmvars() |>
+  simplify()
+D[1] <- with_value(D[1], 'x2', D[2]) |> 
+  simplify()
+ux <- function(x) -x[1] ^ (a) * x[2] ^ (1 - a)
 bc <- function(x) p1 * x[1] + p2 * x[2]
 bcLowP  <- function(x) (p1 - dp1) * x[1] + p2 * x[2]
 bcHighP <- function(x) (p1 + dp1) * x[1] + p2 * x[2]
-alpha = 0.25; p1 = 1.5; p2 = 1; m = 100; dm = 5; dp1 = 0.5
+a = 0.25; p1 = 1.5; p2 = 1; m = 100; dm = 5; dp1 = 0.5
 initialEquilibrium <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m, 
                             LB = c(0, 0), UB = c(Inf, Inf))
 dmEquilibrium <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m + dm, 
@@ -36,19 +56,6 @@ lowPEquilibrium <- solnp(c(1, 1), ux, ineqfun = bcLowP, ineqLB = 0, ineqUB = m,
                             LB = c(0, 0), UB = c(Inf, Inf))
 highPEquilibrium <- solnp(c(1, 1), ux, ineqfun = bcHighP, ineqLB = 0, ineqUB = m, 
                             LB = c(0, 0), UB = c(Inf, Inf))
-L <- ysym('x1^(alpha) * x2^(1 - alpha) + lambda*(m - p1*x1 - p2*x2)')
-dL <- c(deriv(L, 'x1'), deriv(L, 'x2'), deriv(L, 'lambda'))
-MU1 <- solve(dL[[1]], 'lambda') |> y_rmvars()*p1 
-MU2 <- solve(dL[[2]], 'lambda') |> y_rmvars()*p2 
-MRS <- yac_str(MU1/MU2) |> Simplify() |> ysym()
-MRSsolve1 <- solve(MRS - p1/p2, 'x2') |> y_rmvars()
-BCsolve1 <- solve(dL[[3]], 'x2') |> y_rmvars()
-D1 <- solve(MRSsolve1 - BCsolve1, 'x1') |> y_rmvars() |> yac_str() |> 
-  Simplify() |> ysym()
-MRSsolve2 <- solve(MRS - p1/p2, 'x1') |> y_rmvars()
-BCsolve2 <- solve(dL[[3]], 'x1') |> y_rmvars()
-D2 <- solve(MRSsolve1 - BCsolve1, 'x2') |> y_rmvars() |> yac_str() |> 
-  Simplify() |> ysym()
 u0 <- -tail(initialEquilibrium$values, 1)
 x0 <- c(initialEquilibrium$pars)
 xTilde <- solnp(pars = x0, fun = bcLowP, ineqfun = ux, ineqLB = -Inf, 
@@ -57,11 +64,29 @@ xTilde <- solnp(pars = x0, fun = bcLowP, ineqfun = ux, ineqLB = -Inf,
 
 ## Overview
 
-Idea: Make a *hypothesis* of what would happen if *one* of the exogenous
-parameters changes.
+### Basic Idea
+
+Make a *hypothesis* of what would happen if *one* of the exogenous
+determinants changes.
 
 1.  Ceteris paribus
 2.  Small changes
+
+### Determinants
+
+In the Cobb-Douglas example, the demand function for good $i$ depends on: 
+
+1. Preferences (the budget-share parameters, $\alpha$ and $1 - \alpha$);
+2. Income ($m$); 
+3. The price of good $i$ ($p_i$);
+4. The price(s) of the other good(s) ($p_j$).
+
+We will focus mainly on income and price. 
+
+### Types of Hypotheses
+
+1.  Qualitative: Which direction?
+2.  Quantitative: How much?
 
 ### Approaches
 
@@ -69,149 +94,18 @@ parameters changes.
 2.  Computational
 3.  Anayltical
 
-### Types of Hypotheses
+## Computational Approach
 
-1.  Qualitative: Which direction?
-2.  Quantitative: How much?
+### Initial Solution
 
-## Effect of an Income Change
+$$x_1^* = 50/3$$ 
 
-Initial solution: $$x_1^* = 50/3$$ $$x_2^* = 75$$
+$$x_2^* = 75$$
 
-### Graphical Approach
-
-Run the following code to see the graph of the effect of an increase and
-decrease in income equal to 5.
-
-```{r incomeChangeGraph, exercise = TRUE}
-curve(
-  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  from = 0,
-  to = m / p1,
-  xlim = c(0, (m + dm) / p1),
-  ylim = c(0, (m + dm) / p2),
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  col = 'dark green'
-)
-abline(m / p2,-p1 / p2, col = 'red')
-points(initialEquilibrium$pars[1],
-       initialEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-curve(
-  (-tail(dmEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline((m + dm) / p2,-p1 / p2, col = 'red', lty = 'dashed')
-points(dmEquilibrium$pars[1],
-       dmEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-curve(
-  (-tail(dmEquilibrium2$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline((m - dm) / p2,-p1 / p2, col = 'red', lty = 'dashed')
-points(dmEquilibrium2$pars[1],
-       dmEquilibrium2$pars[2],
-       col = 'blue',
-       pch = 20)
-arrows(
-  x0 = 0,
-  y0 = 0,
-  x1 = dmEquilibrium$pars[1],
-  y1 = dmEquilibrium$pars[2]
-)
-```
-
-```{r incomeChangeGraph-solution}
-curve(
-  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  from = 0,
-  to = m / p1,
-  xlim = c(0, (m + dm) / p1),
-  ylim = c(0, (m + dm) / p2),
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  col = 'dark green'
-)
-abline(m / p2,-p1 / p2, col = 'red')
-points(initialEquilibrium$pars[1],
-       initialEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-curve(
-  (-tail(dmEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline((m + dm) / p2,-p1 / p2, col = 'red', lty = 'dashed')
-points(dmEquilibrium$pars[1],
-       dmEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-curve(
-  (-tail(dmEquilibrium2$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline((m - dm) / p2,-p1 / p2, col = 'red', lty = 'dashed')
-points(dmEquilibrium2$pars[1],
-       dmEquilibrium2$pars[2],
-       col = 'blue',
-       pch = 20)
-arrows(
-  x0 = 0,
-  y0 = 0,
-  x1 = dmEquilibrium$pars[1],
-  y1 = dmEquilibrium$pars[2]
-)
-```
-
-```{r incomeChangeGraph-check}
-grade_code()
-```
-
-In the Cobb-Douglas example, consumption of each good increases by equal
-proportions to the change in income (partly because of the fact that
-consumers spend a constant share of their budget on each good). This
-means that the *income expansion path* is a straight line from the
-origin. <br> (In fact, a linear income expansion path is a feature of
-many utility functions that have the property of being
-[*homothetic*](https://en.wikipedia.org/wiki/Homothetic_preferences),
-which also includes the CES utility function.)
-
-### Analytical Approach
-
-Substituting the budget constraint into the MRS condition (using the
-general-form solution from last time), we get the demand for $x_1$,
-
-$$x_1(p_1, m) = `r tex(D1)`$$
-
-Notice that for these preferences the increase in consumption for $x_1$
-is linear in the amount of income (it only depends on the exogenous
-parameters $\alpha$ and $p_1$).
-
-Flipping it around and substituting the budget constraint (solved for
-$x1$) into the MRS we get the demand for $x_2$:
-
-$$x_2(p_2, m) = `r tex(D2)`$$
-
-Taking the derivative of demand for $x_1$ with respect to income and evaluating it for the parameters in our example, we have: 
-
-$$\frac{d}{dm}x_1(p_1, m) = `r tex(deriv(D1, 'm'))` = \frac{0.25}{1.50} \approx 0.16667$$
-
-### Computational Approach
+### Income Change
 
 To measure the effect computationally, we have to specify a numerical
-amount for the change, say \$5.
+amount for the income change, say \$5.
 
 1.  For a consumer with the same preferences (Cobb-Douglass with
     $\alpha = 0.25$), and facing the same prices ($p_1 = 1.5$;
@@ -244,9 +138,335 @@ dmEquilibrium[c(1, 3)]
 grade_code()
 ```
 
-$$\frac{\Delta x_1}{\Delta m} \Bigg|_{x_1 = x_1^*} = `r round((dmEquilibrium$pars[1] - initialEquilibrium$pars[1])/dm, 5)`$$
+$$x_1^{**} = `r round(dmEquilibrium$pars[1], 3)`$$ 
 
-### Engel Curves
+$$x_2^{**} = `r round(dmEquilibrium$pars[2], 3)`$$
+
+$$\frac{\Delta x_1}{\Delta m} \Bigg|_{x_1 = x_1^*} \approx `r round((dmEquilibrium$pars[1] - initialEquilibrium$pars[1])/dm, 3)`$$
+
+### Price Change 
+
+Let's analyze the effect of a \$0.50 increase in price, and a \$0.50
+decrease in price for good 1.
+
+1.  For a consumer with the same preferences (Cobb-Douglass with
+    $\alpha = 0.25$), and facing the price of good 2 and income
+    ($p_2 = 1$), compute the new equilibria for an increase in the price
+    of good 1 from \$1.50 to \$2.00 (`dp1 = 0.5`); repeat for an equal
+    decrease in $p_1$ to \$1.00.
+2.  Print the (already-stored) initial and new optimal bundles.
+
+```{r priceChange, exercise = TRUE, exercise.reveal_solution = TRUE}
+
+
+```
+
+```{r priceChange-solution}
+dp1 = 0.5
+lowPEquilibrium <-
+  solnp(
+    c(1, 1),
+    ux,
+    ineqfun = bcLowP,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf)
+  )
+highPEquilibrium <-
+  solnp(
+    c(1, 1),
+    ux,
+    ineqfun = bcHighP,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf)
+  )
+initialEquilibrium[1]
+lowPEquilibrium[1]
+highPEquilibrium[1]
+```
+
+```{r priceChange-check}
+grade_code()
+```
+
+Consumption of good 1 after the price decrease is: 
+
+$$x_1^{\dagger} = `r round(lowPEquilibrium$pars[1], 3)`$$  
+
+Consumption of good 1 after the price increase is: 
+
+$$x_1^{\dagger\dagger} = `r round(highPEquilibrium$pars[1], 3)`$$
+
+$$\frac{\Delta x_1}{\Delta p_1} \Bigg|_{x_1 = x_1^*} \approx `r round((highPEquilibrium$pars[1] - lowPEquilibrium$pars[1])/(dp1*2), 3)`$$
+
+## Graphical Approach
+
+### Income Change
+
+Run the following code to see the graph of the effect of an increase and
+decrease in income equal to 5.
+
+```{r incomeChangeGraph, exercise = TRUE}
+curve(
+  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+  from = 0,
+  to = m / p1,
+  xlim = c(0, (m + dm) / p1),
+  ylim = c(0, (m + dm) / p2),
+  xlab = expression(x[1]),
+  ylab = expression(x[2]),
+  col = 'dark green'
+)
+abline(m / p2,-p1 / p2, col = 'red')
+points(initialEquilibrium$pars[1],
+       initialEquilibrium$pars[2],
+       col = 'blue',
+       pch = 20)
+curve(
+  (-tail(dmEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+  add = TRUE,
+  col = 'dark green',
+  lty = 'dashed'
+)
+abline((m + dm) / p2,-p1 / p2, col = 'red', lty = 'dashed')
+points(dmEquilibrium$pars[1],
+       dmEquilibrium$pars[2],
+       col = 'blue',
+       pch = 20)
+curve(
+  (-tail(dmEquilibrium2$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+  add = TRUE,
+  col = 'dark green',
+  lty = 'dashed'
+)
+abline((m - dm) / p2,-p1 / p2, col = 'red', lty = 'dashed')
+points(dmEquilibrium2$pars[1],
+       dmEquilibrium2$pars[2],
+       col = 'blue',
+       pch = 20)
+arrows(
+  x0 = 0,
+  y0 = 0,
+  x1 = dmEquilibrium$pars[1],
+  y1 = dmEquilibrium$pars[2]
+)
+```
+
+```{r incomeChangeGraph-solution}
+curve(
+  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+  from = 0,
+  to = m / p1,
+  xlim = c(0, (m + dm) / p1),
+  ylim = c(0, (m + dm) / p2),
+  xlab = expression(x[1]),
+  ylab = expression(x[2]),
+  col = 'dark green'
+)
+abline(m / p2,-p1 / p2, col = 'red')
+points(initialEquilibrium$pars[1],
+       initialEquilibrium$pars[2],
+       col = 'blue',
+       pch = 20)
+curve(
+  (-tail(dmEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+  add = TRUE,
+  col = 'dark green',
+  lty = 'dashed'
+)
+abline((m + dm) / p2,-p1 / p2, col = 'red', lty = 'dashed')
+points(dmEquilibrium$pars[1],
+       dmEquilibrium$pars[2],
+       col = 'blue',
+       pch = 20)
+curve(
+  (-tail(dmEquilibrium2$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+  add = TRUE,
+  col = 'dark green',
+  lty = 'dashed'
+)
+abline((m - dm) / p2,-p1 / p2, col = 'red', lty = 'dashed')
+points(dmEquilibrium2$pars[1],
+       dmEquilibrium2$pars[2],
+       col = 'blue',
+       pch = 20)
+arrows(
+  x0 = 0,
+  y0 = 0,
+  x1 = dmEquilibrium$pars[1],
+  y1 = dmEquilibrium$pars[2]
+)
+```
+
+```{r incomeChangeGraph-check}
+grade_code()
+```
+
+In the Cobb-Douglas example, consumption of each good increases by equal
+proportions to the change in income (partly because of the fact that
+consumers spend a constant share of their budget on each good). This
+means that the *income expansion path* is a straight line from the
+origin. <br> (In fact, a linear income expansion path is a feature of
+many utility functions that have the property of being
+[*homothetic*](https://en.wikipedia.org/wiki/Homothetic_preferences),
+which also includes the CES utility function.)
+
+### Price Change
+
+Graph the indifference curves and budget lines for each equilibrium:
+
+1.  $p_1 = \$1.50$ (Plot from $x_1 = 0$ to $x_1 = m/p_1$ and from
+    $x_2 = 0$ to $x_2 = m/p_2$; indifference curve `dark green` and
+    budget line `red`)
+2.  $p_1 = \$2.00$ (Indifference curve )
+3.  $p_1 = \$1.00$
+
+```{r priceChangeGraph, exercise = TRUE, exercise.reveal_solution = TRUE}
+# Solve for consumption (and utility at that consumption) for the original price, the price after an increase, and after a decrease. 
+dp1 = 0.5
+bcLowP  <- function(x) (p1 - dp1) * x[1] + p2 * x[2]
+bcHighP <- function(x) (p1 + dp1) * x[1] + p2 * x[2]
+lowPEquilibrium <- solnp(c(1, 1), ux, ineqfun = bcLowP, ineqLB = 0, ineqUB = m,
+    LB = c(0, 0), UB = c(Inf, Inf))
+highPEquilibrium <- solnp(c(1, 1), ux, ineqfun = bcHighP, ineqLB = 0, ineqUB = m,
+    LB = c(0, 0), UB = c(Inf, Inf))
+# Plot the indifference curves and budget lines below.
+
+
+```
+
+```{r priceChangeGraph-solution}
+dp1 = 0.5
+bcLowP  <- function(x) (p1 - dp1) * x[1] + p2 * x[2]
+bcHighP <- function(x) (p1 + dp1) * x[1] + p2 * x[2]
+lowPEquilibrium <-
+  solnp(
+    c(1, 1),
+    ux,
+    ineqfun = bcLowP,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf)
+  )
+highPEquilibrium <-
+  solnp(
+    c(1, 1),
+    ux,
+    ineqfun = bcHighP,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf)
+  )
+curve(
+  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+  from = 0,
+  to = m / p1,
+  xlim = c(0, m / (p1 - dp1)),
+  ylim = c(0, m / p2),
+  xlab = expression(x[1]),
+  ylab = expression(x[2]),
+  col = 'dark green'
+)
+abline(m / p2,-p1 / p2, col = 'red')
+curve(
+  (-tail(lowPEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+  add = TRUE,
+  col = 'dark green',
+  lty = 'dashed'
+)
+abline(m / p2,-(p1 - dp1) / p2, col = 'red', lty = 'dashed')
+curve(
+  (-tail(highPEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+  add = TRUE,
+  col = 'dark green',
+  lty = 'dashed'
+)
+abline(m / p2,-(p1 + dp1) / p2, col = 'red', lty = 'dashed')
+```
+
+```{r priceChangeGraph-check}
+grade_code()
+```
+
+## Analytical Approach
+
+Basic approach: 
+
+1. Find the demand functions in general form, without specific parameter values for $m$, $\alpha$, $p_1$, and $p_2$. 
+2. Take the derivative of the demand functions with respect to each variable. 
+
+R can actually do this super-fast (by vectorizing the derivatives)!
+
+Solving the first order conditions for $x_1$ and $x_2$ in terms of the parameters
+(the general-form solution from last time), we get the demand functions. Run the following code to get this result.
+
+```{r demand, exercise = TRUE}
+u <- ysym('x1^(alpha) * x2^(1-alpha)')
+L <- u + ysym('lambda*(m - p1*x1 - p2*x2)')
+dL <- deriv(L, c('x1', 'x2', 'lambda'))
+MU <- deriv(u, c('x1', 'x2'))
+MRS <- yac_str(MU[1]/MU[2]) |> 
+  Simplify() |> 
+  ysym()
+D <- solve(c(MRS, dL[[3]]), c(ysym('p1/p2'), 0), c('x1', 'x2')) |> 
+  y_rmvars() |>
+  simplify()
+D[1] <- with_value(D[1], 'x2', D[2]) |> 
+  simplify()
+```
+
+```{r demand-solution}
+u <- ysym('x1^(alpha) * x2^(1-alpha)')
+L <- u + ysym('lambda*(m - p1*x1 - p2*x2)')
+dL <- deriv(L, c('x1', 'x2', 'lambda'))
+MU <- deriv(u, c('x1', 'x2'))
+MRS <- yac_str(MU[1]/MU[2]) |> 
+  Simplify() |> 
+  ysym()
+D <- solve(c(MRS, dL[[3]]), c(ysym('p1/p2'), 0), c('x1', 'x2')) |> 
+  y_rmvars() |>
+  simplify()
+D[1] <- with_value(D[1], 'x2', D[2]) |> 
+  simplify()
+```
+
+```{r demand-check}
+grade_code()
+```
+
+$$x_1(p_1, m) = `r tex(D[1])`$$
+
+$$x_2(p_2, m) = `r tex(D[2])`$$
+
+Notice that for these preferences the increase in consumption for $x_1$ is linear in the amount of income (it only depends on the exogenous parameters $\alpha$ and $p_1$).
+
+Run the following code to take the derivative of demand for $x_1$ and $x_2$ with respect to income and prices. 
+
+```{r analyticalStatics, exercise = TRUE}
+statics <- deriv(D, c('m', 'p1', 'p2'))
+```
+
+```{r analyticalStatics-solution}
+statics <- deriv(D, c('m', 'p1', 'p2'))
+```
+
+```{r analyticalStatics-check}
+grade_code()
+```
+
+substituting our parameter values, we have: 
+
+$$\nabla x_1(m, p_1) = \begin{pmatrix} \frac{d}{dm}x_1(m, p_1) \\ \frac{d}{dp_1}x_1(m, p_1) \\ \frac{d}{dp_2}x_1(m, p_1) \end{pmatrix} 
+ = \begin{pmatrix} `r tex(statics[1,1])` \\  `r tex(statics[2,1])` \\ `r tex(statics[3,1])` \end {pmatrix} 
+ = \begin{pmatrix} \frac{0.25}{1.50} \\ \frac{-25}{1.50^2} \\ 0 \end{pmatrix}
+ \approx \begin{pmatrix} 0.16667 \\ -11.11 \\ 0 \end{pmatrix}$$
+
+## Engel Curves
 
 The *Engel Curve* plots the demand for a good against the level of
 income. In our Cobb-Douglas example, this "curve" is a straight line.
@@ -258,7 +478,7 @@ Plot the Engel curve for the example.
 
 ```{r cdEngel-solution}
 curve(
-  alpha * x / p1,
+  (a / p1) * x,
   from = 0,
   to = 150,
   xlab = expression("Income"),
@@ -532,247 +752,9 @@ par(mfrow = c(1,1))
 grade_code()
 ```
 
-
-## Effects of Price Changes
-
-Initial solution: $$x_1^* = 50/3$$ $$x_2^* = 75$$
-
-### Graphical Approach
-
-Run the following code to see the graph of the effect of an increase and
-decrease in the price of good 1 equal to \$0.50.
-
-```{r priceChangeRunGraph, exercise = TRUE}
-dp1 = 0.5
-bcLowP  <- function(x) (p1 - dp1) * x[1] + p2 * x[2]
-bcHighP <- function(x) (p1 + dp1) * x[1] + p2 * x[2]
-lowPEquilibrium <-
-  solnp(
-    c(1, 1),
-    ux,
-    ineqfun = bcLowP,
-    ineqLB = 0,
-    ineqUB = m,
-    LB = c(0, 0),
-    UB = c(Inf, Inf)
-  )
-highPEquilibrium <-
-  solnp(
-    c(1, 1),
-    ux,
-    ineqfun = bcHighP,
-    ineqLB = 0,
-    ineqUB = m,
-    LB = c(0, 0),
-    UB = c(Inf, Inf)
-  )
-curve(
-  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  from = 0,
-  to = m / p1,
-  xlim = c(0, m / (p1 - dp1)),
-  ylim = c(0, m / p2),
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  col = 'dark green'
-)
-abline(m / p2,-p1 / p2, col = 'red')
-points(initialEquilibrium$pars[1],
-       initialEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-curve(
-  (-tail(lowPEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline(m / p2,-(p1 - dp1) / p2, col = 'red', lty = 'dashed')
-points(lowPEquilibrium$pars[1],
-       lowPEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-curve(
-  (-tail(highPEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline(m / p2,-(p1 + dp1) / p2, col = 'red', lty = 'dashed')
-points(highPEquilibrium$pars[1],
-       highPEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-```
-
-```{r priceChangeRunGraph-solution}
-dp1 = 0.5
-bcLowP  <- function(x) (p1 - dp1) * x[1] + p2 * x[2]
-bcHighP <- function(x) (p1 + dp1) * x[1] + p2 * x[2]
-lowPEquilibrium <-
-  solnp(
-    c(1, 1),
-    ux,
-    ineqfun = bcLowP,
-    ineqLB = 0,
-    ineqUB = m,
-    LB = c(0, 0),
-    UB = c(Inf, Inf)
-  )
-highPEquilibrium <-
-  solnp(
-    c(1, 1),
-    ux,
-    ineqfun = bcHighP,
-    ineqLB = 0,
-    ineqUB = m,
-    LB = c(0, 0),
-    UB = c(Inf, Inf)
-  )
-curve(
-  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  from = 0,
-  to = m / p1,
-  xlim = c(0, m / (p1 - dp1)),
-  ylim = c(0, m / p2),
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  col = 'dark green'
-)
-abline(m / p2,-p1 / p2, col = 'red')
-points(initialEquilibrium$pars[1],
-       initialEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-curve(
-  (-tail(lowPEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline(m / p2,-(p1 - dp1) / p2, col = 'red', lty = 'dashed')
-points(lowPEquilibrium$pars[1],
-       lowPEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-curve(
-  (-tail(highPEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline(m / p2,-(p1 + dp1) / p2, col = 'red', lty = 'dashed')
-points(highPEquilibrium$pars[1],
-       highPEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-```
-
-```{r priceChangeRunGraph-check}
-grade_code()
-```
-
-### Analytical Approach
-
-Recall again the analytical solution to the consumer problem with
-Cobb-Douglass preferences for the demand for $x_1$ and $x_2$,
-respectively:
-
-$$x_1(p_1, m) = `r tex(D1)`$$ $$x_2(p_2, m) = `r tex(D2)`$$
-
-### Computational Approach
-
-Let's analyze the effect of a \$0.50 increase in price, and a \$0.50
-decrease in price for good 1.
-
-1.  For a consumer with the same preferences (Cobb-Douglass with
-    $\alpha = 0.25$), and facing the price of good 2 and income
-    ($p_2 = 1$), compute the new equilibria for an increase in the price
-    of good 1 from \$1.50 to \$2.00 (`dp1 = 0.5`); repeat for an equal
-    decrease in $p_1$ to \$1.00.
-2.  Print the (already-stored) initial and new optimal bundles.
-
-```{r priceChange, exercise = TRUE, exercise.reveal_solution = TRUE}
-
-
-```
-
-```{r priceChange-solution}
-dp1 = 0.5
-lowPEquilibrium <-
-  solnp(
-    c(1, 1),
-    ux,
-    ineqfun = bcLowP,
-    ineqLB = 0,
-    ineqUB = m,
-    LB = c(0, 0),
-    UB = c(Inf, Inf)
-  )
-highPEquilibrium <-
-  solnp(
-    c(1, 1),
-    ux,
-    ineqfun = bcHighP,
-    ineqLB = 0,
-    ineqUB = m,
-    LB = c(0, 0),
-    UB = c(Inf, Inf)
-  )
-initialEquilibrium[1]
-lowPEquilibrium[1]
-highPEquilibrium[1]
-```
-
-```{r priceChange-check}
-grade_code()
-```
-
-Graph the indifference curves and budget lines for each equilibrium:
-
-1.  $p_1 = \$1.50$ (Plot from $x_1 = 0$ to $x_1 = m/p_1$ and from
-    $x_2 = 0$ to $x_2 = m/p_2$; indifference curve `dark green` and
-    budget line `red`)
-2.  $p_1 = \$2.00$ (Indifference curve )
-3.  $p_1 = \$1.00$
-
-```{r priceChangeGraph, exercise = TRUE, exercise.reveal_solution = TRUE}
-
-```
-
-```{r priceChangeGraph-solution}
-curve(
-  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  from = 0,
-  to = m / p1,
-  xlim = c(0, m / (p1 - dp1)),
-  ylim = c(0, m / p2),
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  col = 'dark green'
-)
-abline(m / p2,-p1 / p2, col = 'red')
-curve(
-  (-tail(lowPEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline(m / p2,-(p1 - dp1) / p2, col = 'red', lty = 'dashed')
-curve(
-  (-tail(highPEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline(m / p2,-(p1 + dp1) / p2, col = 'red', lty = 'dashed')
-```
-
-```{r priceChangeGraph-check}
-grade_code()
-```
-
 ## Demand Curves
+
+### Plotting Demand by Connecting the Dots
 
 Plot the three points you derived in the previous exercise for the
 prices of good 1 equal to 1.0, 1.5, and 2.0. (Orient quantity on the 
@@ -848,7 +830,7 @@ segments(
 grade_code()
 ```
 
-### Plotting Many Points Demand Curve
+### Connecting Many Dots on a Demand Curve
 
 The more points we do this for, the smoother and more complete our
 demand curve becomes. Run the code below to derive the demand schedule
@@ -929,7 +911,7 @@ grade_code()
 
 Recall that the analytical solution for the demand curve was:
 
-$$x_1(p_1, m) = `r tex(D1)`$$
+$$x_1(p_1, m) = `r tex(D[1])`$$
 
 1.  Plot this function. Note that this function expresses *quantity* as
     a function of *price*, which implies that the axes are reversed.
@@ -943,7 +925,7 @@ $$x_1(p_1, m) = `r tex(D1)`$$
 
 ```{r demandFunction-solution}
 curve(
-  alpha * m / x,
+  a * m / x,
   from = 0,
   to = 2.5,
   ylim = c(0, 50),
@@ -951,7 +933,7 @@ curve(
   ylab = "Quantity of Good 1"
 )
 curve(
-  alpha * m / x,
+  a * m / x,
   from = 0,
   to = 50,
   ylim = c(0, 2.5),
@@ -961,7 +943,7 @@ curve(
 ```
 
 ```{r demandFunction-check}
-grade_code()
+grade_code("Samesies!")
 ```
 
 Why do you think Alfred Marshall would graph demand functions
@@ -1025,7 +1007,7 @@ Note: several packages implement constrained optimization with nonlinear constra
 
 ```{r, fig.height = 8, fig.width = 8}
 curve(
-  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
+  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
   from = 0,
   to = m / (p1 - dp1),
   xlim = c(0, m / (p1 - dp1)),
@@ -1040,7 +1022,7 @@ points(initialEquilibrium$pars[1],
        col = 'blue',
        pch = 20)
 curve(
-  (-tail(lowPEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
+  (-tail(lowPEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
   add = TRUE,
   col = 'dark green',
   lty = 'dashed'
@@ -1076,7 +1058,7 @@ text(x = (lowPEquilibrium$pars[1]+xTilde$pars[1])/2,
 <details style="line-height:105%"><summary>Click here to see the code for graphing the decomposition of the change in price.</summary>
 
 `curve(`<br>
-`  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),`<br>
+`  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),`<br>
 `  from = 0,`<br>
 `  to = m / (p1 - dp1),`<br>
 `  xlim = c(0, m / (p1 - dp1)),`<br>
@@ -1089,7 +1071,7 @@ text(x = (lowPEquilibrium$pars[1]+xTilde$pars[1])/2,
 `       initialEquilibrium$pars[2],`<br>
 `       col = 'blue', pch = 20)`<br>
 `curve(`<br>
-`  (-tail(lowPEquilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),`<br>
+`  (-tail(lowPEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),`<br>
 `  add = TRUE,`<br>
 `  col = 'dark green',`<br>
 `  lty = 'dashed')`<br>
@@ -1126,7 +1108,7 @@ text(x = (lowPEquilibrium$pars[1]+xTilde$pars[1])/2,
 The two dashed expenditure lines (through $x^**$ and $\tilde{x}$) capture the difference in income needed to achieve the new and original maximum levels of utility, respectively, calculated at the new price levels. In other words this is the additional income the consumer "feels" by moving from the original indifference curve to the new one. It is also one of the ways to capture the change in consumer surplus across all markets when relative prices change. 
 
 ```{r installR, echo=FALSE}
-question("What is the approximate dollar-denominated welfare effect of the price change (evaluated at the new prices) for our example?",
+question("What is the approximate dollar-denominated welfare effect (i.e. income effect) of the price change (evaluated at the new prices) for our example?",
     answer("zero"),
     answer("-9.64"),
     answer("9.64", correct = TRUE),
@@ -1140,7 +1122,3 @@ question("What is the approximate dollar-denominated welfare effect of the price
 Once you've found the $\tilde{x}$, finding the consumer surplus is relatively straightforward. In our case, the expenditures needed at the new prices in order to reach the original utility is the value of the objective function for the expenditure minimization problem we solved to calculate $\tilde{x}$, `xTilde$objective`, or `r xTilde$objective`; the expenditures needed to reach the new optimal utility is simply the consumer's money income, `m`. The change in consumer surplus will be the difference `r round(m - xTilde$objective, 2)`. 
 
 Some policy analyses use this to evaluate the welfare effects of policy changes in terms of real income. The trick is estimating (with as few assumptions as possible!) the unobserved $\tilde{x}$. 
-
-## Special Cases 
-
-### Giffen Goods

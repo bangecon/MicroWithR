@@ -252,12 +252,12 @@ There are also loads of other ways to make beautiful graphs using the package `g
 
 ### Changing the Plot Range
 
-If we want to try to "eyeball" the minimum of our quadratic function, we can zoom in on the range $0 \le x \le 0.5$. Run the following code to graph this portion of the domain of our function.
+If we want to try to "eyeball" the minimum of our quadratic function, we can zoom in on the range $0.25 \le x \le 0.5$. Run the following code to graph this portion of the domain of our function.
 
 ```{r zoom, exercise = TRUE, fig.height=6.5, fig.width=4.5, fig.align='center'}
 curve(
   8 * x ^ 2 - 6 * x - 12,
-  from = 0 ,
+  from = 0.25 ,
   to = 0.5,
   col = 'blue',
   xlab = expression(italic(x)),
@@ -367,6 +367,40 @@ grade_this({if (!inherits(.result, c("list"))) {
   pass("Notice how computational solutions sometimes give very slightly less precise solutions.")
 })
 ```
+
+## Solving a System of Equations: Supply and Demand
+
+Given the following (inverse) supply and demand functions: 
+
+$$P = 10 - Q_d$$
+
+$$P = Q_s$$
+
+Solve for the equilibrium price and quantity using `nleqslv::nleqslv`. 
+
+```{r equilibrium, exercise = TRUE}
+
+```
+
+```{r equilibrium-solution}
+market <- function(x) {
+    supply <- x[1] - x[2]
+    demand <- 10 - x[1] - x[2]
+    return(c(supply, demand))
+}
+equilibrium <- nleqslv(c(2,2), market)
+```
+
+```{r equilibrium-check}
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (.result$x != c(5,5)) { 
+    fail("The equilibrium price and quantity are (5,5)") }
+  pass()
+})
+```
+
+(Note: This is a pretty easy system to solve; the objective is to code the solution "correctly.")
 
 ## A Note on "Piping"
 

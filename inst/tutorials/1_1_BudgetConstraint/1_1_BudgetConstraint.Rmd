@@ -8,6 +8,14 @@ author: Jim Bang
 description: "The consumer's budget constraint"
 ---
 
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+</style>
+
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
@@ -186,44 +194,96 @@ grade_this({if (!inherits(.result, c("list"))) {
 
 ## Strategy Examples
 
-### Food Stamps
+### Volume Discount
 
-Consider a consumer who receives "food stamps" that subsidizes up to five donuts (but does not subsidize beer). Graph the budget line for this consumer using the original parameters ($m = 20$, $p_d = 1$, and $p_b = 2$). (Hint: You need to plot two separate lines because there are two segments to this budget line. The first is as if income has increased by the dollar value of 5 donuts; the second part is horizontal noting that you cannot spend the subsidy on beer and so the maximum amount of beer the consumer can buy does not change. Use the `segments(x0, x1, y0, y1)` function to draw this part.)
+Suppose that the donut shop has a pricing schedule of \$1 per donut for the first dozen and $0.75 thereafter. Graph the budget line for this consumer using the original parameters. (Hint: This budget line will have multiple segments and you will have to think carefully about how to define each one.) Run the following code to plot this budget line in <span style="color: green;">green</span>. 
 
-```{r foodStamps, exercise = TRUE}
-# Set the value of the food stamps, s_d.
+```{r volumeDiscount}
+m = 20
+p_d = 1       # The low-volume price of a donut
+q_d_v = 12    # The donut threshold for a volume discount
+p_d_v = 0.75  # The volume-discounted price of a donut
+p_b = 2       # The price of beer
 curve(
-  s_d + m / p_d - p_b * x / p_d,
+  m / p_d_v - q_d_v * ((p_d - p_d_v) / p_d_v) - p_b * x / p_d_v,
   from = 0,
-  to = m / p_b,
+  to = (m - p_d * q_d_v) / p_b,
   xlab = "Beer",
   ylab = "Donuts",
   xlim = c(0, m / p_b),
-  ylim = c(0, s_d + m / p_d)
-)
-# Add the segment from the food stamp not being spendable on beer. 
-```
-
-```{r foodStamps-solution}
-s_d = 5
-curve(
-  s_d + m / p_d - p_b * x / p_d,
-  from = 0,
-  to = m / p_b,
-  xlab = "Beer",
-  ylab = "Donuts",
-  xlim = c(0, m / p_b),
-  ylim = c(0, s_d + m / p_d)
+  ylim = c(0, m / p_d_v)
 )
 segments(
-  x0 = m / p_b,
+  x0 = (m - p_d * q_d_v) / p_b,
   x1 = m / p_b,
-  y0 = 0,
-  y1 = s_d
+  y0 = q_d_v,
+  y1 = 0
 )
 ```
 
-```{r foodStamps-check}
+```{r volumeDiscount-solution}
+m = 20
+p_d = 1       # The low-volume price of a donut
+q_d_v = 12    # The donut threshold for a volume discount
+p_d_v = 0.75  # The volume-discounted price of a donut
+p_b = 2       # The price of beer
+curve(
+  m / p_d_v - q_d_v * ((p_d - p_d_v) / p_d_v) - p_b * x / p_d_v,
+  from = 0,
+  to = (m - p_d * q_d_v) / p_b,
+  xlab = "Beer",
+  ylab = "Donuts",
+  xlim = c(0, m / p_b),
+  ylim = c(0, m / p_d_v)
+)
+segments(
+  x0 = (m - p_d * q_d_v) / p_b,
+  x1 = m / p_b,
+  y0 = q_d_v,
+  y1 = 0
+)
+```
+
+```{r volumeDiscount-check}
+grade_code() 
+```
+
+What would it look like if the volume discount applied to the *entire* purchase greater than 12? 
+
+```{r volumeDiscount2}
+
+```
+
+```{r volumeDiscount2-solution}
+m = 20
+p_d = 1       # The low-volume price of a donut
+q_d_v = 12    # The donut threshold for a volume discount
+p_d_v = 0.75  # The volume-discounted price of a donut
+p_b = 2       # The price of beer
+curve(
+  m / p_d_v - p_b * x / p_d_v,
+  from = 0,
+  to = (m - p_d * q_d_v) / p_b,
+  xlab = "Beer",
+  ylab = "Donuts",
+  xlim = c(0, m / p_b),
+  ylim = c(0, m / p_d_v)
+)
+segments(
+  x0 = (m - p_d * q_d_v) / p_b,
+  x1 = (m - p_d * q_d_v) / p_b,
+  y0 = q_d_v,
+  y1 = q_d_v * p_d/p_d_v
+)
+segments(
+  x0 = (m - p_d * q_d_v) / p_b,
+  x1 = m / p_b,
+  y0 = q_d_v,
+  y1 = 0
+)
+```
+
+```{r volumeDiscount-check}
 grade_code() 
 ```
 
