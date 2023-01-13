@@ -1,0 +1,31 @@
+---
+title: "2.2 Cost Minimization"
+author: Jim Bang    
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(Deriv)
+library(Ryacas)
+library(Rsolnp)
+gradethis_setup(exercise.reveal_solution = FALSE, exercise.eval = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+```
+
+## Offshoring Tire Production
+
+Suppose that Flamerock Tires must decide where to produce one million tires: the US, where wages are 30 and the cost of capital is 10; or China, where wages are 5 and the cost of capital is 25. Production in each location follows the same technology (production function) given by: 
+
+$$Q = f(L, K) = L^{0.25} * K^{0.75}$$
+
+1. Find the cost-minimizing input levels in each location to produce the goal of 1 million tires; 
+
+
+2. Find the total cost in each location: which location minimizes costs? 
+
+

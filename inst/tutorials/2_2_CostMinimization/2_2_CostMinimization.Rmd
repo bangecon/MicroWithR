@@ -7,6 +7,14 @@ output:
 runtime: shiny_prerendered
 ---
 
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+</style>
+
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
@@ -15,23 +23,6 @@ library(Ryacas)
 library(Rsolnp)
 gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
-w =1; r = 2; alpha = 1/3; y0 = 2500
-G <- ysym('L + 2*K + lambda*(2500 - 100*L^(1/3) * K^(2/3))')
-(dG <- c(deriv(G, 'L'), deriv(G, 'K'), deriv(G, 'lambda')))
-MPLinv <- solve(dG[[1]], 'lambda') |> y_rmvars()/w
-MPLinv <- yac_str(MPLinv) |> Simplify() |> ysym()
-MPKinv <- solve(dG[[2]], 'lambda') |> y_rmvars()/r
-MPKinv <- yac_str(MPKinv) |> Simplify() |> ysym()
-MRTS <- MPKinv/MPLinv
-MRTSsolve <- solve(MRTS - w/r, 'K') |> y_rmvars() 
-MRTSsolve <- gsub('\\}|\\{', '', MRTSsolve)
-IQsub <- gsub('K', MRTSsolve, dG[[3]]) |> Simplify() |> ysym()
-Lstar <- solve(IQsub, 'L') |> y_rmvars() |> yac_expr() |> eval()
-Kstar <- parse(text = gsub('L', Lstar, MRTSsolve)) |> eval()
-lambda <- parse(text = gsub('K', Kstar, gsub('L', Lstar, MPLinv))) |> eval()*w
-costMin <- solnp(pars = c(1, 1), fun = function(x) w*x[1] + r*x[2],
-                 ineqfun = function(x) 100 * (x[1]^alpha * x[2]^(1-alpha)) - y0,
-                 ineqLB = 0, ineqUB = Inf, LB = c(0, 0))
 ```
 
 ## Overview
@@ -76,6 +67,10 @@ curve(37.5 - x / 2,
       from = 0,
       to = 75,
       add = TRUE)
+arrows(x0 = 100/3,
+       y0 = 100/3,
+       x1 = 100/6,
+       y1 = 100/6)
 curve(25 - x / 2,
       from = 0,
       to = 50,
@@ -84,60 +79,39 @@ curve(25 - x / 2,
 
 
 ```{r isocost-check}
-grade_code()
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(.result$y[2], 3) != 24.75) { 
+    fail("The second y value should equal 24.75.") }
+  pass()
+})
 ```
 
 ### Isoquant Constraint
 
-Suppose that the firm wants to produce 25 units of output. Add the isoquant for the Cobb-Douglas production function from the previous section to the graph you started above. 
+Suppose that the firm wants to produce 2,500 units of output. Add the isoquant for the Cobb-Douglas production function from the previous section to the graph you started above. 
 
-$$f(L, K) = 100L^{1/3}K^{2/3}$$
+$$f(L, K) = 100L^{1/3}K^{2/3} = 2500$$
 ```{r isoquant, exercise = TRUE}
-curve(50 - x / 2,
-      from = 0,
-      to = 100,
-      ylim = c(0, 50),
-      xlab = "Labor",
-      ylab = "Capital")
-curve(37.5 - x / 2,
-      from = 0,
-      to = 75,
-      add = TRUE)
-curve(25 - x / 2,
-      from = 0,
-      to = 50,
-      add = TRUE)
-arrows(x0 = 100/3,
-       y0 = 100/3,
-       x1 = 100/6,
-       y1 = 100/6)
 
 ```
 
 ```{r isoquant-solution}
-curve(50 - x / 2,
-      from = 0,
-      to = 100,
+curve((2500 / (100*x^(1/3)))^(3/2), 
+      from = 0, 
+      to = 50,
       ylim = c(0, 50),
       xlab = "Labor",
       ylab = "Capital")
-curve(37.5 - x / 2,
-      from = 0,
-      to = 75,
-      add = TRUE)
-curve(25 - x / 2,
-      from = 0,
-      to = 50,
-      add = TRUE)
-arrows(x0 = 100/3,
-       y0 = 100/3,
-       x1 = 100/6,
-       y1 = 100/6)
-curve((2500 / (100*x^(1/3)))^(3/2), add = TRUE)
 ```
 
 ```{r isoquant-check}
-grade_code()
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(.result$y[2], 3) != 176.777) { 
+    fail("The second y value should equal 176.777.") }
+  pass()
+})
 ```
 
 ## Graphical Approach
@@ -148,6 +122,7 @@ From our graph, it appears that this firm would minimize its cost of producing 2
 curve(37.5 - x / 2,
       from = 0,
       to = 75, 
+      ylim = c(0,75),
       xlab = "Labor", 
       ylab = "Capital")
 curve((2500 / (100*x^(1/3)))^(3/2), add = TRUE)
@@ -196,11 +171,16 @@ Wrap the function obtaining the derivatives in "()" so that it displays in the o
 
 ```{r foc-solution}
 G <- ysym('L + 2*K + lambda*(2500 - 100*L^(1/3) * K^(2/3))')
-(dG <- c(deriv(G, 'L'), deriv(G, 'K'), deriv(G, 'lambda')))
+dG <- deriv(G, c('L', 'K', 'lambda'))
 ```
 
 ```{r foc-check}
-grade_code() 
+grade_this({if (!inherits(.result, c("yac_symbol"))) {
+    fail("Your class of your answer should be a list")}
+  if (.result != 'y: 2500-100*L^(1/3)*K^(2/3)') { 
+    fail("The third element of the gradient should equal the production function.") }
+  pass()
+})
 ```
 
 Setting the derivatives of the Lagrangean equal to zero finds the "first-order conditions." These conditions find the "critical values" where the Lagrangean switches from increasing to decreasing (or vice-versa) corresponding to maximum (minimum) values. 

@@ -7,6 +7,14 @@ output:
 runtime: shiny_prerendered
 ---
 
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+</style>
+
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
@@ -14,9 +22,7 @@ library(Ryacas)
 library(Deriv)
 gradethis_setup(exercise.reveal_solution = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
-polynomial <- function(x) {
-  -x^3 + 60*x^2 + 25*x
-}
+yac('MaxEvalDepth(100000)')
 ```
 
 ## Firm Decisions
@@ -149,7 +155,12 @@ persp(x,
 ```
 
 ```{r CobbDouglas-check}
-grade_code() 
+grade_this({if (!inherits(.result, c("matrix"))) {
+    fail("Your class of your answer should be a matrix")}
+  if (.result[,1] != c(0.2, 0, 0, -1)) { 
+    fail("The first column should equal (0.2, 0, 0, -1.0).") }
+  pass()
+})
 ```
 
 ## Short-Run Production Function
@@ -176,7 +187,12 @@ curve(100*25^(2/3)*x^(1/3),
 ```
 
 ```{r cdShortRun-check}
-grade_code() 
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(.result$y[2], 4) != 678.6044) { 
+    fail("The second y value should equal 678.6044.") }
+  pass()
+})
 ```
 
 ### Polynomial Production Function
@@ -202,7 +218,12 @@ curve(polynomial,
 ```
 
 ```{r polynomial-check}
-
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(.result$y[2], 3) != 27.375) { 
+    fail("The second y value should equal 27.375") }
+  pass()
+})
 ```
 
 The *marginal product of labor* is the *change* in (i.e. slope, derivative of) the total production function with respect to $L$. 
@@ -238,35 +259,46 @@ $$AP_L = \frac{f(L,K)}{L}$$
 Add `curve()` functions to the following code to graph the marginal and average products of labor from $0 \le L \le 50$ in a single plot area. Use $(-1250, 1250)$ as the limits for the vertical (output) axis and label your axes "Labor" and "Output." 
 
 ```{r MPL, exercise = TRUE, exercise.reveal_solution = TRUE}
-dl.polynomial <- 
-  ysym(deparse(polynomial)[[3]]) |> # Convert the "polynomial" function into a yac_sym. 
-  deriv('x') |>                     # Take the derivative with respect to x. 
-  yac_expr()                        # Convert the result into an r expression
+yac.polynomial <- 
+  deparse(polynomial)[[3]] |>   # Split polynomial as character vector, position 3
+  ysym()                        # Convert to a yac_sym
+dl.polynomial <- yac.polynomial |>
+  deriv('x') |>                 # Take the derivative with respect to x
+  as_r()                        # Convert to an r expression
 yl.polynomial <- 
-  (ysym(deparse(polynomial)[[3]]) / ysym('x')) |> # Divide converted polynomial by x.
-  yac_expr()                                      # Convert the result into an r expression
+  yac.polynomial / ysym('x')    # Divide by x
+yl.polynomial <- yl.polynomial |>
+  simplify() |>
+  as_r()                        # Convert to an r expression
 polynomial.mpl <- function(x) {
   eval(dl.polynomial[[1]])
-}                                   # Define the mpl as a function. 
+}                             # Define the mpl as a function. 
 polynomial.apl <- function(x) {
   eval(yl.polynomial[[1]])
-}                                   # Define the apl as a function. 
-
+}                             # Define the apl as a function. 
+# Begin Graphing Code Below. 
 
 ```
 
 ```{r MPL-solution}
-dl.polynomial <- ysym(deparse(polynomial)[[3]]) |>
-  deriv('x') |>
-  yac_expr()
-yl.polynomial <- (ysym(deparse(polynomial)[[3]]) / ysym('x')) |>
-  yac_expr()
+yac.polynomial <- 
+  deparse(polynomial)[[3]] |>   # Split polynomial as character vector, position 3
+  ysym()                        # Convert to a yac_sym
+dl.polynomial <- yac.polynomial |>
+  deriv('x') |>                 # Take the derivative with respect to x
+  as_r()                        # Convert to an r expression
+yl.polynomial <- 
+  yac.polynomial / ysym('x')    # Divide by x
+yl.polynomial <- yl.polynomial |>
+  simplify() |>
+  as_r()                        # Convert to an r expression
 polynomial.mpl <- function(x) {
   eval(dl.polynomial[[1]])
-}
+}                             # Define the mpl as a function. 
 polynomial.apl <- function(x) {
   eval(yl.polynomial[[1]])
-}
+}                             # Define the apl as a function. 
+# Begin Graphing Code Below. 
 curve(
   polynomial.mpl,
   type = 'l',
@@ -279,7 +311,12 @@ curve(polynomial.apl, add = TRUE)
 ```
 
 ```{r MPL-check}
-
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(.result$y[2], 3) != 25.6) { 
+    fail("The second y value should equal 25.6") }
+  pass()
+})
 ```
 
 ## Production in the Long Run
@@ -297,25 +334,32 @@ Based on the preference axioms introduced earlier, we can derive three propertie
 
 Graphically, an isoquant is a horizontal cross-section of the production function at a fixed level of output. 
 
-For the Cobb-Douglass example with $\alpha = 1/3$ and $A = 100$, plot the isoquant curves for $y = 1000$ and $y = 2500$ for $0 \le x_1 \le 50$ and $0 \le x_2 \le 50$.
+For the Cobb-Douglass example with $\alpha = 1/3$ and $A = 100$, plot the isoquants for $y_1 = 1000$ and $y_2 = 2500$ for $0 \le L \le 50$ and $0 \le K \le 50$.
 
 ```{r cdIsoquants, exercise=TRUE, exercise.reveal_solution = TRUE}
 
 ```
 
 ```{r cdIsoquants-solution}
-curve((1000 / 100*x^(1/3))^(3/2),
+# y.cobbDouglas <- ysym('100*L^0.25 * K^(1-0.25)')
+# y.isoquant1 <- solve(y.cobbDouglas, 1000, 'K')
+curve((1000 / (100*x^(1/3)))^(3/2),
   type = 'l',
   ylim = c(0, 50),
   xlim = c(0, 50),
   xlab = "Labor",
   ylab = "Capital"
 )
-curve((2500 / 100*x^(1/3))^(3/2), add = TRUE)
+curve((2500 / (100*x^(1/3)))^(3/2), add = TRUE)
 ```
 
 ```{r cdIsoquants-check}
-grade_code() 
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(.result$y[2], 3) != 176.777) { 
+    fail("The second y value should equal 176.777") }
+  pass()
+})
 ```
 
 ### Marginal Rate of Technical Substitution
@@ -334,11 +378,15 @@ MRTS <- (deriv(y, 'L') / deriv(y, 'K')) |>
   yac_str() |> 
   Simplify() |>
   ysym()
-MRTS
 ```
 
 ```{r marginalRateOfSubstitution-check}
-grade_code() 
+grade_this({if (!inherits(.result, c("yac_symbol"))) {
+    fail("Your class of your answer should be a yac_symbol")}
+  if (.result != 'y: K/(2*L)') { 
+    fail("The MRTS should equal K/(2*L)") }
+  pass()
+})
 ```
 
 ### General Form
