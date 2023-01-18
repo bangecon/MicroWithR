@@ -16,4 +16,7 @@ Depends:
   gradethis
 Imports: 
   Deriv, 
-  ggplot2
+  ggplot2, 
+  Ryacas, 
+  Rsolnp
+  

@@ -1,0 +1,107 @@
+---
+title: "2.3 Cost Curves"
+author: Jim Bang
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+gradethis_setup(exercise.reveal_solution = FALSE, exercise.eval = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+```
+
+## Constant Marginal Productivity 
+
+1. Compute the values of the cost-minimizing combinations of labor and capital to produce at least ten different quantities of output using a production function where $MP_L = MP_K = 100$ for all levels of the inputs $L$ and $K$ where $w = 1$ and $r = 2$. 
+
+Plot the long-run total and long-run average cost curves. 
+
+```{r constantMPLs, exercise = TRUE}
+
+```
+
+```{r constantMPLs-solution}
+library(Ryacas)
+library(Deriv)
+library(Rsolnp)
+w = 1; r = 2
+costSchedule <-
+  data.frame(
+    Quantity = seq(from = 0, to = 5000, by = 100),
+    Labor = NA,
+    Capital = NA,
+    Total_Cost = NA,
+    Average_Cost = NA
+  )
+for (i in 1:nrow(costSchedule)) {
+  costMinTemp <- solnp(
+    pars = c(1, 1), 
+    fun = function(x) w*x[1] + r*x[2],
+    ineqfun = function(x) 100*(x[1] + x[2]),
+    ineqLB = costSchedule$Quantity[i], 
+    ineqUB = Inf, 
+    LB = c(0, 0))
+  costSchedule$Labor[i] <- costMinTemp$pars[1]
+  costSchedule$Capital[i] <- costMinTemp$pars[2]
+  costSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
+}
+costSchedule$Average_Cost <- costSchedule$Total_Cost / costSchedule$Quantity
+par(mfrow = c(1, 2))
+plot(costSchedule$Quantity, costSchedule$Total_Cost, type = 'l', ylim = c(0,50), xlab = "Quantity", ylab = "Total Cost")
+plot(costSchedule$Quantity, costSchedule$Average_Cost, type = 'l', ylim = c(0,0.02), xlab = "Quantity", ylab = "Average Cost")
+```
+
+```{r constantMPLs-check}
+grade_code()
+```
+
+2. Fix $K = 10$ in the previous question. Compute the short-run cost-minimizing input combinations for at least 10 different quantities of output. 
+
+Plot the total and total variable cost curves on one graph and the marginal, average, and average variable cost curves on another. 
+
+```{r SRconstantMPLs, exercise = TRUE}
+
+```
+
+```{r SRconstantMPLs-solution}
+SRcostSchedule <-
+  data.frame(
+    Quantity = seq(from = 0, to = 5000, by = 20),
+    Labor = NA,
+    Capital = 10,
+    Total_Cost = NA,
+    Average_Cost = NA
+  )
+for (i in 1:nrow(SRcostSchedule)) {
+  costMinTemp <- solnp(
+    pars = 1, 
+    fun = function(x) w*x + r*10,
+    ineqfun = function(x) 100*(x + 10),
+    ineqLB = SRcostSchedule$Quantity[i], 
+    ineqUB = Inf, 
+    LB = 0)
+  SRcostSchedule$Labor[i] <- costMinTemp$pars[1]
+  SRcostSchedule$Variable_Cost[i] <- w*SRcostSchedule$Labor[i]
+  SRcostSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
+}
+SRcostSchedule$Average_Cost <- SRcostSchedule$Total_Cost / SRcostSchedule$Quantity
+SRcostSchedule$Average_Variable_Cost <- 
+  SRcostSchedule$Variable_Cost / SRcostSchedule$Quantity
+SRcostSchedule$Marginal_Cost <- 
+  c(NA,diff(SRcostSchedule$Total_Cost, lag = 2)/40, NA)
+par(mfrow = c(1, 2))
+plot(SRcostSchedule$Quantity, SRcostSchedule$Total_Cost, type = 'l', ylim = c(0,50), xlab = "Quantity", ylab = "Total Cost")
+lines(SRcostSchedule$Quantity, SRcostSchedule$Variable_Cost, col = 'darkorange')
+plot(SRcostSchedule$Quantity, SRcostSchedule$Average_Cost, type = 'l', ylim = c(0,0.05), xlab = "Quantity", ylab = "Average Cost")
+lines(SRcostSchedule$Quantity, SRcostSchedule$Average_Variable_Cost, col = 'darkorange')
+lines(SRcostSchedule$Quantity, SRcostSchedule$Marginal_Cost, col = 'red')
+```
+
+```{r SRconstantMPLs-check}
+grade_code()
+```
+

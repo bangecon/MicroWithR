@@ -170,6 +170,8 @@ Wrap the function obtaining the derivatives in "()" so that it displays in the o
 ```
 
 ```{r foc-solution}
+w = 1
+r = 2
 G <- ysym('L + 2*K + lambda*(2500 - 100*L^(1/3) * K^(2/3))')
 dG <- deriv(G, c('L', 'K', 'lambda'))
 ```
@@ -211,105 +213,99 @@ This will give you $1/MP_L$, so we will name it `MPLinv`.
 
 ```{r MRTS-solution}
 MPLinv <- solve(dG[[1]], 'lambda') |>
-  y_rmvars()/w
-MPLinv <- yac_str(MPLinv) |>
+  y_rmvars()/w 
+MPL <- yac_str(1/MPLinv) |>
   Simplify() |>
   ysym()
 MPKinv <- solve(dG[[2]], 'lambda') |>
   y_rmvars()/r
-MPKinv <- yac_str(MPKinv) |>
+MPK <- yac_str(1/MPKinv) |>
   Simplify() |>
   ysym()
-MRTS <- MPKinv/MPLinv
+MRTS <- yac_str(MPL/MPK) |> 
+  Simplify() |> 
+  ysym()
 ```
 
 ```{r MRTS-check}
-grade_code() 
+grade_this({if (!inherits(.result, c("yac_symbol"))) {
+    fail("Your class of your answer should be a list")}
+  if (.result != 'y: K/(2*L)') { 
+    fail("The MRTS should equal K/2L.") }
+  pass()
+})
 ```
 
 $$`r tex(MRTS)` = w/r$$
 
 ### Solving for Input Levels
 
-Execute the following steps to get the optimal levels of $L$ and $K$. 
-
-1. Solve the $MRS - w/r = 0$ for $K$. Pipe the result forward to `y_rmvars()` to remove the `K==` and name this `MRTSsolve`. 
-2. Substitute the result of step 1 for `K` in the isoquant constraint, `dG[[3]]` using `gsub()`. Pipe this result forward to `Simplify()` and convert the character string to a `yac_symbol` with `ysym()`. Name this object `IQsub`.
-3. Solve `IQsub` for `L` and pipe the solution forward to `y_rmvars()`, `yac_expr()`, and `eval()` to stor the result as a numerical object named `Lstar`. 
-4. Substitute `Lstar` for `L` in `MRTSsolve`, and nest this `gsub()` within `parse(text = )` to convert it directly into an expression. Pipe the result forward to `eval()` to store it as a numeric object. 
-
 ```{r solution, exercise = TRUE, exercise.lines = 12}
-# Complete the first part of the solution to get Lstar; 
 
-
-# I've parsed the text substitution for Kstar below: 
-Kstar <- parse(text = gsub('L', Lstar, MRTSsolve)) |>
-  eval()
-Lstar; Kstar
 ```
 
-
 ```{r solution-solution}
-MRTSsolve <- solve(MRTS - w/r, 'K') |>
-  y_rmvars() 
-MRTSsolve <- gsub('\\}|\\{', '', MRTSsolve)
-IQsub <- gsub('K', MRTSsolve, dG[[3]]) |>
-    Simplify() |> 
-    ysym()
-Lstar <- solve(IQsub, 'L') |>
-  y_rmvars() |> 
-  yac_expr() |>
-  eval()
-Kstar <- parse(text = gsub('L', Lstar, MRTSsolve)) |>
-  eval()
-Lstar; Kstar
+Lstar <- with_value(dG[[3]], 'K',  y_rmvars(solve(MRTS, w/r, 'K'))) |>
+  solve('L') 
+Kstar <- with_value(solve(MRTS, w/r, 'K'), 'L', y_rmvars(Lstar)) 
+lambda <- with_value(dG[[1]], 'K', as_r(y_rmvars(Kstar))) |>
+  with_value('L', as_r(y_rmvars(Lstar))) |>
+  solve('lambda') |>
+  y_rmvars() |>
+  as_r()
 ```
 
 
 ```{r solution-check}
-grade_code()
+grade_this({if (!inherits(.result, c("numeric"))) {
+    fail("Your class of your answer for lambda should be a number")}
+  if (.result != 0.03) { 
+    fail("Lambda should equal 0.03.") }
+  pass()
+})
 ```
 
-### Calculating $\lambda$
-
-```{r, echo = TRUE}
-lambda <-
-  parse(text = gsub('K', Kstar, gsub('L', Lstar, MPLinv))) |>
-  eval()*w
-lambda
-```
 What does $\lambda$ represent?
 
 ## Computational Approach
 
 ### Expenditure Minimization
 
-What makes the computational approach to this problem tricky is the fact that the constraint is the value of the *nonlinear* utility function. Since the `constrOptim` function only accepts arguments for parameters for a linear constraint, we needed the `Rsolnp` package/function for nonlinear optimization. The code we used to solve the problem is: 
+What makes the computational approach to this problem tricky is the fact that the constraint is the value of the *nonlinear* utility function. The code we used to solve the problem is: 
 
 ```{r xTilde, echo = TRUE}
-library(Rsolnp)
-u <- function(x) {
-  x[1] ^ (alpha) * x[2] ^ (1 - alpha)
+ux <- function(x) {
+  - x[1] ^ (alpha) * x[2] ^ (1 - alpha)
+}
+bc <- function(x) {
+  p1*x[1] + p2*x[2]
 }
 alpha = 0.25
 p1 = 1.5
 p2 = 1
 m = 100
-dp1 = 0.5
-initialEquilibrium <- constrOptim(
-  c(0.01, 0.01),
-  u,
-  NULL,
-  ui = c(-p1,-p2),
-  ci = c(-m),
-  control = list(fnscale = -1)
+equilibrium <- solnp(
+  c(1, 1),
+  ux,
+  ineqfun = bc,
+  ineqLB = 0,
+  ineqUB = m,
+  LB = c(0, 0),
+  UB = c(Inf, Inf)
 )
-u0 <- initialEquilibrium$value
-x0 <- c(initialEquilibrium$par)
-xTilde <- solnp(pars = x0, fun = function(x) (p1 - dp1)*x[1] + p2*x[2],
-                ineqfun = function(x) x[1]^alpha * x[2]^(1-alpha) - u0,
-                ineqLB = 0, ineqUB = Inf, LB = c(0, 0))
-xTilde
+dp1 = 0.5
+bcTilde <- function(x) {
+  (p1 - dp1)*x[1] + p2*x[2]
+}
+xTilde <- solnp(
+  pars = equilibrium$pars,
+  fun = bcTilde,
+  ineqfun = ux,
+  ineqLB = -Inf,
+  ineqUB = tail(equilibrium$values, 1),
+  LB = c(0, 0),
+  UB = c(Inf, Inf)
+)
 ```
 
 ### Cost Minimization 
@@ -329,12 +325,15 @@ r = 2
 costMin <- solnp(pars = c(1, 1), fun = function(x) w*x[1] + r*x[2],
                  ineqfun = function(x) 100*x[1]^alpha*x[2]^(1-alpha)-y0,
                  ineqLB = 0, ineqUB = Inf, LB = c(0, 0))
-costMin
 ```
 
-
 ```{r costMin-check}
-grade_code()
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (.result$pars != c(25, 25)) { 
+    fail("The values of L and K should equal (25, 25).") }
+  pass()
+})
 ```
 
 ## Summary

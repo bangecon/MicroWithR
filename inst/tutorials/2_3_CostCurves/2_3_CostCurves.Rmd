@@ -7,57 +7,22 @@ output:
 runtime: shiny_prerendered
 ---
 
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+</style>
+
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
 library(Ryacas)
 library(Deriv)
-library(nloptr)
+library(Rsolnp)
 gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
-alpha = 1/3
-y0 = 2500
-w = 1
-r = 2
-costMin <- nloptr(x0 = c(1, 1), lb = c(0, 0),
-                 eval_f = function(x) w*x[1] + r*x[2], 
-                 eval_g_ineq = function(x) 
-                   y0 - 100 * (x[1]^alpha * x[2]^(1-alpha)), 
-                 opts = list("algorithm"="NLOPT_LN_COBYLA", "xtol_rel"=1.0e-8))
-costSchedule <- data.frame(Quantity = seq(0, 5000, 100),
-    Labor = NA, Capital = NA, Total_Cost = NA, Average_Cost = NA)
-for (i in 1:nrow(costSchedule)) {
-  costMinTemp <- nloptr(x0 = c(1, 1), lb = c(0, 0),
-                        eval_f = function(x) w * x[1] + r * x[2],
-                        eval_g_ineq = function(x)
-                          costSchedule$Quantity[i] - 
-                          100 * (x[1] ^ alpha * x[2] ^ (1 - alpha)),
-                        opts = list("algorithm" = "NLOPT_LN_COBYLA",
-                                    "xtol_rel" = 1.0e-8))
-  costSchedule$Labor[i] <- costMinTemp$solution[1]
-  costSchedule$Capital[i] <- costMinTemp$solution[2]
-  costSchedule$Total_Cost[i] <- costMinTemp$objective
-  costSchedule$Average_Cost[i] <-
-    costSchedule$Total_Cost[i] / costSchedule$Quantity[i]
-}
-srCostSchedule <- data.frame(Quantity = seq(0, 5000, 20),
-    Labor = NA, Capital = rep(25, 251), Total_Cost = NA, Average_Cost = NA)
-for (i in 1:nrow(srCostSchedule)) {
-  costMinTemp <- nloptr(x0 = ifelse(i == 1, 1, srCostSchedule$Labor[i-1]),
-                        lb = 0, eval_f = function(x) w * x[1] + r * 25,
-                    eval_g_ineq = function(x)
-                      srCostSchedule$Quantity[i] - 
-                      100 * (x ^ alpha * 25 ^ (1 - alpha)),
-                    opts = list("algorithm" = "NLOPT_LN_COBYLA",
-                                "xtol_rel" = 1.0e-8))
-  srCostSchedule$Labor[i] <- costMinTemp$solution[1]
-  srCostSchedule$Total_Cost[i] <- costMinTemp$objective
-}
-srCostSchedule$Average_Cost <- 
-  srCostSchedule$Total_Cost / srCostSchedule$Quantity
-srCostSchedule$Variable_Cost <- w * srCostSchedule$Labor
-srCostSchedule$Average_Variable_Cost <- 
-  srCostSchedule$Variable_Cost / srCostSchedule$Quantity
 ```
 
 ## Long-Run Cost Curves
@@ -71,31 +36,30 @@ Then, it must budget its fixed inputs (in our example, capital) based on (1) the
 For expected sales of $y = 2500$ units of output and inpput prices $w = 1$ and $w = 2$, the firm in our previous example minimized costs at 25 units of labor and 25 units of capital at a total cost of 75. 
 
 ```{r, echo=TRUE}
-alpha = 1/3; y0 = 2500; w = 1; r = 2
-costMin <- nloptr(x0 = c(1, 1), lb = c(0, 0), 
-                  eval_f = function(x) w*x[1] + r*x[2], 
-                  eval_g_ineq = function(x) 
-                    y0 - 100 * (x[1]^alpha * x[2]^(1-alpha)), 
-                  opts = list("algorithm"="NLOPT_LN_COBYLA",
-                             "xtol_rel"=1.0e-8) )
+alpha = 1/3
+y0 = 2500
+w = 1
+r = 2
+costMin <- solnp(pars = c(1, 1), fun = function(x) w*x[1] + r*x[2],
+                 ineqfun = function(x) 100*x[1]^alpha*x[2]^(1-alpha),
+                 ineqLB = y0, ineqUB = Inf, LB = c(0, 0))
 ```
 
 To find costs over several quantities (i.e. a cost *schedule*), all we need to do is solve the cost-minimization problem for many different levels of output. Computationally, we can do this using a *for-loop*. 
 
-Iterate the cost-minimization problem over any values of output to find the optimal levels of labor, capital, and cost for levels of output from 0 to 5,000 in increments of 100. 
+Run the following code to iterate the cost-minimization problem over any values of output to find the optimal levels of labor, capital, and cost for levels of output from 0 to 5,000 in increments of 100. 
 
+<details style="line-height:105%"><summary>Click here to view the steps for writing the loop.</summary>
 1. Initialize a new `data.frame` object named `costSchedule` with variables `Quantity`, `Labor`, `Capital`, `Total_Cost`, and `Average_Cost`. <br> 
 Set the values of `Quantity` equal to the sequence of outputs from 0 to 5,000 by increments of 100, and the other variables equal to `NA`.
 2. Begin a `for(...) {...}` loop starting at `i = 1` through the number of rows (`nrow()`) in costSchedule that does the following for each `i`:
 a. Compute the solution to the cost-minimization problem for the quantity of output in row `i` of `costSchedule$Quantity` and (temporarily) stores the result as `costMinTemp`. 
 b. Assigns the $i^th$ row of the `Labor` variable in `costSchedule` equal to the first value in the `solution` variable in the `costMinTemp` object, and assigns the $i^th$ row of `Capital` equal to the second value of `solution`.
-c. Assigns the value of the `objective` in `costMinTemp` to the `Total_Cost` variable, and calculates the average cost as `Total_Cost` divided by `Quantity`.
+c. Assigns the last value (`tail(x, 1)`) of the `values` in `costMinTemp` to the `Total_Cost` variable, and calculates the average cost as `Total_Cost` divided by `Quantity`.
+</details>
 
 ```{r costSchedule, exercise = TRUE, exercise.reveal_solution = TRUE}
-
-```
-
-```{r costSchedule-solution}
+w = 1; r = 2
 costSchedule <-
   data.frame(
     Quantity = seq(from = 0, to = 5000, by = 100),
@@ -105,19 +69,39 @@ costSchedule <-
     Average_Cost = NA
   )
 for (i in 1:nrow(costSchedule)) {
-  costMinTemp <- nloptr(
-    x0 = c(1, 1),
-    lb = c(0, 0),
-    eval_f = function(x)
-      w * x[1] + r * x[2],
-    eval_g_ineq = function(x)
-      costSchedule$Quantity[i] - 100 * (x[1] ^ alpha * x[2] ^ (1 - alpha)),
-    opts = list("algorithm" = "NLOPT_LN_COBYLA", "xtol_rel" =
-                  1.0e-8)
+  costMinTemp <- solnp(
+    pars = c(1, 1), 
+    fun = function(x) w*x[1] + r*x[2],
+    ineqfun = function(x) 100*x[1]^alpha*x[2]^(1-alpha),
+    ineqLB = costSchedule$Quantity[i], 
+    ineqUB = Inf, LB = c(0, 0), UB = c(Inf, Inf))
+  costSchedule$Labor[i] <- costMinTemp$pars[1]
+  costSchedule$Capital[i] <- costMinTemp$pars[2]
+  costSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
+}
+costSchedule$Average_Cost <- costSchedule$Total_Cost / costSchedule$Quantity
+```
+
+```{r costSchedule-solution}
+w = 1; r = 2
+costSchedule <-
+  data.frame(
+    Quantity = seq(from = 0, to = 5000, by = 100),
+    Labor = NA,
+    Capital = NA,
+    Total_Cost = NA,
+    Average_Cost = NA
   )
-  costSchedule$Labor[i] <- costMinTemp$solution[1]
-  costSchedule$Capital[i] <- costMinTemp$solution[2]
-  costSchedule$Total_Cost[i] <- costMinTemp$objective
+for (i in 1:nrow(costSchedule)) {
+  costMinTemp <- solnp(
+    pars = c(1, 1), 
+    fun = function(x) w*x[1] + r*x[2],
+    ineqfun = function(x) 100*x[1]^alpha*x[2]^(1-alpha),
+    ineqLB = costSchedule$Quantity[i], 
+    ineqUB = Inf, LB = c(0, 0), UB = c(Inf, Inf))
+  costSchedule$Labor[i] <- costMinTemp$pars[1]
+  costSchedule$Capital[i] <- costMinTemp$pars[2]
+  costSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
 }
 costSchedule$Average_Cost <- costSchedule$Total_Cost / costSchedule$Quantity
 ```
@@ -128,9 +112,12 @@ grade_code()
 
 ## Graphical Analysis
 
+### Constant Returns to Scale
+
 Plot total and average costs as functions of quantity. Display the plots on the same plot area using `par(mfrow = c(nrow, ncol))`.
 
 ```{r costScheduleGraph, exercise = TRUE, exercise.reveal_solution = TRUE}
+par(mfrow = c(1, 2))  # Set the graphics window to have 1 row and two columns.
 
 ```
 
@@ -141,12 +128,14 @@ plot(costSchedule$Quantity, costSchedule$Average_Cost, type = 'l', ylim = c(0,0.
 ```
 
 ```{r costScheduleGraph-check}
-grade_code()
+grade_code("Notice that we confirm that the Cobb-Douglas production function has
+           constant returns to scale.")
 ```
 
 ### Graphical Example with Diminishing Returns
 
-A quick way to get an increasing cost function is to redefine the production function so that the sum of the Cobb-Douglas exponents is less than one. This creates *decreasing* (instead of constant) returns to scale, and therefore *increasing* average costs. 
+A quick way to get an increasing cost function is to redefine the production function so that the sum of the Cobb-Douglas exponents is less than one. This creates *decreasing* (instead of constant) returns to scale, and therefore *increasing* average costs. For example, 
+$$Q = f(L, K) = 100 L^{1/3} K^{1/3}$$
 
 Run the following code to illustrate increasing costs. 
 
@@ -159,21 +148,16 @@ increasingCostSchedule <-
     Total_Cost = NA,
     Average_Cost = NA
   )
-for (i in 1:nrow(increasingCostSchedule)) {
-  costMinTemp <- nloptr(
-    x0 = c(10, 10),
-    lb = c(0, 0),
-    eval_f = function(x)
-      w * x[1] + r * x[2],
-    eval_g_ineq = function(x)
-      increasingCostSchedule$Quantity[i] -
-      100 * (x[1] ^ 0.2 * x[2] ^ (0.6)),
-    opts = list("algorithm" = "NLOPT_LN_COBYLA", "xtol_rel" =
-                  1.0e-8)
-  )
-  increasingCostSchedule$Labor[i] <- costMinTemp$solution[1]
-  increasingCostSchedule$Capital[i] <- costMinTemp$solution[2]
-  increasingCostSchedule$Total_Cost[i] <- costMinTemp$objective
+for (i in 1:nrow(costSchedule)) {
+  costMinTemp <- solnp(
+    pars = c(1, 1), 
+    fun = function(x) w*x[1] + r*x[2],
+    ineqfun = function(x) 100*x[1]^(1/3)*x[2]^(1/3),
+    ineqLB = increasingCostSchedule$Quantity[i], 
+    ineqUB = Inf, LB = c(0, 0), UB = c(Inf, Inf))
+  increasingCostSchedule$Labor[i] <- costMinTemp$pars[1]
+  increasingCostSchedule$Capital[i] <- costMinTemp$pars[2]
+  increasingCostSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
 }
 increasingCostSchedule$Average_Cost <-
     increasingCostSchedule$Total_Cost /increasingCostSchedule$Quantity
@@ -182,7 +166,7 @@ plot(
   increasingCostSchedule$Quantity,
   increasingCostSchedule$Total_Cost,
   type = 'l',
-  ylim = c(0, 400),
+  ylim = c(0, 1000),
   xlab = "Quantity",
   ylab = "Total Cost"
 )
@@ -190,7 +174,7 @@ plot(
   increasingCostSchedule$Quantity,
   increasingCostSchedule$Average_Cost,
   type = 'l',
-  ylim = c(0, 0.08),
+  ylim = c(0, 0.2),
   xlab = "Quantity",
   ylab = "Average Cost"
 )
@@ -206,21 +190,16 @@ increasingCostSchedule <-
     Total_Cost = NA,
     Average_Cost = NA
   )
-for (i in 1:nrow(increasingCostSchedule)) {
-  costMinTemp <- nloptr(
-    x0 = c(10, 10),
-    lb = c(0, 0),
-    eval_f = function(x)
-      w * x[1] + r * x[2],
-    eval_g_ineq = function(x)
-      increasingCostSchedule$Quantity[i] -
-      100 * (x[1] ^ 0.2 * x[2] ^ (0.6)),
-    opts = list("algorithm" = "NLOPT_LN_COBYLA", "xtol_rel" =
-                  1.0e-8)
-  )
-  increasingCostSchedule$Labor[i] <- costMinTemp$solution[1]
-  increasingCostSchedule$Capital[i] <- costMinTemp$solution[2]
-  increasingCostSchedule$Total_Cost[i] <- costMinTemp$objective
+for (i in 1:nrow(costSchedule)) {
+  costMinTemp <- solnp(
+    pars = c(1, 1), 
+    fun = function(x) w*x[1] + r*x[2],
+    ineqfun = function(x) 100*x[1]^(1/3)*x[2]^(1/3),
+    ineqLB = increasingCostSchedule$Quantity[i], 
+    ineqUB = Inf, LB = c(0, 0), UB = c(Inf, Inf))
+  increasingCostSchedule$Labor[i] <- costMinTemp$pars[1]
+  increasingCostSchedule$Capital[i] <- costMinTemp$pars[2]
+  increasingCostSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
 }
 increasingCostSchedule$Average_Cost <-
     increasingCostSchedule$Total_Cost /increasingCostSchedule$Quantity
@@ -229,7 +208,7 @@ plot(
   increasingCostSchedule$Quantity,
   increasingCostSchedule$Total_Cost,
   type = 'l',
-  ylim = c(0, 400),
+  ylim = c(0, 1000),
   xlab = "Quantity",
   ylab = "Total Cost"
 )
@@ -237,7 +216,7 @@ plot(
   increasingCostSchedule$Quantity,
   increasingCostSchedule$Average_Cost,
   type = 'l',
-  ylim = c(0, 0.08),
+  ylim = c(0, 0.2),
   xlab = "Quantity",
   ylab = "Average Cost"
 )
@@ -245,7 +224,8 @@ plot(
 
 ### Graphical Example with Increasing Returns
 
-Similarly, we can force a decreasing cost function by redefining the exponents in our Cobb-Douglas function so that their sum is greater than one. Such a technology exhibits *increasing* returns to scale and therefore *decreasing* average costs. 
+Similarly, we can force a decreasing cost function by redefining the exponents in our Cobb-Douglas function so that their sum is greater than one. Such a technology exhibits *increasing* returns to scale and therefore *decreasing* average costs. For example, 
+$$Q = f(L, K) = 100 L^{2/3} K^{2/3}$$
 
 Run the following code to simulate decreasing costs.  
 
@@ -259,20 +239,15 @@ decreasingCostSchedule <-
     Average_Cost = NA
   )
 for (i in 1:nrow(decreasingCostSchedule)) {
-  costMinTemp <- nloptr(
-    x0 = c(10, 10),
-    lb = c(0, 0),
-    eval_f = function(x)
-      w * x[1] + r * x[2],
-    eval_g_ineq = function(x)
-      decreasingCostSchedule$Quantity[i] -
-      100 * (x[1] ^ 0.4 * x[2] ^ (0.8)),
-    opts = list("algorithm" = "NLOPT_LN_COBYLA", "xtol_rel" =
-                  1.0e-8)
-  )
-  decreasingCostSchedule$Labor[i] <- costMinTemp$solution[1]
-  decreasingCostSchedule$Capital[i] <- costMinTemp$solution[2]
-  decreasingCostSchedule$Total_Cost[i] <- costMinTemp$objective
+  costMinTemp <- solnp(
+    pars = c(1, 1), 
+    fun = function(x) w*x[1] + r*x[2],
+    ineqfun = function(x) 100*x[1]^(2/3)*x[2]^(2/3),
+    ineqLB = decreasingCostSchedule$Quantity[i], 
+    ineqUB = Inf, LB = c(0, 0), UB = c(Inf, Inf))
+  decreasingCostSchedule$Labor[i] <- costMinTemp$pars[1]
+  decreasingCostSchedule$Capital[i] <- costMinTemp$pars[2]
+  decreasingCostSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
 }
 decreasingCostSchedule$Average_Cost <-
     decreasingCostSchedule$Total_Cost /decreasingCostSchedule$Quantity
@@ -281,7 +256,7 @@ plot(
   decreasingCostSchedule$Quantity,
   decreasingCostSchedule$Total_Cost,
   type = 'l',
-  ylim = c(0, 80),
+  ylim = c(0, 60),
   xlab = "Quantity",
   ylab = "Total Cost"
 )
@@ -289,7 +264,7 @@ plot(
   decreasingCostSchedule$Quantity,
   decreasingCostSchedule$Average_Cost,
   type = 'l',
-  ylim = c(0, 0.04),
+  ylim = c(0, 0.03),
   xlab = "Quantity",
   ylab = "Average Cost"
 )
@@ -305,20 +280,15 @@ decreasingCostSchedule <-
     Average_Cost = NA
   )
 for (i in 1:nrow(decreasingCostSchedule)) {
-  costMinTemp <- nloptr(
-    x0 = c(10, 10),
-    lb = c(0, 0),
-    eval_f = function(x)
-      w * x[1] + r * x[2],
-    eval_g_ineq = function(x)
-      decreasingCostSchedule$Quantity[i] -
-      100 * (x[1] ^ 0.4 * x[2] ^ (0.8)),
-    opts = list("algorithm" = "NLOPT_LN_COBYLA", "xtol_rel" =
-                  1.0e-8)
-  )
-  decreasingCostSchedule$Labor[i] <- costMinTemp$solution[1]
-  decreasingCostSchedule$Capital[i] <- costMinTemp$solution[2]
-  decreasingCostSchedule$Total_Cost[i] <- costMinTemp$objective
+  costMinTemp <- solnp(
+    pars = c(1, 1), 
+    fun = function(x) w*x[1] + r*x[2],
+    ineqfun = function(x) 100*x[1]^(2/3)*x[2]^(2/3),
+    ineqLB = decreasingCostSchedule$Quantity[i], 
+    ineqUB = Inf, LB = c(0, 0), UB = c(Inf, Inf))
+  decreasingCostSchedule$Labor[i] <- costMinTemp$pars[1]
+  decreasingCostSchedule$Capital[i] <- costMinTemp$pars[2]
+  decreasingCostSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
 }
 decreasingCostSchedule$Average_Cost <-
     decreasingCostSchedule$Total_Cost /decreasingCostSchedule$Quantity
@@ -327,7 +297,7 @@ plot(
   decreasingCostSchedule$Quantity,
   decreasingCostSchedule$Total_Cost,
   type = 'l',
-  ylim = c(0, 80),
+  ylim = c(0, 60),
   xlab = "Quantity",
   ylab = "Total Cost"
 )
@@ -335,7 +305,7 @@ plot(
   decreasingCostSchedule$Quantity,
   decreasingCostSchedule$Average_Cost,
   type = 'l',
-  ylim = c(0, 0.04),
+  ylim = c(0, 0.03),
   xlab = "Quantity",
   ylab = "Average Cost"
 )
@@ -356,27 +326,25 @@ Run the following code to simulate and graph the short run total and average cos
 ```{r srTotalCost, exercise = TRUE, exercise.reveal_solution = TRUE}
 srCostSchedule <-
   data.frame(
-    Quantity = seq(from = 0, to = 5000, by = 20),
+    Quantity = seq(from = 0, to = 5000, by = 100),
     Labor = NA,
     Capital = 25,
     Total_Cost = NA,
     Average_Cost = NA
   )
 for (i in 1:nrow(srCostSchedule)) {
-  costMinTemp <- nloptr(
-    x0 = c(1),
-    lb = c(0),
-    eval_f = function(x)
-      w * x[1] + r * 25,
-    eval_g_ineq = function(x)
-      srCostSchedule$Quantity[i] - 100 * (x ^ alpha * 25 ^ (1 - alpha)),
-    opts = list("algorithm" = "NLOPT_LN_COBYLA", "xtol_rel" =
-                  1.0e-8)
-  )
-  srCostSchedule$Labor[i] <- costMinTemp$solution[1]
-  srCostSchedule$Total_Cost[i] <- costMinTemp$objective
+  costMinTemp <- solnp(
+    pars = 1, 
+    fun = function(x) w*x + r*25,
+    ineqfun = function(x) 100*x^(alpha)*25^(1-alpha),
+    ineqLB = srCostSchedule$Quantity[i], 
+    ineqUB = Inf, LB = 0, UB = Inf)
+  srCostSchedule$Labor[i] <- costMinTemp$pars[1]
+  srCostSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
 }
-srCostSchedule$Average_Cost <- srCostSchedule$Total_Cost / srCostSchedule$Quantity
+srCostSchedule$Average_Cost <-
+    srCostSchedule$Total_Cost / srCostSchedule$Quantity
+par(mfrow = c(1, 2))
 plot(
   srCostSchedule$Quantity,
   srCostSchedule$Total_Cost,
@@ -398,27 +366,25 @@ plot(
 ```{r srTotalCost-solution}
 srCostSchedule <-
   data.frame(
-    Quantity = seq(from = 0, to = 5000, by = 20),
+    Quantity = seq(from = 0, to = 5000, by = 100),
     Labor = NA,
-    Capital = rep(25, 251),
+    Capital = 25,
     Total_Cost = NA,
     Average_Cost = NA
   )
 for (i in 1:nrow(srCostSchedule)) {
-  costMinTemp <- nloptr(
-    x0 = c(1),
-    lb = c(0),
-    eval_f = function(x)
-      w * x[1] + r * 25,
-    eval_g_ineq = function(x)
-      srCostSchedule$Quantity[i] - 100 * (x ^ alpha * 25 ^ (1 - alpha)),
-    opts = list("algorithm" = "NLOPT_LN_COBYLA", "xtol_rel" =
-                  1.0e-8)
-  )
-  srCostSchedule$Labor[i] <- costMinTemp$solution[1]
-  srCostSchedule$Total_Cost[i] <- costMinTemp$objective
+  costMinTemp <- solnp(
+    pars = 1, 
+    fun = function(x) w*x + r*25,
+    ineqfun = function(x) 100*x^(alpha)*25^(1-alpha),
+    ineqLB = srCostSchedule$Quantity[i], 
+    ineqUB = Inf, LB = 0, UB = Inf)
+  srCostSchedule$Labor[i] <- costMinTemp$pars[1]
+  srCostSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
 }
-srCostSchedule$Average_Cost <- srCostSchedule$Total_Cost / srCostSchedule$Quantity
+srCostSchedule$Average_Cost <-
+    srCostSchedule$Total_Cost / srCostSchedule$Quantity
+par(mfrow = c(1, 2))
 plot(
   srCostSchedule$Quantity,
   srCostSchedule$Total_Cost,
@@ -519,7 +485,7 @@ Run the following code to add marginal cost to the cost schedule and to the grap
 ```{r variableCost, exercise=TRUE, exercise.reveal_solution=TRUE}
 # Find TC(Q_{i+1}) - TC(Q_{i-1}) / (2 * dQ)
 srCostSchedule$Marginal_Cost <- 
-  c(NA,diff(srCostSchedule$Total_Cost, lag = 2)/40, NA)
+  c(NA,diff(srCostSchedule$Total_Cost, lag = 2)/200, NA)
 plot(
   srCostSchedule$Quantity,
   srCostSchedule$Total_Cost,
@@ -552,7 +518,7 @@ lines(srCostSchedule$Quantity,
 
 ```{r marginalCost-solution}
 srCostSchedule$Marginal_Cost <- 
-  c(NA,diff(srCostSchedule$Total_Cost, lag = 2)/40, NA)
+  c(NA,diff(srCostSchedule$Total_Cost, lag = 2)/200, NA)
 plot(
   srCostSchedule$Quantity,
   srCostSchedule$Total_Cost,
@@ -582,4 +548,3 @@ lines(srCostSchedule$Quantity,
       srCostSchedule$Marginal_Cost,
       col = 'red')
 ```
-

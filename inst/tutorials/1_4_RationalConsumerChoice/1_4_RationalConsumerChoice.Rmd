@@ -324,8 +324,8 @@ The solution for $x_1$ will still contain the variable $x_2$ even though we have
 
 ```{r solution-solution}
 xStar <- solve(c(MRS, dL[[3]]), c(p1/p2, 0), c('x1', 'x2')) |> 
-  y_rmvars() |> 
-  with_value('x2', xStar[2]) |>
+  y_rmvars()
+xStar <- with_value(xStar, 'x2', xStar[2]) |>
   as_r()
 ```
 
@@ -336,10 +336,6 @@ grade_this({if (!inherits(.result, c("yac_symbol"))) {
     fail("The optimal quantity of x2 should be 75") }
   pass()
 })
-```
-
-```{r echo = TRUE}
-
 ```
 
 
@@ -353,8 +349,9 @@ grade_this({if (!inherits(.result, c("yac_symbol"))) {
 
 ```{r lambda-solution}
 lambda <- solve(dL[1], 'lambda') |> 
-    with_value(ysym(c('x1', 'x2')), xStar) |>
     y_rmvars() |>
+    with_value('x1', xStar[1]) |>
+    with_value('x2', xStar[2]) |>
     as_r()
 ```
 

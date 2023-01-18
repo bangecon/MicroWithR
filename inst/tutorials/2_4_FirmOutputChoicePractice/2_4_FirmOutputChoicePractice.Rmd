@@ -12,13 +12,6 @@ library(learnr)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-<style type="text/css">
-h1{font-size: 24pt}
-h2{font-size: 20pt}
-h3{font-size: 18pt}
-h4,h5,h6{font-size: 16pt}
-body{font-size: 16pt}
-</style>
 
 ## Topic 1
 

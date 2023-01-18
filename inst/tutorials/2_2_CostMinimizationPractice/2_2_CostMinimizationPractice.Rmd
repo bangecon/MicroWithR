@@ -19,13 +19,33 @@ knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 
 ## Offshoring Tire Production
 
-Suppose that Flamerock Tires must decide where to produce one million tires: the US, where wages are 30 and the cost of capital is 10; or China, where wages are 5 and the cost of capital is 25. Production in each location follows the same technology (production function) given by: 
+Suppose that Flamerock Tires must decide where to produce one million tires: the US, where wages are 30 and the cost of capital is 5; or China, where wages are 5 and the cost of capital is 25. Production in each location follows the same technology (production function) given by: 
 
 $$Q = f(L, K) = L^{0.25} * K^{0.75}$$
 
-1. Find the cost-minimizing input levels in each location to produce the goal of 1 million tires; 
+Computationally solve the cost-minimizing input levels in each location to produce the goal of 1 million tires; 
 
+```{r costMin, exercise = TRUE}
 
-2. Find the total cost in each location: which location minimizes costs? 
+```
 
+```{r costMin-solution}
+alpha = 1/4
+y0 = 1000000
+w_US = 30
+r_US = 10
+costMin_US <- solnp(pars = c(1, 1), fun = function(x) w_US*x[1] + r_US*x[2],
+                 ineqfun = function(x) x[1]^alpha*x[2]^(1-alpha)-y0,
+                 ineqLB = 0, ineqUB = Inf, LB = c(0, 0))
+w_China = 5
+r_China = 15
+costMin_China <- solnp(pars = c(1, 1), fun = function(x) w_China*x[1] + r_China*x[2],
+                 ineqfun = function(x) x[1]^alpha*x[2]^(1-alpha)-y0,
+                 ineqLB = 0, ineqUB = Inf, LB = c(0, 0))
+```
 
+```{r}
+
+```
+
+Which location minimizes costs of producing the target quantity? 
