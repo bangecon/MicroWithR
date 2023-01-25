@@ -152,7 +152,7 @@ Income changes alter the budget line by making *all* goods more or less affordab
 
 ```{r incomeChange}
 question(
-  "For a budget line with donuts on the horizontal axis and beer on the vertical axis, an increase in the price of donuts will:", 
+  "For a budget line with donuts on the horizontal axis and beer on the vertical axis, an increase in income will:", 
   answer("make the budget line steeper"),
   answer("make the budget line flatter"),
   answer("not affect the slope of the budget line", correct = TRUE)
