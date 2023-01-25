@@ -35,7 +35,7 @@ par(mar = c(4, 4, 1, 1))
 
 The outer boundary of the budget constraint is sometimes called the budget *line*. The equation for this line is:
 $$p_1x_1 + p_2x_2 = m$$
-Graph a budget line for the quantity of beer, $q_b$, and the quantity of donuts, $q_d$, with $p_b = 2$, $p_d = 1$, and $m = 20$. Use objects to define the parameters. Orient the graph with beer on the x-axis and beer on the y-axis.
+Graph a budget line for the quantity of beer, $q_b$, and the quantity of donuts, $q_d$, with $p_b = 2$, $p_d = 1$, and $m = 20$. Use objects to define the parameters. Orient the graph with beer on the x-axis and donuts on the y-axis.
 
 ```{r budgetLine, exercise = TRUE}
 
