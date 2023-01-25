@@ -198,7 +198,7 @@ grade_this({if (!inherits(.result, c("list"))) {
 
 Suppose that the donut shop has a pricing schedule of \$1 per donut for the first dozen and $0.75 thereafter. Graph the budget line for this consumer using the original parameters. (Hint: This budget line will have multiple segments and you will have to think carefully about how to define each one.) Run the following code to plot this budget line in <span style="color: green;">green</span>. 
 
-```{r volumeDiscount}
+```{r volumeDiscount, exercise = TRUE}
 m = 20
 p_d = 1       # The low-volume price of a donut
 q_d_v = 12    # The donut threshold for a volume discount
@@ -250,7 +250,7 @@ grade_code()
 
 What would it look like if the volume discount applied to the *entire* purchase greater than 12? 
 
-```{r volumeDiscount2}
+```{r volumeDiscount2, exercise = TRUE}
 
 ```
 
