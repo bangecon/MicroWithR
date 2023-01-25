@@ -283,7 +283,7 @@ segments(
 )
 ```
 
-```{r volumeDiscount-check}
+```{r volumeDiscount2-check}
 grade_code() 
 ```
 

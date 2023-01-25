@@ -478,7 +478,7 @@ arrows(
 ### Neutral Goods
 
 ```{r, out.width='300px'}
-knitr::include_graphics("images/NonAlcoholicBeer.jpg")
+knitr::include_graphics("NonAlcoholicBeer.jpg")
 ```
 
 ```{r, fig.height = 5, fig.width = 5}
@@ -550,7 +550,7 @@ arrows(
 ### Economic Bads
 
 ```{r, out.width='300px'}
-knitr::include_graphics("images/Pants.jpg")
+knitr::include_graphics("Pants.jpg")
 ```
 
 ```{r, fig.height = 5, fig.width = 5}

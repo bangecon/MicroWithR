@@ -54,13 +54,13 @@ Specific utility functions often have certain features that lead to specific fea
 ### Cardinal Utility: Jeremy Bentham (1780)
 
 ```{r, out.width = '300px'}
-knitr::include_graphics("images/JeremyBentham.jpg")
+knitr::include_graphics("JeremyBentham.jpg")
 ```
 
 ### Ordinal Utility: Vilfredo Pareto (1906)
 
 ```{r, out.width = '300px'}
-knitr::include_graphics("images/VilfredoPareto.jpg")
+knitr::include_graphics("VilfredoPareto.jpg")
 ```
 
 ## "Well-Behaved" Utility Functions

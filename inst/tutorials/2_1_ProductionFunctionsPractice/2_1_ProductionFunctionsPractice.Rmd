@@ -75,7 +75,7 @@ grade_this({if (round(.result, 2) != 31628.72) {
 
 3. Plot the isoquants for $Q = 25000$, $Q = 50000$, and $Q = 75000$
 
-```{risoquants, exercise = TRUE}
+```{r isoquants, exercise = TRUE}
 
 ```
 

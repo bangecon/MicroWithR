@@ -9,70 +9,113 @@ runtime: shiny_prerendered
 
 ```{r setup, include=FALSE}
 library(learnr)
-knitr::opts_chunk$set(echo = FALSE)
+library(gradethis)
+gradethis_setup(exercise.reveal_solution = FALSE, exercise.eval = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
 
+## Perfectly Competitive 
 
-## Topic 1
+Suppose that the following supply and demand functions characterize the perfectly competitive market in which a firm produces: 
 
-### Exercise 
+$$Q_d = 6000 - 1000P$$
+$$Q_s = 2000P$$
 
-*Here's a simple exercise with an empty code chunk provided for entering the answer.*
+1. Solve for the market equilibrium price using `nleqslv::nleqslv()`. 
 
-Write the R code required to add two plus two:
-
-```{r two-plus-two, exercise=TRUE}
+```{r market, exercise = TRUE}
 
 ```
 
-### Exercise with Code
-
-*Here's an exercise with some prepopulated code as well as `exercise.lines = 5` to provide a bit more initial room to work.*
-
-Now write a function that adds any two numbers and then call it:
-
-```{r add-function, exercise=TRUE, exercise.lines = 5}
-add <- function() {
-  
+```{r market-solution}
+library(nleqslv)
+market <- function(x) {
+  demand <- 6000 - 100*x[1] - x[2]
+  supply <- 200*x[1] - x[2]
+  return(c(demand, supply))
 }
+equilibrium <- nleqslv(c(1,1), market)
 ```
 
-## Topic 2
 
-### Exercise with Hint
-
-*Here's an exercise where the chunk is pre-evaluated via the `exercise.eval` option (so the user can see the default output we'd like them to customize). We also add a "hint" to the correct solution via the chunk immediate below labeled `print-limit-hint`.*
-
-Modify the following code to limit the number of rows printed to 5:
-
-```{r print-limit, exercise=TRUE, exercise.eval=TRUE}
-mtcars
+```{r market-check}
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(.result$x, 4) != c(20, 4000)) { 
+    fail("The equilibrium quantity and price are 20 and 4000)") }
+  pass()
+})
 ```
 
-```{r print-limit-hint}
-head(mtcars)
+2. Find a representative firm's profit-maximizing quantity if its cost function is given by: 
+
+$$C(Q) = Q^3 - 8Q^2 + 30Q + 5$$
+
+```{r firm, exercise = TRUE}
+
 ```
 
-### Quiz
-
-*You can include any number of single or multiple choice questions as a quiz. Use the `question` function to define a question and the `quiz` function for grouping multiple questions together.*
-
-Some questions to verify that you understand the purposes of various base and recommended R packages:
-
-```{r quiz}
-quiz(
-  question("Which package contains functions for installing other R packages?",
-    answer("base"),
-    answer("tools"),
-    answer("utils", correct = TRUE),
-    answer("codetools")
-  ),
-  question("Which of the R packages listed below are used to create plots?",
-    answer("lattice", correct = TRUE),
-    answer("tools"),
-    answer("stats"),
-    answer("grid", correct = TRUE)
-  )
+```{r firm-solution}
+library(Rsolnp)
+loss <- function(x) {
+  - 20*x + (x^3 - 8*x^2 +30*x + 5) # Express as a loss function to match min
+}
+solution <- rsolnp(
+  par = c(1,1),
+  fun = profit, 
+  LB = 0
 )
 ```
 
+```{r firm-check}
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(.result$x, 4) != 4.6103) { 
+    fail("The equilibrium quantity for the firm is about 4.61)") }
+  pass()
+})
+```
+
+3. Graph the price, average cost, and marginal cost curves for the representative firm. 
+
+```{r graph, exercise = TRUE}
+
+```
+
+```{r graph-solution}
+mc <- function(x) {
+  3 * x ^ 2 - 16 * x + 30
+}
+atc <- function(x) {
+  x ^ 2 - 8 * x + 30 + 5 / x
+}
+avc <- function(x) {
+  x ^ 2 - 8 * x + 30
+}
+curve(
+  mc,
+  from = 0,
+  to = 8,
+  ylim = c(0, 40),
+  col = 'red'
+)
+curve(atc, 
+      add = TRUE, 
+      col = 'brown')
+curve(avc,
+      add = TRUE,
+      col = 'brown',
+      lty = 'dashed')
+lines(x = c(0, 8),
+      y = c(20, 20),
+      col = 'blue')
+```
+
+```{r graph-check}
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(.result$y[2], 4) != 29.3664) { 
+    fail("The second point on AVC should be 29.3664)") }
+  pass()
+})
+```

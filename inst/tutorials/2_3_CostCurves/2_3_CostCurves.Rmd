@@ -115,6 +115,12 @@ grade_code()
 ### Constant Returns to Scale
 
 Plot total and average costs as functions of quantity. Display the plots on the same plot area using `par(mfrow = c(nrow, ncol))`.
+```{r}
+```
+
+
+```{r}
+```
 
 ```{r costScheduleGraph, exercise = TRUE, exercise.reveal_solution = TRUE}
 par(mfrow = c(1, 2))  # Set the graphics window to have 1 row and two columns.
@@ -482,7 +488,7 @@ By definition, the *derivative* of the cost function  takes a similar approach, 
 
 Run the following code to add marginal cost to the cost schedule and to the graphs. 
 
-```{r variableCost, exercise=TRUE, exercise.reveal_solution=TRUE}
+```{r marginalCost, exercise=TRUE, exercise.reveal_solution=TRUE}
 # Find TC(Q_{i+1}) - TC(Q_{i-1}) / (2 * dQ)
 srCostSchedule$Marginal_Cost <- 
   c(NA,diff(srCostSchedule$Total_Cost, lag = 2)/200, NA)
