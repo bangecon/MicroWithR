@@ -1,11 +1,22 @@
 ---
 title: "2.1 Production and Production Functions"
-author: Jim Bang
 output: 
   learnr::tutorial: 
     progressive: true
 runtime: shiny_prerendered
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
 ---
+
+<style type="text/css">
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.8em;
+}
+</style>
 
 ```{r setup, include=FALSE}
 library(learnr)

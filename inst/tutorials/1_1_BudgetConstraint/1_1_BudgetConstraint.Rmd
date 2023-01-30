@@ -4,8 +4,11 @@ output:
     progressive: true
 runtime: shiny_prerendered
 title: "1.1 Budget Constraint"
-author: Jim Bang
-description: "The consumer's budget constraint"
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
 ---
 
 <style type="text/css">
@@ -14,6 +17,10 @@ h2{font-size: 20pt}
 h3{font-size: 18pt}
 h4,h5,h6{font-size: 16pt}
 body{font-size: 16pt}
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.66em;
+}
 </style>
 
 ```{r setup, include=FALSE}

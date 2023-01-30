@@ -4,9 +4,19 @@ output:
     progressive: true
 runtime: shiny_prerendered
 title: "1.1 Budget Constraint"
-author: Jim Bang
-description: "The consumer's budget constraint"
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
 ---
+
+<style type="text/css">
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.8m;
+}
+</style>
 
 ```{r setup, include=FALSE}
 library(learnr)

@@ -1,11 +1,22 @@
 ---
 title: "Introduction to Mathing with R"
-author: Jim Bang
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
 output: 
   learnr::tutorial: 
     progressive: true
 runtime: shiny_prerendered
 ---
+
+<style type="text/css">
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.8em;
+}
+</style>
 
 ```{r setup, include=FALSE}
 library(learnr)

@@ -32,6 +32,14 @@ gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
 
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+</style>
+
 ## The Firm's Three Problems
 
 1. Input cost minimization

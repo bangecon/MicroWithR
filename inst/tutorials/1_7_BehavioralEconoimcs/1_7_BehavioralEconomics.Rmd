@@ -1,36 +1,73 @@
 ---
 title: "1.6 Behavioral Economics"
-author: Jim Bang
-output: learnr::tutorial
-runtime: shiny_prerendered
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
 ---
+
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.66em;
+}
+</style>
 
 ```{r setup, include=FALSE}
 library(learnr)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-
 ## Overview
 
+"Behavioral economics" examines ways in which individuals may deviate from the rational model of consumer (or sometimes producer) behavior. The main method for studying so-called behavioral theories is controlled laboratory experiments. 
+
+## Frame-of-Reference
+
+### Framing
 
 
-## Anchoring
+
+### Loss Aversion
+
+
+
+### Endowment Effects
+
+
+
+## Heuristics 
+
+### Anchoring
+
+
+
+### The "Law" of Small Numbers
+
+
+
+### Recognition Bias
 
 
 
 ## Emotion
 
-
-
-## Melioration
-
-
-
-## Framing Effects
+### Fairness
 
 
 
 ## Myopia
+
+### Melioration
+
+
+
+### Hyperbolic Discounting
 
 

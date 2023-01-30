@@ -1,10 +1,14 @@
 ---
-title: "Introduction to Mathing with R"
-author: Jim Bang
 output: 
   learnr::tutorial: 
     progressive: true
 runtime: shiny_prerendered
+title: "Introduction to Mathing with R"
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
 ---
 
 <style type="text/css">
@@ -13,6 +17,10 @@ h2{font-size: 20pt}
 h3{font-size: 18pt}
 h4,h5,h6{font-size: 16pt}
 body{font-size: 16pt}
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.66em;
+}
 </style>
 
 ```{r setup, include=FALSE}
@@ -21,6 +29,7 @@ library(gradethis)
 library(Ryacas)
 library(Deriv)
 library(Rsolnp)
+library(nleqslv)
 gradethis_setup()
 tutorial_options(exercise.reveal_solution = TRUE, exercise.eval = FALSE, exercise.checker = gradethis_exercise_checker)
 knitr::opts_chunk$set(echo = FALSE)
@@ -34,7 +43,7 @@ knitr::opts_chunk$set(echo = FALSE)
 # options(tutorial.event_recorder = new_recorder)
 ```
 
-## Getting Started with R 
+## Getting Started with R
 
 ### Why R? 
 
@@ -67,6 +76,7 @@ question("How often should you update R?",
     allow_retry = TRUE
   )
 ```
+
 
 ## RStudio
 
@@ -450,6 +460,7 @@ $$\frac{x^a}{x^b} = x^{a-b}$$
 $$log_b(xy) = log_b(x) + log_b(y)$$
 $$log_b\bigg(\frac{x}{y}\bigg) = log_b(x) - log_b(y)$$
 $$log_b(x^a) = alog_b(x)$$ 
+
 ### Basic Calculus Rules
 
 $$\frac{d}{dx}\big(x^a\big) = ax^{a-1}$$
