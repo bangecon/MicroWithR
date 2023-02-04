@@ -19,5 +19,6 @@ Imports:
   ggplot2, 
   Ryacas, 
   Rsolnp, 
-  nleqslv
+  nleqslv, 
+  googlesheets4
 RoxygenNote: 7.2.3

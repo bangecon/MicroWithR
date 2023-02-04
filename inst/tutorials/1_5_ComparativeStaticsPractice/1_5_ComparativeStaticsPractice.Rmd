@@ -21,6 +21,18 @@ date: "`r format(Sys.Date(), '%d %b %Y')`"
 }
 </style>
 
+```{r setup, include = FALSE}
+library(learnr)
+library(gradethis)
+library(Ryacas)
+library(Deriv)
+library(Rsolnp)
+gradethis_setup()
+tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
+knitr::include_graphics
+```
+
 ## Quasi-Linear Utility
 
 Consider a consumer who initially budgets an income of 100 for consuming goods 1 and 2; faces prices of good 1 and good 2 equal to 1.5 and 1.0, respectively; and exhibits quasi-linear preferences described by the following utility function:  

@@ -297,6 +297,7 @@ Derive the $MRS$ of the example with the following steps:
 ```
 
 ```{r MRS-solution}
+u <- ysym('x1^(0.25) * x2^(0.75)')
 MU <- deriv(u, c('x1', 'x2'))
 MRS <- yac_str(MU[1]/MU[2]) |> 
   Simplify() |> 

@@ -1,5 +1,9 @@
 ---
-title: "1.6 Behavioral Economics"
+title: "1.7 Behavioral Economics"
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
 author: 
   name: "Created by [Jim Bang](http://www.github.com/bangecon)"
   email: BangJamesT@sau.edu
@@ -32,7 +36,31 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ### Framing
 
+Compare the following menus of pricing options: 
 
+:::: {style="display: flex;"}
+
+::: {}
+
+```{r, out.width='300px'}
+knitr::include_graphics("1_7_BehavioralEconomics_files/Framing.png")
+```
+
+:::
+
+::: {.col data-latex="{0.05\textwidth}"}
+\ 
+:::
+
+::: {}
+
+```{r, out.width='300px'}
+knitr::include_graphics("1_7_BehavioralEconomics_files/Framing2.png")
+```
+
+:::
+
+::::
 
 ### Loss Aversion
 

@@ -8,8 +8,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
-<meta name="author" content="Jim Bang" />
 
+<meta name="date" content="2023-01-31" />
 
 <meta name="progressive" content="true" />
 <meta name="allow-skip" content="false" />
@@ -116,6 +116,10 @@ h2{font-size: 20pt}
 h3{font-size: 18pt}
 h4,h5,h6{font-size: 16pt}
 body{font-size: 16pt}
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.66em;
+}
 </style>
 <div id="section-overview" class="section level2">
 <h2>Overview</h2>
@@ -175,8 +179,8 @@ amount for the income change, say $5.</p>
 <li>For a consumer with the same preferences (Cobb-Douglass with <span
 class="math inline">\(\alpha = 0.25\)</span>), and facing the same
 prices (<span class="math inline">\(p_1 = 1.5\)</span>; <span
-class="math inline">\(p_2 = 1\)</span>), compute the new equilibrium for
-an increase in income from $100 to $101 (<code>dm = 1</code>). Print the
+class="math inline">\(p_2 = 5\)</span>), compute the new equilibrium for
+an increase in income from $100 to $105 (<code>dm = 5</code>). Print the
 (already-stored) initial and new optimal bundles and the initial and new
 values of the utility function.</li>
 </ol>
@@ -541,8 +545,8 @@ data-diagnostics="1" data-startover="1" data-lines="0">
 <pre class="text"><code>statics &lt;- deriv(D, c(&#39;m&#39;, &#39;p1&#39;, &#39;p2&#39;))</code></pre>
 </div>
 <p>substituting our parameter values, we have:</p>
-<p><span class="math display">\[\nabla x_1(m, p_1) = \begin{pmatrix}
-\frac{d}{dm}x_1(m, p_1) \\ \frac{d}{dp_1}x_1(m, p_1) \\
+<p><span class="math display">\[\nabla x_1(m, p_1, p_2) =
+\begin{pmatrix} \frac{d}{dm}x_1(m, p_1) \\ \frac{d}{dp_1}x_1(m, p_1) \\
 \frac{d}{dp_2}x_1(m, p_1) \end{pmatrix}
 = \begin{pmatrix} \frac{\alpha }{p_{1}} \\  \frac{ - \alpha  m}{p_{1}
 ^{2}} \\ 0 \end {pmatrix}
@@ -550,6 +554,14 @@ data-diagnostics="1" data-startover="1" data-lines="0">
 \end{pmatrix}
 \approx \begin{pmatrix} 0.16667 \\ -11.11 \\ 0
 \end{pmatrix}\]</span></p>
+<p>and</p>
+<p><span class="math display">\[\nabla x_2(m, p_1, p_2) =
+\begin{pmatrix} \frac{d}{dm}x_2(m, p_1) \\ \frac{d}{dp_1}x_2(m, p_1) \\
+\frac{d}{dp_2}x_2(m, p_1) \end{pmatrix}
+= \begin{pmatrix} \frac{1 - \alpha }{p_{2}} \\  0 \\ \frac{ - \left( 1 -
+\alpha \right)  m}{p_{2} ^{2}} \end {pmatrix}
+= \begin{pmatrix} \frac{0.75}{1} \\ 0 \\ \frac{-75}{1^2} \end{pmatrix}
+\approx \begin{pmatrix} 0.75 \\ 0 \\ -75 \end{pmatrix}\]</span></p>
 </div>
 <div id="section-engel-curves" class="section level2">
 <h2>Engel Curves</h2>
@@ -1221,7 +1233,7 @@ $outer.iter
 [1] 4
 
 $elapsed
-Time difference of 0.009704113 secs
+Time difference of 0.01228213 secs
 
 $vscale
 [1] 1 1 1 1</code></pre>
@@ -2468,16 +2480,16 @@ learnr:::store_exercise_cache(structure(list(label = "xTilde", global_setup = st
 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "installR", question = structure("What is the approximate dollar-denominated welfare effect (i.e. income effect) of the price change (evaluated at the new prices) for our example?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_aa5039", 
+"character")), answers = list(structure(list(id = "lnr_ans_ee17cde", 
     option = "zero", value = "zero", label = structure("zero", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_dea261f", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_3adf9b3", 
     option = "-9.64", value = "-9.64", label = structure("-9.64", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_2bab6dd", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_625b191", 
     option = "9.64", value = "9.64", label = structure("9.64", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_68738dd", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_2df77e6", 
     option = "90.36", value = "90.36", label = structure("90.36", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
 "tutorial_quiz_answer"))), button_labels = list(submit = structure("<span data-i18n=\"button.questionsubmit\">Submit Answer<\u002fspan>", html = TRUE, class = c("html", 
@@ -2487,7 +2499,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "installR-answer", question = "installR"), loading = NULL, 
-    random_answer_order = FALSE, allow_retry = TRUE, seed = 86621274.9596638, 
+    random_answer_order = FALSE, allow_retry = TRUE, seed = 1650030878.23164, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -2516,7 +2528,15 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 <div id="doc-metadata">
 <h1 class="title toc-ignore" style="display:none;">1.5 Comparative
 Statics</h1>
-<h4 class="author"><em>Jim Bang</em></h4>
+<h4 class="author"><em>Created by <a
+href="http://www.github.com/bangecon">Jim Bang</a></em></h4>
+<address class="author_afil">
+<a href="http://www.sau.edu">St. Ambrose
+University</a><br><a class="author_email" href="mailto:#"><a
+href="mailto:BangJamesT@sau.edu"
+class="email">BangJamesT@sau.edu</a></a>
+</address>
+<h4 class="date"><em>31 Jan 2023</em></h4>
 </div>
 <!-- end doc-metadata -->
 

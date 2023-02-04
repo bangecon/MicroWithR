@@ -62,13 +62,27 @@ Specific utility functions often have certain features that lead to specific fea
 ### Cardinal Utility: Jeremy Bentham (1780)
 
 ```{r, out.width = '300px'}
-knitr::include_graphics("JeremyBentham.jpg")
+knitr::include_graphics("1_3_Utility_files/JeremyBentham.jpg")
 ```
 
 ### Ordinal Utility: Vilfredo Pareto (1906)
 
 ```{r, out.width = '300px'}
-knitr::include_graphics("VilfredoPareto.jpg")
+knitr::include_graphics("1_3_Utility_files/VilfredoPareto.jpg")
+```
+
+### More on Jeremy Bentham
+
+You can visit Jeremy Bentham to this day! His mummified corpse sits on display in the atrium of the student centre at University College London. 
+
+```{r}
+knitr::include_graphics("1_3_Utility_files/JeremyBenthamMummy.jpg")
+```
+
+UCL used to display his head in a museum until students from King's College stole it as a prank (and since been recovered, but is no longer on display). It only comes out for "special occasions." 
+
+```{r}
+knitr::include_graphics("1_3_Utility_files/JeremyBenthamHead.jpg")
 ```
 
 ## "Well-Behaved" Utility Functions
@@ -313,6 +327,7 @@ MRSv <- (MV1/MV2) |>
 ```
 
 $$`r tex(MRSv)`$$
+
 ## Monotonic Transformations
 
 ### Rank-Order Equivalence 
@@ -340,7 +355,7 @@ A useful trick with Cobb-Douglas utility is taking logs:
 
 $$u(x) = x_1^{\alpha}x_2^{1-\alpha}$$
 $$ v(x) = ln[u(x)] = ln(x_1^{\alpha}x_2^{1-\alpha})$$
-Using the log-law formulas (see list of useful formulas at the end of this tutorial) we have: 
+Using the log-law formulas (see list of useful formulas at the end of the "Introduction" tutorial) we have: 
 
 $$v(x) = ln(x_1^\alpha) + ln(x_2^{1-\alpha})=\alpha ln(x_1) + (1-\alpha)ln(x_2)$$
 
@@ -365,14 +380,14 @@ Plot the indifference curve for u = 5
 ```
 
 ```{r perfectSubstitutes-solution}
-u = 5
+u0 = 5
 x = seq(0, 25, 0.1)
 y = seq(0, 25, 0.1)
 z = (outer(x, y, FUN = "+"))^0.5
 persp(x,
       y,
       z)
-curve(u^2 - x,
+curve(u0^2 - x,
   type = 'l',
   ylim = c(0, 25),
   xlim = c(0, 25))
@@ -594,10 +609,65 @@ grade_code()
 
 ### Neutral Good
 
+```{r, out.width='300px'}
+knitr::include_graphics("1_3_Utility_files/NonAlcoholicBeer.jpg")
+```
+
 With a neutral good, utility does not depend at all on the quantity of the neutral good. Run the following code to graph a set of indifference curves for the case where one good is "neutral." 
 
-```{r neutralGood}
-
+```{r neutralGood, exercise = TRUE}
+plot(
+  x = c(rep(10, 11)),
+  y = c(seq(0, 60, 6)),
+  type = 'l',
+  xlim = c(0, 60),
+  ylim = c(0, 60),
+  xlab = 'Donuts',
+  ylab = 'Non-Alcoholic Beer',
+  col = 'red', 
+  main = 'Non-Alcoholic Beer is a Neutral Good'
+) 
+segments(
+  x0 = 20, 
+  x1 = 20, 
+  y0 = 0, 
+  y1 = 60, 
+  col = 'orange'
+)
+segments(
+  x0 = 30, 
+  x1 = 30, 
+  y0 = 0, 
+  y1 = 60, 
+  col = 'yellow'
+)
+segments(
+  x0 = 40, 
+  x1 = 40, 
+  y0 = 0, 
+  y1 = 60, 
+  col = 'green'
+)
+segments(
+  x0 = 50, 
+  x1 = 50, 
+  y0 = 0, 
+  y1 = 60, 
+  col = 'blue'
+)
+segments(
+  x0 = 60, 
+  x1 = 60, 
+  y0 = 0, 
+  y1 = 60, 
+  col = 'violet'
+)
+arrows(
+  x0 = 10, 
+  x1 = 60, 
+  y0 = 30, 
+  y1 = 30
+)
 ```
 
 ```{r neutralGood-solution}
@@ -661,7 +731,11 @@ grade_code()
 
 ### Economic Bads
 
-```{r economicBad, fig.height = 5, fig.width = 5}
+```{r, out.width='300px'}
+knitr::include_graphics("1_3_Utility_files/Pants.jpg")
+```
+
+```{r economicBad, exercise = TRUE, fig.height = 5, fig.width = 5}
 plot(
   x = c(seq(10, 20, 1)),
   y = c(seq(0, 70, 7)),

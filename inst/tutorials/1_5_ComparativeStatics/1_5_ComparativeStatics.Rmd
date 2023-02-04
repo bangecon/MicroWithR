@@ -117,8 +117,8 @@ amount for the income change, say \$5.
 
 1.  For a consumer with the same preferences (Cobb-Douglass with
     $\alpha = 0.25$), and facing the same prices ($p_1 = 1.5$;
-    $p_2 = 1$), compute the new equilibrium for an increase in income
-    from \$100 to \$101 (`dm = 1`). Print the (already-stored) initial
+    $p_2 = 5$), compute the new equilibrium for an increase in income
+    from \$100 to \$105 (`dm = 5`). Print the (already-stored) initial
     and new optimal bundles and the initial and new values of the
     utility function.
 
@@ -469,10 +469,17 @@ grade_code()
 
 substituting our parameter values, we have: 
 
-$$\nabla x_1(m, p_1) = \begin{pmatrix} \frac{d}{dm}x_1(m, p_1) \\ \frac{d}{dp_1}x_1(m, p_1) \\ \frac{d}{dp_2}x_1(m, p_1) \end{pmatrix} 
+$$\nabla x_1(m, p_1, p_2) = \begin{pmatrix} \frac{d}{dm}x_1(m, p_1) \\ \frac{d}{dp_1}x_1(m, p_1) \\ \frac{d}{dp_2}x_1(m, p_1) \end{pmatrix} 
  = \begin{pmatrix} `r tex(statics[1,1])` \\  `r tex(statics[2,1])` \\ `r tex(statics[3,1])` \end {pmatrix} 
  = \begin{pmatrix} \frac{0.25}{1.50} \\ \frac{-25}{1.50^2} \\ 0 \end{pmatrix}
  \approx \begin{pmatrix} 0.16667 \\ -11.11 \\ 0 \end{pmatrix}$$
+
+and 
+
+$$\nabla x_2(m, p_1, p_2) = \begin{pmatrix} \frac{d}{dm}x_2(m, p_1) \\ \frac{d}{dp_1}x_2(m, p_1) \\ \frac{d}{dp_2}x_2(m, p_1) \end{pmatrix} 
+ = \begin{pmatrix} `r tex(statics[1,2])` \\  `r tex(statics[2,2])` \\ `r tex(statics[3,2])` \end {pmatrix} 
+ = \begin{pmatrix} \frac{0.75}{1} \\ 0 \\ \frac{-75}{1^2} \end{pmatrix}
+ \approx \begin{pmatrix} 0.75 \\ 0 \\ -75 \end{pmatrix}$$
 
 ## Engel Curves
 
