@@ -142,9 +142,10 @@ $$y = aL^3 + bL^2 + cL,\text{ where}$$
 $$a<0$$ 
 $$b>0$$ 
 $$c>0$$ 
+
 ### Graphical Representation
 
-Use the `persp(x, y, z) function in r to graph the Cobb-Douglas production function for $A = 100$, $0 \le L \le 50$, $0 \le K \le 50$, and $\alpha = 1/3$.
+Use the `persp(x, y, z)` function in r to graph the Cobb-Douglas production function for $A = 100$, $0 \le L \le 50$, $0 \le K \le 50$, and $\alpha = 1/3$.
 
 ```{r CobbDouglas, exercise=TRUE, exercise.reveal_solution = TRUE}
 
@@ -264,54 +265,50 @@ $$AP_L = \frac{f(L,K)}{L}$$
 
 ### Graphical Representation
 
-Add `curve()` functions to the following code to graph the marginal and average products of labor from $0 \le L \le 50$ in a single plot area. Use $(-1250, 1250)$ as the limits for the vertical (output) axis and label your axes "Labor" and "Output." 
+Add `curve()` functions to the following code to graph the marginal and average products of labor from $0 \le L \le 50$ in a single plot area. Use $(0, 1250)$ as the limits for the vertical (output) axis and label your axes "Labor" and "Output." 
 
 ```{r MPL, exercise = TRUE, exercise.reveal_solution = TRUE}
-yac.polynomial <- 
-  deparse(polynomial)[[3]] |>   # Split polynomial as character vector, position 3
-  ysym()                        # Convert to a yac_sym
-dl.polynomial <- yac.polynomial |>
-  deriv('x') |>                 # Take the derivative with respect to x
-  as_r()                        # Convert to an r expression
+yac.polynomial <- ysym('-x^3 + 60 * x^2 + 25 * x') 
+dl.polynomial <- 
+  deriv(yac.polynomial, 'x')    # Take the derivative of f with respect to x
+dl.polynomial <- 
+  as_r(dl.polynomial)           # Convert to an r expression
 yl.polynomial <- 
-  yac.polynomial / ysym('x')    # Divide by x
-yl.polynomial <- yl.polynomial |>
-  simplify() |>
-  as_r()                        # Convert to an r expression
+  yac.polynomial / ysym('x')    # Divide f by x
+yl.polynomial <- 
+  as_r(yl.polynomial)           # Convert to an r expression
 polynomial.mpl <- function(x) {
   eval(dl.polynomial[[1]])
-}                             # Define the mpl as a function. 
+}                               # Define the mpl as a function. 
 polynomial.apl <- function(x) {
   eval(yl.polynomial[[1]])
-}                             # Define the apl as a function. 
+}                               # Define the apl as a function. 
 # Begin Graphing Code Below. 
 
 ```
 
 ```{r MPL-solution}
-yac.polynomial <- 
-  deparse(polynomial)[[3]] |>   # Split polynomial as character vector, position 3
-  ysym()                        # Convert to a yac_sym
-dl.polynomial <- yac.polynomial |>
-  deriv('x') |>                 # Take the derivative with respect to x
-  as_r()                        # Convert to an r expression
+yac.polynomial <- ysym('-x^3 + 60 * x^2 + 25 * x') 
+dl.polynomial <- 
+  deriv(yac.polynomial, 'x')    # Take the derivative of f with respect to x
+dl.polynomial <- 
+  as_r(dl.polynomial)           # Convert to an r expression
 yl.polynomial <- 
-  yac.polynomial / ysym('x')    # Divide by x
-yl.polynomial <- yl.polynomial |>
-  simplify() |>
-  as_r()                        # Convert to an r expression
+  yac.polynomial / ysym('x')    # Divide f by x
+yl.polynomial <- 
+  as_r(yl.polynomial)           # Convert to an r expression
 polynomial.mpl <- function(x) {
   eval(dl.polynomial[[1]])
-}                             # Define the mpl as a function. 
+}                               # Define the mpl as a function. 
 polynomial.apl <- function(x) {
   eval(yl.polynomial[[1]])
-}                             # Define the apl as a function. 
+}                               # Define the apl as a function. 
 # Begin Graphing Code Below. 
 curve(
   polynomial.mpl,
   type = 'l',
   xlim = c(0, 50),
-  ylim = c(-1250, 1250),
+  ylim = c(0, 1250),
   xlab = "Labor",
   ylab = "Output"
 )
@@ -399,7 +396,7 @@ grade_this({if (!inherits(.result, c("yac_symbol"))) {
 
 ### General Form
 
-```{r}
+```{r, echo = TRUE}
 q <- ysym('A * L^(alpha) * K^(1-alpha)')
 MRTSq <- (deriv(q, 'L') / deriv(q, 'K')) |>
   yac_str() |> 
@@ -428,7 +425,12 @@ f(30, 30)
 ```
 
 ```{r RTS-check}
-
+grade_this({if (!inherits(.result, c("numeric"))) {
+    fail("Your class of your answer should be numeric")}
+  if (.result != 'y: K/(2*L)') { 
+    fail("The value of f at L = K = 30 is 3000") }
+  pass()
+})
 ```
 
 ```{r double, echo=FALSE}

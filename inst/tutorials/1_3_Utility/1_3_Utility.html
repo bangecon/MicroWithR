@@ -9,7 +9,7 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="date" content="2023-02-01" />
+<meta name="date" content="2023-02-06" />
 
 <meta name="progressive" content="true" />
 <meta name="allow-skip" content="false" />
@@ -169,10 +169,10 @@ on display). It only comes out for “special occasions.”</p>
 multiplicative utility function:</p>
 <p><span class="math display">\[U(x_1, x_2) = x_1x_2\]</span></p>
 <ol style="list-style-type: decimal">
-<li><p>Use the `persp(x, y, z) function in r to graph this utility
-function for <span class="math inline">\(0 \le x_1 \le 10\)</span> and
-<span class="math inline">\(0 \le x_2 \le 10\)</span>. (Hint: use seq()
-define <span class="math inline">\(x\)</span> and <span
+<li><p>Use the <code>persp(x, y, z)</code> function in r to graph this
+utility function for <span class="math inline">\(0 \le x_1 \le
+10\)</span> and <span class="math inline">\(0 \le x_2 \le 10\)</span>.
+(Hint: use seq() define <span class="math inline">\(x\)</span> and <span
 class="math inline">\(y\)</span> as sequences; and define <span
 class="math inline">\(z\)</span> as the outer product of <span
 class="math inline">\(x\)</span> and <span
@@ -235,11 +235,11 @@ transformation</em> to it so that <span class="math inline">\(\alpha +
 <div id="section-graphical-representation" class="section level3">
 <h3>Graphical Representation</h3>
 <ol style="list-style-type: decimal">
-<li>Use the `persp(x, y, z) function in r to graph this utility function
-for <span class="math inline">\(0 \le x_1 \le 50\)</span>, <span
-class="math inline">\(0 \le x_2 \le 50\)</span>, and <span
-class="math inline">\(\alpha = 0.25\)</span>. (Hint: use seq() define
-<span class="math inline">\(x\)</span> and <span
+<li>Use the <code>persp(x, y, z)</code> function in r to graph this
+utility function for <span class="math inline">\(0 \le x_1 \le
+50\)</span>, <span class="math inline">\(0 \le x_2 \le 50\)</span>, and
+<span class="math inline">\(\alpha = 0.25\)</span>. (Hint: use seq()
+define <span class="math inline">\(x\)</span> and <span
 class="math inline">\(y\)</span> as sequences; and define <span
 class="math inline">\(z\)</span> as the outer product of <span
 class="math inline">\(x\)</span> and <span
@@ -393,6 +393,7 @@ data-diagnostics="1" data-startover="1" data-lines="0">
   ysym()
 MRS</code></pre>
 </div>
+<pre><code>## y: x2/(3*x1)</code></pre>
 <p><span class="math display">\[\frac{x_{2}}{3 x_{1}}\]</span></p>
 </div>
 <div id="section-general-form" class="section level3">
@@ -408,13 +409,21 @@ one line, which will give you a vector of derivative functions. The
 fancy math name for this is the <em>gradient</em> of <span
 class="math inline">\(f\)</span> with respect to <span
 class="math inline">\(x\)</span>, denoted <span
-class="math inline">\(\nabla f(x_1, x_2)\)</span>. Try this in your
-code. You can then get the <span class="math inline">\(MRS\)</span> by
-dividing the marginal utilities (dividing the first element of the
-gradient by the second).</p>
+class="math inline">\(\nabla f(x_1, x_2)\)</span>. You can then get the
+<span class="math inline">\(MRS\)</span> by dividing the marginal
+utilities (dividing the first element of the gradient by the second).
+Try this by running the following code.</p>
 <div class="tutorial-exercise" data-label="generalMRS"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0">
+<pre class="text"><code>v &lt;- ysym(&#39;x1^alpha * x2^(1-alpha)&#39;)
+MV &lt;- deriv(v, c(&#39;x1&#39;, &#39;x2&#39;))
+MRSv &lt;- (MV[1]/MV[2]) |&gt;
+  yac_str() |&gt; 
+  Simplify() |&gt;
+  ysym()
+MRSv</code></pre>
+<pre><code>y: (alpha*x2)/(x1*(1-alpha))</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <div class="tutorial-exercise-support" data-label="generalMRS-solution"
@@ -450,7 +459,7 @@ class="section level3">
 <p>The function <span class="math inline">\(log_b(x)\)</span> is
 <em>monotonic</em> for and base, <span class="math inline">\(b\)</span>
 and for all <span class="math inline">\(x &gt; 0\)</span>.</p>
-<p><img src="1_3_Utility_files/figure-html/unnamed-chunk-6-1.png" width="75%" style="display: block; margin: auto;" /></p>
+<p><img src="1_3_Utility_files/figure-html/unnamed-chunk-8-1.png" width="75%" style="display: block; margin: auto;" /></p>
 <details style="line-height:105%">
 <summary>
 Click here to see the code for the graph.
@@ -962,15 +971,6 @@ gradethis_setup()
 tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
 knitr::include_graphics
-u <- ysym('x1^0.25 * x2^0.75')
-MU1 <- deriv(u, 'x1')
-MU2 <- deriv(u, 'x2')
-print(c(MU1, MU2))
-MRS <- (MU1/MU2) |>
-  yac_str() |> 
-  Simplify() |>
-  ysym()
-MRS
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
@@ -1006,15 +1006,12 @@ learnr:::store_exercise_cache(structure(list(label = "simpleUtility", global_set
 "library(gradethis)", "library(Deriv)", "library(Ryacas)", "gradethis_setup()", 
 "tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)", 
 "knitr::opts_chunk$set(echo = FALSE, fig.align = \"center\", fig.height = 6, fig.width = 6)", 
-"knitr::include_graphics", "u <- ysym('x1^0.25 * x2^0.75')", 
-"MU1 <- deriv(u, 'x1')", "MU2 <- deriv(u, 'x2')", "print(c(MU1, MU2))", 
-"MRS <- (MU1/MU2) |>", "  yac_str() |> ", "  Simplify() |>", 
-"  ysym()", "MRS"), chunk_opts = list(label = "setup", include = FALSE)), 
-    setup = NULL, chunks = list(list(label = "simpleUtility", 
-        code = "x = seq(0, 10, 0.1) # Create a vector sequence for x\ny = seq(0, 10, 0.1) # Create a vector sequence for y\nz = outer(x, y)     # Create the grid of utilitiesas the outer product of x and y\n", 
-        opts = list(label = "\"simpleUtility\"", exercise = "TRUE", 
-            exercise.reveal_solution = "TRUE"), engine = "r")), 
-    code_check = NULL, error_check = NULL, check = structure(c("grade_this({if (!inherits(.result, c(\"list\"))) {", 
+"knitr::include_graphics"), chunk_opts = list(label = "setup", 
+    include = FALSE)), setup = NULL, chunks = list(list(label = "simpleUtility", 
+    code = "x = seq(0, 10, 0.1) # Create a vector sequence for x\ny = seq(0, 10, 0.1) # Create a vector sequence for y\nz = outer(x, y)     # Create the grid of utilitiesas the outer product of x and y\n", 
+    opts = list(label = "\"simpleUtility\"", exercise = "TRUE", 
+        exercise.reveal_solution = "TRUE"), engine = "r")), code_check = NULL, 
+    error_check = NULL, check = structure(c("grade_this({if (!inherits(.result, c(\"list\"))) {", 
     "    fail(\"Your class of your answer should be a list\")}", 
     "  if (.result$y[1] != Inf) { ", "    fail(\"The y-intercept should approach infinity.\") }", 
     "  pass()", "})"), chunk_opts = list(label = "simpleUtility-check")), 
@@ -1065,15 +1062,12 @@ learnr:::store_exercise_cache(structure(list(label = "CobbDouglas", global_setup
 "library(gradethis)", "library(Deriv)", "library(Ryacas)", "gradethis_setup()", 
 "tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)", 
 "knitr::opts_chunk$set(echo = FALSE, fig.align = \"center\", fig.height = 6, fig.width = 6)", 
-"knitr::include_graphics", "u <- ysym('x1^0.25 * x2^0.75')", 
-"MU1 <- deriv(u, 'x1')", "MU2 <- deriv(u, 'x2')", "print(c(MU1, MU2))", 
-"MRS <- (MU1/MU2) |>", "  yac_str() |> ", "  Simplify() |>", 
-"  ysym()", "MRS"), chunk_opts = list(label = "setup", include = FALSE)), 
-    setup = NULL, chunks = list(list(label = "CobbDouglas", code = "", 
-        opts = list(label = "\"CobbDouglas\"", exercise = "TRUE", 
-            exercise.reveal_solution = "TRUE"), engine = "r")), 
-    code_check = NULL, error_check = NULL, check = structure(c("grade_this({", 
-    "  if (!inherits(.result, c(\"matrix\"))) {", "    fail(\"Your class of your answer should be a matrix\")}", 
+"knitr::include_graphics"), chunk_opts = list(label = "setup", 
+    include = FALSE)), setup = NULL, chunks = list(list(label = "CobbDouglas", 
+    code = "", opts = list(label = "\"CobbDouglas\"", exercise = "TRUE", 
+        exercise.reveal_solution = "TRUE"), engine = "r")), code_check = NULL, 
+    error_check = NULL, check = structure(c("grade_this({", "  if (!inherits(.result, c(\"matrix\"))) {", 
+    "    fail(\"Your class of your answer should be a matrix\")}", 
     "  if (dim(.result) != c(4,4)) { ", "    fail(\"The result should have 4 rows and 4 columns\") }", 
     "  if (.result[1,1] != 0.2) { ", "    fail(\"The first position of your result should be 0.2\") }", 
     "  pass()", "})"), chunk_opts = list(label = "CobbDouglas-check")), 
@@ -1120,15 +1114,11 @@ learnr:::store_exercise_cache(structure(list(label = "cdIndifference", global_se
 "library(gradethis)", "library(Deriv)", "library(Ryacas)", "gradethis_setup()", 
 "tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)", 
 "knitr::opts_chunk$set(echo = FALSE, fig.align = \"center\", fig.height = 6, fig.width = 6)", 
-"knitr::include_graphics", "u <- ysym('x1^0.25 * x2^0.75')", 
-"MU1 <- deriv(u, 'x1')", "MU2 <- deriv(u, 'x2')", "print(c(MU1, MU2))", 
-"MRS <- (MU1/MU2) |>", "  yac_str() |> ", "  Simplify() |>", 
-"  ysym()", "MRS"), chunk_opts = list(label = "setup", include = FALSE)), 
-    setup = NULL, chunks = list(list(label = "cdIndifference", 
-        code = "", opts = list(label = "\"cdIndifference\"", 
-            exercise = "TRUE", exercise.reveal_solution = "TRUE"), 
-        engine = "r")), code_check = NULL, error_check = NULL, 
-    check = structure(c("grade_this({if (!inherits(.result, c(\"list\"))) {", 
+"knitr::include_graphics"), chunk_opts = list(label = "setup", 
+    include = FALSE)), setup = NULL, chunks = list(list(label = "cdIndifference", 
+    code = "", opts = list(label = "\"cdIndifference\"", exercise = "TRUE", 
+        exercise.reveal_solution = "TRUE"), engine = "r")), code_check = NULL, 
+    error_check = NULL, check = structure(c("grade_this({if (!inherits(.result, c(\"list\"))) {", 
     "    fail(\"Your class of your answer should be a list\")}", 
     "  if (.result$y[1] != Inf) { ", "    fail(\"The y-intercept should approach infinity.\") }", 
     "  pass()", "})"), chunk_opts = list(label = "cdIndifference-check")), 
@@ -1175,15 +1165,11 @@ learnr:::store_exercise_cache(structure(list(label = "marginalUtility", global_s
 "library(gradethis)", "library(Deriv)", "library(Ryacas)", "gradethis_setup()", 
 "tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)", 
 "knitr::opts_chunk$set(echo = FALSE, fig.align = \"center\", fig.height = 6, fig.width = 6)", 
-"knitr::include_graphics", "u <- ysym('x1^0.25 * x2^0.75')", 
-"MU1 <- deriv(u, 'x1')", "MU2 <- deriv(u, 'x2')", "print(c(MU1, MU2))", 
-"MRS <- (MU1/MU2) |>", "  yac_str() |> ", "  Simplify() |>", 
-"  ysym()", "MRS"), chunk_opts = list(label = "setup", include = FALSE)), 
-    setup = NULL, chunks = list(list(label = "marginalUtility", 
-        code = "", opts = list(label = "\"marginalUtility\"", 
-            exercise = "TRUE", exercise.reveal_solution = "TRUE"), 
-        engine = "r")), code_check = NULL, error_check = NULL, 
-    check = structure(c("grade_this({if (!inherits(.result, c(\"yac_symbol\"))) {", 
+"knitr::include_graphics"), chunk_opts = list(label = "setup", 
+    include = FALSE)), setup = NULL, chunks = list(list(label = "marginalUtility", 
+    code = "", opts = list(label = "\"marginalUtility\"", exercise = "TRUE", 
+        exercise.reveal_solution = "TRUE"), engine = "r")), code_check = NULL, 
+    error_check = NULL, check = structure(c("grade_this({if (!inherits(.result, c(\"yac_symbol\"))) {", 
     "    fail(\"Your class of your answer should be a yac_symbol\")}", 
     "  if (.result != \"y: 0.75*x1^0.25*x2^(-0.25)\") { ", "    fail(\"The marginal utility of good 2 should be 0.75*(x1/x2)^0.25.\") }", 
     "  pass()", "})"), chunk_opts = list(label = "marginalUtility-check")), 
@@ -1228,18 +1214,14 @@ learnr:::store_exercise_cache(structure(list(label = "marginalRateOfSubstitution
 "library(gradethis)", "library(Deriv)", "library(Ryacas)", "gradethis_setup()", 
 "tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)", 
 "knitr::opts_chunk$set(echo = FALSE, fig.align = \"center\", fig.height = 6, fig.width = 6)", 
-"knitr::include_graphics", "u <- ysym('x1^0.25 * x2^0.75')", 
-"MU1 <- deriv(u, 'x1')", "MU2 <- deriv(u, 'x2')", "print(c(MU1, MU2))", 
-"MRS <- (MU1/MU2) |>", "  yac_str() |> ", "  Simplify() |>", 
-"  ysym()", "MRS"), chunk_opts = list(label = "setup", include = FALSE)), 
-    setup = NULL, chunks = list(list(label = "marginalRateOfSubstitution", 
-        code = "", opts = list(label = "\"marginalRateOfSubstitution\"", 
-            exercise = "TRUE", exercise.reveal_solution = "TRUE"), 
-        engine = "r")), code_check = NULL, error_check = NULL, 
-    check = structure(c("grade_this({if (!inherits(.result, c(\"yac_symbol\"))) {", 
-    "    fail(\"Your class of your answer should be a yac_symbol\")}", 
-    "  if (.result$yacas_cmd != \"x2/(3*x1)\") { ", "    fail(\"The MRS should be x2/(3*x1)\") }", 
-    "  pass()", "})"), chunk_opts = list(label = "marginalRateOfSubstitution-check")), 
+"knitr::include_graphics"), chunk_opts = list(label = "setup", 
+    include = FALSE)), setup = NULL, chunks = list(list(label = "marginalRateOfSubstitution", 
+    code = "", opts = list(label = "\"marginalRateOfSubstitution\"", 
+        exercise = "TRUE", exercise.reveal_solution = "TRUE"), 
+    engine = "r")), code_check = NULL, error_check = NULL, check = structure(c("grade_this({if (!inherits(.result, c(\"yac_symbol\"))) {", 
+"    fail(\"Your class of your answer should be a yac_symbol\")}", 
+"  if (.result$yacas_cmd != \"x2/(3*x1)\") { ", "    fail(\"The MRS should be x2/(3*x1)\") }", 
+"  pass()", "})"), chunk_opts = list(label = "marginalRateOfSubstitution-check")), 
     solution = structure(c("MRS <- (MU1/MU2) |>", "  yac_str() |> ", 
     "  Simplify() |>", "  ysym()", "MRS"), chunk_opts = list(
         label = "marginalRateOfSubstitution-solution")), tests = NULL, 
@@ -1282,14 +1264,12 @@ learnr:::store_exercise_cache(structure(list(label = "generalMRS", global_setup 
 "library(gradethis)", "library(Deriv)", "library(Ryacas)", "gradethis_setup()", 
 "tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)", 
 "knitr::opts_chunk$set(echo = FALSE, fig.align = \"center\", fig.height = 6, fig.width = 6)", 
-"knitr::include_graphics", "u <- ysym('x1^0.25 * x2^0.75')", 
-"MU1 <- deriv(u, 'x1')", "MU2 <- deriv(u, 'x2')", "print(c(MU1, MU2))", 
-"MRS <- (MU1/MU2) |>", "  yac_str() |> ", "  Simplify() |>", 
-"  ysym()", "MRS"), chunk_opts = list(label = "setup", include = FALSE)), 
-    setup = NULL, chunks = list(list(label = "generalMRS", code = "", 
-        opts = list(label = "\"generalMRS\"", exercise = "TRUE", 
-            exercise.reveal_solution = "TRUE"), engine = "r")), 
-    code_check = NULL, error_check = NULL, check = structure(c("grade_this({if (!inherits(.result, c(\"yac_symbol\"))) {", 
+"knitr::include_graphics"), chunk_opts = list(label = "setup", 
+    include = FALSE)), setup = NULL, chunks = list(list(label = "generalMRS", 
+    code = "v <- ysym('x1^alpha * x2^(1-alpha)')\nMV <- deriv(v, c('x1', 'x2'))\nMRSv <- (MV[1]/MV[2]) |>\n  yac_str() |> \n  Simplify() |>\n  ysym()\nMRSv", 
+    opts = list(label = "\"generalMRS\"", exercise = "TRUE", 
+        exercise.reveal_solution = "TRUE"), engine = "r")), code_check = NULL, 
+    error_check = NULL, check = structure(c("grade_this({if (!inherits(.result, c(\"yac_symbol\"))) {", 
     "    fail(\"Your class of your answer should be a yac_symbol\")}", 
     "  if (.result$yacas_cmd != \"(alpha*x2)/(x1*(1-alpha))\") { ", 
     "    fail(\"The MRS should be (alpha/(1-alpha))*(x2/x1)\") }", 
@@ -1316,9 +1296,11 @@ learnr:::store_exercise_cache(structure(list(label = "generalMRS", global_setup 
         max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (label = NULL, solution_code = NULL, user_code = NULL, \n    check_code = NULL, envir_result = NULL, evaluate_result = NULL, \n    envir_prep = NULL, last_value = NULL, stage = NULL, ..., \n    solution_eval_fn = NULL) \n{\n    (utils::getFromNamespace(\"check_exercise\", \"gradethis\"))(label = label, \n        solution_code = solution_code, user_code = user_code, \n        check_code = check_code, envir_result = envir_result, \n        evaluate_result = evaluate_result, envir_prep = envir_prep, \n        last_value = last_value, stage = stage, ...)\n}", 
         exercise.error.check.code = "gradethis_error_checker()", 
         exercise.eval = TRUE, exercise.reveal_solution = TRUE, 
-        label = "generalMRS", exercise = TRUE, code = "", out.width.px = 576, 
-        out.height.px = 576, params.src = "generalMRS, exercise=TRUE, exercise.reveal_solution = TRUE", 
-        fig.alt = NULL, fig.num = 0L, exercise.df_print = "paged"), 
+        label = "generalMRS", exercise = TRUE, code = c("v <- ysym('x1^alpha * x2^(1-alpha)')", 
+        "MV <- deriv(v, c('x1', 'x2'))", "MRSv <- (MV[1]/MV[2]) |>", 
+        "  yac_str() |> ", "  Simplify() |>", "  ysym()", "MRSv"
+        ), out.width.px = 576, out.height.px = 576, params.src = "generalMRS, exercise=TRUE, exercise.reveal_solution = TRUE", 
+        fig.alt = NULL, fig.num = 0, exercise.df_print = "paged"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
 </script>
@@ -1336,18 +1318,14 @@ learnr:::store_exercise_cache(structure(list(label = "perfectSubstitutes", globa
 "library(gradethis)", "library(Deriv)", "library(Ryacas)", "gradethis_setup()", 
 "tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)", 
 "knitr::opts_chunk$set(echo = FALSE, fig.align = \"center\", fig.height = 6, fig.width = 6)", 
-"knitr::include_graphics", "u <- ysym('x1^0.25 * x2^0.75')", 
-"MU1 <- deriv(u, 'x1')", "MU2 <- deriv(u, 'x2')", "print(c(MU1, MU2))", 
-"MRS <- (MU1/MU2) |>", "  yac_str() |> ", "  Simplify() |>", 
-"  ysym()", "MRS"), chunk_opts = list(label = "setup", include = FALSE)), 
-    setup = NULL, chunks = list(list(label = "perfectSubstitutes", 
-        code = "### Define the level of u, and sequances for x and y.\n\n### Define z = f(x,y) and plot x, y, z using persp()\n\n", 
-        opts = list(label = "\"perfectSubstitutes\"", exercise = "TRUE"), 
-        engine = "r")), code_check = NULL, error_check = NULL, 
-    check = structure(c("grade_this({if (!inherits(.result, c(\"list\"))) {", 
-    "    fail(\"Your class of your answer should be a list\")}", 
-    "  if (.result$y[1] != 25) { ", "    fail(\"The y-intercept should equal 25.\") }", 
-    "  pass()", "})"), chunk_opts = list(label = "perfectSubstitutes-check")), 
+"knitr::include_graphics"), chunk_opts = list(label = "setup", 
+    include = FALSE)), setup = NULL, chunks = list(list(label = "perfectSubstitutes", 
+    code = "### Define the level of u, and sequances for x and y.\n\n### Define z = f(x,y) and plot x, y, z using persp()\n\n", 
+    opts = list(label = "\"perfectSubstitutes\"", exercise = "TRUE"), 
+    engine = "r")), code_check = NULL, error_check = NULL, check = structure(c("grade_this({if (!inherits(.result, c(\"list\"))) {", 
+"    fail(\"Your class of your answer should be a list\")}", 
+"  if (.result$y[1] != 25) { ", "    fail(\"The y-intercept should equal 25.\") }", 
+"  pass()", "})"), chunk_opts = list(label = "perfectSubstitutes-check")), 
     solution = structure(c("u0 = 5", "x = seq(0, 25, 0.1)", "y = seq(0, 25, 0.1)", 
     "z = (outer(x, y, FUN = \"+\"))^0.5", "persp(x,", "      y,", 
     "      z)", "curve(u0^2 - x,", "  type = 'l',", "  ylim = c(0, 25),", 
@@ -1392,38 +1370,34 @@ learnr:::store_exercise_cache(structure(list(label = "perfectComplements", globa
 "library(gradethis)", "library(Deriv)", "library(Ryacas)", "gradethis_setup()", 
 "tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)", 
 "knitr::opts_chunk$set(echo = FALSE, fig.align = \"center\", fig.height = 6, fig.width = 6)", 
-"knitr::include_graphics", "u <- ysym('x1^0.25 * x2^0.75')", 
-"MU1 <- deriv(u, 'x1')", "MU2 <- deriv(u, 'x2')", "print(c(MU1, MU2))", 
-"MRS <- (MU1/MU2) |>", "  yac_str() |> ", "  Simplify() |>", 
-"  ysym()", "MRS"), chunk_opts = list(label = "setup", include = FALSE)), 
-    setup = NULL, chunks = list(list(label = "perfectComplements", 
-        code = "plot(\n  x = c(rep(10, 11)),\n  y = c(seq(10, 80, 7)),\n  type = 'l',\n  xlim = c(0, 80),\n  ylim = c(0, 80),\n  xlab = 'Donuts',\n  ylab = 'Beer',\n  col = 'red', \n  main = 'Beer and Donuts are Perfect Complements'\n) \nsegments(\n  x0 = 10, \n  x1 = 80, \n  y0 = 10, \n  y1 = 10, \n  col = 'red'\n)\nsegments(\n  x0 = 20, \n  x1 = 20, \n  y0 = 20, \n  y1 = 80, \n  col = 'orange'\n)\nsegments(\n  x0 = 20, \n  x1 = 80, \n  y0 = 20, \n  y1 = 20, \n  col = 'orange'\n)\nsegments(\n  x0 = 30, \n  x1 = 30, \n  y0 = 30, \n  y1 = 80, \n  col = 'yellow'\n)\nsegments(\n  x0 = 30, \n  x1 = 80, \n  y0 = 30, \n  y1 = 30, \n  col = 'yellow'\n)\nsegments(\n  x0 = 40, \n  x1 = 40, \n  y0 = 40, \n  y1 = 80, \n  col = 'green'\n)\nsegments(\n  x0 = 40, \n  x1 = 80, \n  y0 = 40, \n  y1 = 40, \n  col = 'green'\n)\nsegments(\n  x0 = 50, \n  x1 = 50, \n  y0 = 50, \n  y1 = 80, \n  col = 'blue'\n)\nsegments(\n  x0 = 50, \n  x1 = 80, \n  y0 = 50, \n  y1 = 50, \n  col = 'blue'\n)\nsegments(\n  x0 = 60, \n  x1 = 60, \n  y0 = 60, \n  y1 = 80, \n  col = 'violet'\n)\nsegments(\n  x0 = 60, \n  x1 = 80, \n  y0 = 60, \n  y1 = 60, \n  col = 'violet'\n)\narrows(\n  x0 = 10,\n  x1 = 60,\n  y0 = 10,\n  y1 = 60,\n  col = 'black'\n)", 
-        opts = list(label = "\"perfectComplements\"", exercise = "TRUE", 
-            exercise.reveal_solution = "TRUE"), engine = "r")), 
-    code_check = NULL, error_check = NULL, check = structure("grade_code()", chunk_opts = list(
-        label = "perfectComplements-check")), solution = structure(c("plot(", 
-    "  x = c(rep(10, 11)),", "  y = c(seq(10, 80, 7)),", "  type = 'l',", 
-    "  xlim = c(0, 80),", "  ylim = c(0, 80),", "  xlab = 'Donuts',", 
-    "  ylab = 'Beer',", "  col = 'red', ", "  main = 'Beer and Donuts are Perfect Complements'", 
-    ") ", "segments(", "  x0 = 10, ", "  x1 = 80, ", "  y0 = 10, ", 
-    "  y1 = 10, ", "  col = 'red'", ")", "segments(", "  x0 = 20, ", 
-    "  x1 = 20, ", "  y0 = 20, ", "  y1 = 80, ", "  col = 'orange'", 
-    ")", "segments(", "  x0 = 20, ", "  x1 = 80, ", "  y0 = 20, ", 
-    "  y1 = 20, ", "  col = 'orange'", ")", "segments(", "  x0 = 30, ", 
-    "  x1 = 30, ", "  y0 = 30, ", "  y1 = 80, ", "  col = 'yellow'", 
-    ")", "segments(", "  x0 = 30, ", "  x1 = 80, ", "  y0 = 30, ", 
-    "  y1 = 30, ", "  col = 'yellow'", ")", "segments(", "  x0 = 40, ", 
-    "  x1 = 40, ", "  y0 = 40, ", "  y1 = 80, ", "  col = 'green'", 
-    ")", "segments(", "  x0 = 40, ", "  x1 = 80, ", "  y0 = 40, ", 
-    "  y1 = 40, ", "  col = 'green'", ")", "segments(", "  x0 = 50, ", 
-    "  x1 = 50, ", "  y0 = 50, ", "  y1 = 80, ", "  col = 'blue'", 
-    ")", "segments(", "  x0 = 50, ", "  x1 = 80, ", "  y0 = 50, ", 
-    "  y1 = 50, ", "  col = 'blue'", ")", "segments(", "  x0 = 60, ", 
-    "  x1 = 60, ", "  y0 = 60, ", "  y1 = 80, ", "  col = 'violet'", 
-    ")", "segments(", "  x0 = 60, ", "  x1 = 80, ", "  y0 = 60, ", 
-    "  y1 = 60, ", "  col = 'violet'", ")", "arrows(", "  x0 = 10,", 
-    "  x1 = 60,", "  y0 = 10,", "  y1 = 60,", "  col = 'black'", 
-    ")"), chunk_opts = list(label = "perfectComplements-solution")), 
+"knitr::include_graphics"), chunk_opts = list(label = "setup", 
+    include = FALSE)), setup = NULL, chunks = list(list(label = "perfectComplements", 
+    code = "plot(\n  x = c(rep(10, 11)),\n  y = c(seq(10, 80, 7)),\n  type = 'l',\n  xlim = c(0, 80),\n  ylim = c(0, 80),\n  xlab = 'Donuts',\n  ylab = 'Beer',\n  col = 'red', \n  main = 'Beer and Donuts are Perfect Complements'\n) \nsegments(\n  x0 = 10, \n  x1 = 80, \n  y0 = 10, \n  y1 = 10, \n  col = 'red'\n)\nsegments(\n  x0 = 20, \n  x1 = 20, \n  y0 = 20, \n  y1 = 80, \n  col = 'orange'\n)\nsegments(\n  x0 = 20, \n  x1 = 80, \n  y0 = 20, \n  y1 = 20, \n  col = 'orange'\n)\nsegments(\n  x0 = 30, \n  x1 = 30, \n  y0 = 30, \n  y1 = 80, \n  col = 'yellow'\n)\nsegments(\n  x0 = 30, \n  x1 = 80, \n  y0 = 30, \n  y1 = 30, \n  col = 'yellow'\n)\nsegments(\n  x0 = 40, \n  x1 = 40, \n  y0 = 40, \n  y1 = 80, \n  col = 'green'\n)\nsegments(\n  x0 = 40, \n  x1 = 80, \n  y0 = 40, \n  y1 = 40, \n  col = 'green'\n)\nsegments(\n  x0 = 50, \n  x1 = 50, \n  y0 = 50, \n  y1 = 80, \n  col = 'blue'\n)\nsegments(\n  x0 = 50, \n  x1 = 80, \n  y0 = 50, \n  y1 = 50, \n  col = 'blue'\n)\nsegments(\n  x0 = 60, \n  x1 = 60, \n  y0 = 60, \n  y1 = 80, \n  col = 'violet'\n)\nsegments(\n  x0 = 60, \n  x1 = 80, \n  y0 = 60, \n  y1 = 60, \n  col = 'violet'\n)\narrows(\n  x0 = 10,\n  x1 = 60,\n  y0 = 10,\n  y1 = 60,\n  col = 'black'\n)", 
+    opts = list(label = "\"perfectComplements\"", exercise = "TRUE"), 
+    engine = "r")), code_check = NULL, error_check = NULL, check = structure("grade_code()", chunk_opts = list(
+    label = "perfectComplements-check")), solution = structure(c("plot(", 
+"  x = c(rep(10, 11)),", "  y = c(seq(10, 80, 7)),", "  type = 'l',", 
+"  xlim = c(0, 80),", "  ylim = c(0, 80),", "  xlab = 'Donuts',", 
+"  ylab = 'Beer',", "  col = 'red', ", "  main = 'Beer and Donuts are Perfect Complements'", 
+") ", "segments(", "  x0 = 10, ", "  x1 = 80, ", "  y0 = 10, ", 
+"  y1 = 10, ", "  col = 'red'", ")", "segments(", "  x0 = 20, ", 
+"  x1 = 20, ", "  y0 = 20, ", "  y1 = 80, ", "  col = 'orange'", 
+")", "segments(", "  x0 = 20, ", "  x1 = 80, ", "  y0 = 20, ", 
+"  y1 = 20, ", "  col = 'orange'", ")", "segments(", "  x0 = 30, ", 
+"  x1 = 30, ", "  y0 = 30, ", "  y1 = 80, ", "  col = 'yellow'", 
+")", "segments(", "  x0 = 30, ", "  x1 = 80, ", "  y0 = 30, ", 
+"  y1 = 30, ", "  col = 'yellow'", ")", "segments(", "  x0 = 40, ", 
+"  x1 = 40, ", "  y0 = 40, ", "  y1 = 80, ", "  col = 'green'", 
+")", "segments(", "  x0 = 40, ", "  x1 = 80, ", "  y0 = 40, ", 
+"  y1 = 40, ", "  col = 'green'", ")", "segments(", "  x0 = 50, ", 
+"  x1 = 50, ", "  y0 = 50, ", "  y1 = 80, ", "  col = 'blue'", 
+")", "segments(", "  x0 = 50, ", "  x1 = 80, ", "  y0 = 50, ", 
+"  y1 = 50, ", "  col = 'blue'", ")", "segments(", "  x0 = 60, ", 
+"  x1 = 60, ", "  y0 = 60, ", "  y1 = 80, ", "  col = 'violet'", 
+")", "segments(", "  x0 = 60, ", "  x1 = 80, ", "  y0 = 60, ", 
+"  y1 = 60, ", "  col = 'violet'", ")", "arrows(", "  x0 = 10,", 
+"  x1 = 60,", "  y0 = 10,", "  y1 = 60,", "  col = 'black'", 
+")"), chunk_opts = list(label = "perfectComplements-solution")), 
     tests = NULL, options = list(eval = TRUE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
@@ -1467,7 +1441,7 @@ learnr:::store_exercise_cache(structure(list(label = "perfectComplements", globa
         "  x0 = 60, ", "  x1 = 80, ", "  y0 = 60, ", "  y1 = 60, ", 
         "  col = 'violet'", ")", "arrows(", "  x0 = 10,", "  x1 = 60,", 
         "  y0 = 10,", "  y1 = 60,", "  col = 'black'", ")"), 
-        out.width.px = 576, out.height.px = 576, params.src = "perfectComplements, exercise = TRUE, exercise.reveal_solution = TRUE", 
+        out.width.px = 576, out.height.px = 576, params.src = "perfectComplements, exercise = TRUE", 
         fig.alt = NULL, fig.num = 1, exercise.df_print = "paged"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
@@ -1486,15 +1460,44 @@ learnr:::store_exercise_cache(structure(list(label = "neutralGood", global_setup
 "library(gradethis)", "library(Deriv)", "library(Ryacas)", "gradethis_setup()", 
 "tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)", 
 "knitr::opts_chunk$set(echo = FALSE, fig.align = \"center\", fig.height = 6, fig.width = 6)", 
-"knitr::include_graphics", "u <- ysym('x1^0.25 * x2^0.75')", 
-"MU1 <- deriv(u, 'x1')", "MU2 <- deriv(u, 'x2')", "print(c(MU1, MU2))", 
-"MRS <- (MU1/MU2) |>", "  yac_str() |> ", "  Simplify() |>", 
-"  ysym()", "MRS"), chunk_opts = list(label = "setup", include = FALSE)), 
-    setup = NULL, chunks = list(list(label = "neutralGood", code = "plot(\n  x = c(rep(10, 11)),\n  y = c(seq(0, 60, 6)),\n  type = 'l',\n  xlim = c(0, 60),\n  ylim = c(0, 60),\n  xlab = 'Donuts',\n  ylab = 'Non-Alcoholic Beer',\n  col = 'red', \n  main = 'Non-Alcoholic Beer is a Neutral Good'\n) \nsegments(\n  x0 = 20, \n  x1 = 20, \n  y0 = 0, \n  y1 = 60, \n  col = 'orange'\n)\nsegments(\n  x0 = 30, \n  x1 = 30, \n  y0 = 0, \n  y1 = 60, \n  col = 'yellow'\n)\nsegments(\n  x0 = 40, \n  x1 = 40, \n  y0 = 0, \n  y1 = 60, \n  col = 'green'\n)\nsegments(\n  x0 = 50, \n  x1 = 50, \n  y0 = 0, \n  y1 = 60, \n  col = 'blue'\n)\nsegments(\n  x0 = 60, \n  x1 = 60, \n  y0 = 0, \n  y1 = 60, \n  col = 'violet'\n)\narrows(\n  x0 = 10, \n  x1 = 60, \n  y0 = 30, \n  y1 = 30\n)", 
-        opts = list(label = "\"neutralGood\"", exercise = "TRUE"), 
-        engine = "r")), code_check = NULL, error_check = NULL, 
-    check = structure("grade_code()", chunk_opts = list(label = "neutralGood-check")), 
-    solution = structure(c("plot(", "  x = c(rep(10, 11)),", 
+"knitr::include_graphics"), chunk_opts = list(label = "setup", 
+    include = FALSE)), setup = NULL, chunks = list(list(label = "neutralGood", 
+    code = "plot(\n  x = c(rep(10, 11)),\n  y = c(seq(0, 60, 6)),\n  type = 'l',\n  xlim = c(0, 60),\n  ylim = c(0, 60),\n  xlab = 'Donuts',\n  ylab = 'Non-Alcoholic Beer',\n  col = 'red', \n  main = 'Non-Alcoholic Beer is a Neutral Good'\n) \nsegments(\n  x0 = 20, \n  x1 = 20, \n  y0 = 0, \n  y1 = 60, \n  col = 'orange'\n)\nsegments(\n  x0 = 30, \n  x1 = 30, \n  y0 = 0, \n  y1 = 60, \n  col = 'yellow'\n)\nsegments(\n  x0 = 40, \n  x1 = 40, \n  y0 = 0, \n  y1 = 60, \n  col = 'green'\n)\nsegments(\n  x0 = 50, \n  x1 = 50, \n  y0 = 0, \n  y1 = 60, \n  col = 'blue'\n)\nsegments(\n  x0 = 60, \n  x1 = 60, \n  y0 = 0, \n  y1 = 60, \n  col = 'violet'\n)\narrows(\n  x0 = 10, \n  x1 = 60, \n  y0 = 30, \n  y1 = 30\n)", 
+    opts = list(label = "\"neutralGood\"", exercise = "TRUE"), 
+    engine = "r")), code_check = NULL, error_check = NULL, check = structure("grade_code()", chunk_opts = list(
+    label = "neutralGood-check")), solution = structure(c("plot(", 
+"  x = c(rep(10, 11)),", "  y = c(seq(0, 60, 6)),", "  type = 'l',", 
+"  xlim = c(0, 60),", "  ylim = c(0, 60),", "  xlab = 'Donuts',", 
+"  ylab = 'Non-Alcoholic Beer',", "  col = 'red', ", "  main = 'Non-Alcoholic Beer is a Neutral Good'", 
+") ", "segments(", "  x0 = 20, ", "  x1 = 20, ", "  y0 = 0, ", 
+"  y1 = 60, ", "  col = 'orange'", ")", "segments(", "  x0 = 30, ", 
+"  x1 = 30, ", "  y0 = 0, ", "  y1 = 60, ", "  col = 'yellow'", 
+")", "segments(", "  x0 = 40, ", "  x1 = 40, ", "  y0 = 0, ", 
+"  y1 = 60, ", "  col = 'green'", ")", "segments(", "  x0 = 50, ", 
+"  x1 = 50, ", "  y0 = 0, ", "  y1 = 60, ", "  col = 'blue'", 
+")", "segments(", "  x0 = 60, ", "  x1 = 60, ", "  y0 = 0, ", 
+"  y1 = 60, ", "  col = 'violet'", ")", "arrows(", "  x0 = 10, ", 
+"  x1 = 60, ", "  y0 = 30, ", "  y1 = 30", ")"), chunk_opts = list(
+    label = "neutralGood-solution")), tests = NULL, options = list(
+    eval = TRUE, echo = TRUE, results = "markup", tidy = FALSE, 
+    tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+    highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+    strip.white = TRUE, cache = 0, cache.path = "1_3_Utility_cache/html/", 
+    cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+    cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+    fig.align = "center", fig.path = "1_3_Utility_files/figure-html/", 
+    dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+    fig.width = 6, fig.height = 6, fig.env = "figure", fig.cap = NULL, 
+    fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, fig.pos = "", 
+    out.width = 576, out.height = NULL, out.extra = NULL, fig.retina = 2, 
+    external = TRUE, sanitize = FALSE, interval = 1, aniopts = "controls,loop", 
+    warning = TRUE, error = FALSE, message = TRUE, render = NULL, 
+    ref.label = NULL, child = NULL, engine = "r", split = FALSE, 
+    include = TRUE, purl = TRUE, max.print = 1000, exercise.timelimit = 60, 
+    exercise.checker = "function (label = NULL, solution_code = NULL, user_code = NULL, \n    check_code = NULL, envir_result = NULL, evaluate_result = NULL, \n    envir_prep = NULL, last_value = NULL, stage = NULL, ..., \n    solution_eval_fn = NULL) \n{\n    (utils::getFromNamespace(\"check_exercise\", \"gradethis\"))(label = label, \n        solution_code = solution_code, user_code = user_code, \n        check_code = check_code, envir_result = envir_result, \n        evaluate_result = evaluate_result, envir_prep = envir_prep, \n        last_value = last_value, stage = stage, ...)\n}", 
+    exercise.error.check.code = "gradethis_error_checker()", 
+    exercise.eval = TRUE, exercise.reveal_solution = TRUE, label = "neutralGood", 
+    exercise = TRUE, code = c("plot(", "  x = c(rep(10, 11)),", 
     "  y = c(seq(0, 60, 6)),", "  type = 'l',", "  xlim = c(0, 60),", 
     "  ylim = c(0, 60),", "  xlab = 'Donuts',", "  ylab = 'Non-Alcoholic Beer',", 
     "  col = 'red', ", "  main = 'Non-Alcoholic Beer is a Neutral Good'", 
@@ -1506,44 +1509,11 @@ learnr:::store_exercise_cache(structure(list(label = "neutralGood", global_setup
     "  x1 = 50, ", "  y0 = 0, ", "  y1 = 60, ", "  col = 'blue'", 
     ")", "segments(", "  x0 = 60, ", "  x1 = 60, ", "  y0 = 0, ", 
     "  y1 = 60, ", "  col = 'violet'", ")", "arrows(", "  x0 = 10, ", 
-    "  x1 = 60, ", "  y0 = 30, ", "  y1 = 30", ")"), chunk_opts = list(
-        label = "neutralGood-solution")), tests = NULL, options = list(
-        eval = TRUE, echo = TRUE, results = "markup", tidy = FALSE, 
-        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
-        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
-        strip.white = TRUE, cache = 0, cache.path = "1_3_Utility_cache/html/", 
-        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
-        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
-        fig.show = "asis", fig.align = "center", fig.path = "1_3_Utility_files/figure-html/", 
-        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
-        fig.width = 6, fig.height = 6, fig.env = "figure", fig.cap = NULL, 
-        fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
-        fig.pos = "", out.width = 576, out.height = NULL, out.extra = NULL, 
-        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
-        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
-        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
-        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (label = NULL, solution_code = NULL, user_code = NULL, \n    check_code = NULL, envir_result = NULL, evaluate_result = NULL, \n    envir_prep = NULL, last_value = NULL, stage = NULL, ..., \n    solution_eval_fn = NULL) \n{\n    (utils::getFromNamespace(\"check_exercise\", \"gradethis\"))(label = label, \n        solution_code = solution_code, user_code = user_code, \n        check_code = check_code, envir_result = envir_result, \n        evaluate_result = evaluate_result, envir_prep = envir_prep, \n        last_value = last_value, stage = stage, ...)\n}", 
-        exercise.error.check.code = "gradethis_error_checker()", 
-        exercise.eval = TRUE, exercise.reveal_solution = TRUE, 
-        label = "neutralGood", exercise = TRUE, code = c("plot(", 
-        "  x = c(rep(10, 11)),", "  y = c(seq(0, 60, 6)),", "  type = 'l',", 
-        "  xlim = c(0, 60),", "  ylim = c(0, 60),", "  xlab = 'Donuts',", 
-        "  ylab = 'Non-Alcoholic Beer',", "  col = 'red', ", 
-        "  main = 'Non-Alcoholic Beer is a Neutral Good'", ") ", 
-        "segments(", "  x0 = 20, ", "  x1 = 20, ", "  y0 = 0, ", 
-        "  y1 = 60, ", "  col = 'orange'", ")", "segments(", 
-        "  x0 = 30, ", "  x1 = 30, ", "  y0 = 0, ", "  y1 = 60, ", 
-        "  col = 'yellow'", ")", "segments(", "  x0 = 40, ", 
-        "  x1 = 40, ", "  y0 = 0, ", "  y1 = 60, ", "  col = 'green'", 
-        ")", "segments(", "  x0 = 50, ", "  x1 = 50, ", "  y0 = 0, ", 
-        "  y1 = 60, ", "  col = 'blue'", ")", "segments(", "  x0 = 60, ", 
-        "  x1 = 60, ", "  y0 = 0, ", "  y1 = 60, ", "  col = 'violet'", 
-        ")", "arrows(", "  x0 = 10, ", "  x1 = 60, ", "  y0 = 30, ", 
-        "  y1 = 30", ")"), out.width.px = 576, out.height.px = 576, 
-        params.src = "neutralGood, exercise = TRUE", fig.alt = NULL, 
-        fig.num = 1, exercise.df_print = "paged"), engine = "r", 
-    version = "4"), class = c("r", "tutorial_exercise")))
+    "  x1 = 60, ", "  y0 = 30, ", "  y1 = 30", ")"), out.width.px = 576, 
+    out.height.px = 576, params.src = "neutralGood, exercise = TRUE", 
+    fig.alt = NULL, fig.num = 1, exercise.df_print = "paged"), 
+    engine = "r", version = "4"), class = c("r", "tutorial_exercise"
+)))
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
@@ -1559,14 +1529,12 @@ learnr:::store_exercise_cache(structure(list(label = "economicBad", global_setup
 "library(gradethis)", "library(Deriv)", "library(Ryacas)", "gradethis_setup()", 
 "tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)", 
 "knitr::opts_chunk$set(echo = FALSE, fig.align = \"center\", fig.height = 6, fig.width = 6)", 
-"knitr::include_graphics", "u <- ysym('x1^0.25 * x2^0.75')", 
-"MU1 <- deriv(u, 'x1')", "MU2 <- deriv(u, 'x2')", "print(c(MU1, MU2))", 
-"MRS <- (MU1/MU2) |>", "  yac_str() |> ", "  Simplify() |>", 
-"  ysym()", "MRS"), chunk_opts = list(label = "setup", include = FALSE)), 
-    setup = NULL, chunks = list(list(label = "economicBad", code = "plot(\n  x = c(seq(10, 20, 1)),\n  y = c(seq(0, 70, 7)),\n  type = 'l',\n  xlim = c(0, 70),\n  ylim = c(0, 70),\n  xlab = 'Donuts',\n  ylab = 'Pants',\n  col = 'red', \n  main = 'Pants as an Economic Bad'\n) \nsegments(\n  x0 = 20, \n  x1 = 30, \n  y0 = 0, \n  y1 = 70, \n  col = 'orange'\n)\nsegments(\n  x0 = 30, \n  x1 = 40, \n  y0 = 0, \n  y1 = 70, \n  col = 'yellow'\n)\nsegments(\n  x0 = 40, \n  x1 = 50, \n  y0 = 0, \n  y1 = 70, \n  col = 'green'\n)\nsegments(\n  x0 = 50, \n  x1 = 60, \n  y0 = 0, \n  y1 = 70, \n  col = 'blue'\n)\nsegments(\n  x0 = 60, \n  x1 = 70, \n  y0 = 0, \n  y1 = 70, \n  col = 'violet'\n)\narrows(\n  x0 = 15.7, \n  x1 = 64.2, \n  y0 = 40, \n  y1 = 30\n)", 
-        opts = list(label = "\"economicBad\"", exercise = "TRUE", 
-            fig.height = "5", fig.width = "5"), engine = "r")), 
-    code_check = NULL, error_check = NULL, check = structure("grade_code()", chunk_opts = list(
+"knitr::include_graphics"), chunk_opts = list(label = "setup", 
+    include = FALSE)), setup = NULL, chunks = list(list(label = "economicBad", 
+    code = "plot(\n  x = c(seq(10, 20, 1)),\n  y = c(seq(0, 70, 7)),\n  type = 'l',\n  xlim = c(0, 70),\n  ylim = c(0, 70),\n  xlab = 'Donuts',\n  ylab = 'Pants',\n  col = 'red', \n  main = 'Pants as an Economic Bad'\n) \nsegments(\n  x0 = 20, \n  x1 = 30, \n  y0 = 0, \n  y1 = 70, \n  col = 'orange'\n)\nsegments(\n  x0 = 30, \n  x1 = 40, \n  y0 = 0, \n  y1 = 70, \n  col = 'yellow'\n)\nsegments(\n  x0 = 40, \n  x1 = 50, \n  y0 = 0, \n  y1 = 70, \n  col = 'green'\n)\nsegments(\n  x0 = 50, \n  x1 = 60, \n  y0 = 0, \n  y1 = 70, \n  col = 'blue'\n)\nsegments(\n  x0 = 60, \n  x1 = 70, \n  y0 = 0, \n  y1 = 70, \n  col = 'violet'\n)\narrows(\n  x0 = 15.7, \n  x1 = 64.2, \n  y0 = 40, \n  y1 = 30\n)", 
+    opts = list(label = "\"economicBad\"", exercise = "TRUE", 
+        fig.height = "5", fig.width = "5"), engine = "r")), code_check = NULL, 
+    error_check = NULL, check = structure("grade_code()", chunk_opts = list(
         label = "economicBad-check")), solution = structure(c("plot(", 
     "  x = c(seq(10, 20, 1)),", "  y = c(seq(0, 70, 7)),", "  type = 'l',", 
     "  xlim = c(0, 70),", "  ylim = c(0, 70),", "  xlab = 'Donuts',", 
@@ -1651,7 +1619,7 @@ University</a><br><a class="author_email" href="mailto:#"><a
 href="mailto:BangJamesT@sau.edu"
 class="email">BangJamesT@sau.edu</a></a>
 </address>
-<h4 class="date"><em>01 Feb 2023</em></h4>
+<h4 class="date"><em>06 Feb 2023</em></h4>
 </div>
 <!-- end doc-metadata -->
 

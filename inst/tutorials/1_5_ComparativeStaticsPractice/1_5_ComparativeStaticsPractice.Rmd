@@ -24,9 +24,6 @@ date: "`r format(Sys.Date(), '%d %b %Y')`"
 ```{r setup, include = FALSE}
 library(learnr)
 library(gradethis)
-library(Ryacas)
-library(Deriv)
-library(Rsolnp)
 gradethis_setup()
 tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = FALSE)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
@@ -47,6 +44,7 @@ $$\text{s.t.: }1.5x_1+x_2 \le 100$$
 ```
 
 ```{r engelComputational-solution}
+library(Rsolnp)
 ux <- function(x) -x[1] ^ (a) + x[2] 
 bc <- function(x) p1 * x[1] + p2 * x[2]
 a = 0.25; p1 = 1.5; p2 = 1; m = 100; dm = 5

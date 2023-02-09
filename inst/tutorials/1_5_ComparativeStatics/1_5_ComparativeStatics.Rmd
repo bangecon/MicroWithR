@@ -37,37 +37,6 @@ tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
 knitr::include_graphics
 par(mar = c(4, 4, 1, 1))
-u <- ysym('x1^(alpha) * x2^(1-alpha)')
-L <- u + ysym('lambda*(m - p1*x1 - p2*x2)')
-dL <- deriv(L, c('x1', 'x2', 'lambda'))
-MU <- deriv(u, c('x1', 'x2'))
-MRS <- yac_str(MU[1]/MU[2]) |> 
-  Simplify() |> 
-  ysym()
-D <- solve(c(MRS, dL[[3]]), c(ysym('p1/p2'), 0), c('x1', 'x2')) |> 
-  y_rmvars() |>
-  simplify()
-D[1] <- with_value(D[1], 'x2', D[2]) |> 
-  simplify()
-ux <- function(x) -x[1] ^ (a) * x[2] ^ (1 - a)
-bc <- function(x) p1 * x[1] + p2 * x[2]
-bcLowP  <- function(x) (p1 - dp1) * x[1] + p2 * x[2]
-bcHighP <- function(x) (p1 + dp1) * x[1] + p2 * x[2]
-a = 0.25; p1 = 1.5; p2 = 1; m = 100; dm = 5; dp1 = 0.5
-initialEquilibrium <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m, 
-                            LB = c(0, 0), UB = c(Inf, Inf))
-dmEquilibrium <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m + dm, 
-                            LB = c(0, 0), UB = c(Inf, Inf))
-dmEquilibrium2 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m - dm, 
-                            LB = c(0, 0), UB = c(Inf, Inf))
-lowPEquilibrium <- solnp(c(1, 1), ux, ineqfun = bcLowP, ineqLB = 0, ineqUB = m, 
-                            LB = c(0, 0), UB = c(Inf, Inf))
-highPEquilibrium <- solnp(c(1, 1), ux, ineqfun = bcHighP, ineqLB = 0, ineqUB = m, 
-                            LB = c(0, 0), UB = c(Inf, Inf))
-u0 <- -tail(initialEquilibrium$values, 1)
-x0 <- c(initialEquilibrium$pars)
-xTilde <- solnp(pars = x0, fun = bcLowP, ineqfun = ux, ineqLB = -Inf, 
-                ineqUB = -u0, LB = c(0, 0), UB = c(Inf, Inf))
 ```
 
 ## Overview
@@ -105,6 +74,29 @@ We will focus mainly on income and price.
 ## Computational Approach
 
 ### Initial Solution
+
+The following code computes the initial equilibrium: 
+
+```{r, echo = TRUE, eval = TRUE}
+ux <- function(x)
+  - x[1] ^ (a) * x[2] ^ (1 - a)
+bc <- function(x)
+  p1 * x[1] + p2 * x[2]
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100 
+initialEquilibrium <-
+  solnp(
+    c(1, 1),
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf)
+  )
+```
 
 $$x_1^* = 50/3$$ 
 
@@ -146,6 +138,15 @@ dmEquilibrium[c(1, 3)]
 grade_code()
 ```
 
+```{r}
+m = 100
+dm = 5
+dmEquilibrium <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m + dm, 
+                            LB = c(0, 0), UB = c(Inf, Inf))
+dmEquilibrium2 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m - dm, 
+                            LB = c(0, 0), UB = c(Inf, Inf))
+```
+
 $$x_1^{**} = `r round(dmEquilibrium$pars[1], 3)`$$ 
 
 $$x_2^{**} = `r round(dmEquilibrium$pars[2], 3)`$$
@@ -171,6 +172,10 @@ decrease in price for good 1.
 
 ```{r priceChange-solution}
 dp1 = 0.5
+bcLowP  <- function(x)
+  (p1 - dp1) * x[1] + p2 * x[2]
+bcHighP <- function(x)
+  (p1 + dp1) * x[1] + p2 * x[2]
 lowPEquilibrium <-
   solnp(
     c(1, 1),
@@ -191,13 +196,22 @@ highPEquilibrium <-
     LB = c(0, 0),
     UB = c(Inf, Inf)
   )
-initialEquilibrium[1]
-lowPEquilibrium[1]
-highPEquilibrium[1]
 ```
 
 ```{r priceChange-check}
 grade_code()
+```
+
+```{r}
+dp1 = 0.5
+bcLowP  <- function(x)
+  (p1 - dp1) * x[1] + p2 * x[2]
+bcHighP <- function(x)
+  (p1 + dp1) * x[1] + p2 * x[2]
+lowPEquilibrium <- solnp(c(1, 1), ux, ineqfun = bcLowP, ineqLB = 0, ineqUB = m, 
+                            LB = c(0, 0), UB = c(Inf, Inf))
+highPEquilibrium <- solnp(c(1, 1), ux, ineqfun = bcHighP, ineqLB = 0, ineqUB = m,
+                            LB = c(0, 0), UB = c(Inf, Inf))
 ```
 
 Consumption of good 1 after the price decrease is: 
@@ -333,43 +347,12 @@ Graph the indifference curves and budget lines for each equilibrium:
 3.  $p_1 = \$1.00$
 
 ```{r priceChangeGraph, exercise = TRUE, exercise.reveal_solution = TRUE}
-# Solve for consumption (and utility at that consumption) for the original price, the price after an increase, and after a decrease. 
-dp1 = 0.5
-bcLowP  <- function(x) (p1 - dp1) * x[1] + p2 * x[2]
-bcHighP <- function(x) (p1 + dp1) * x[1] + p2 * x[2]
-lowPEquilibrium <- solnp(c(1, 1), ux, ineqfun = bcLowP, ineqLB = 0, ineqUB = m,
-    LB = c(0, 0), UB = c(Inf, Inf))
-highPEquilibrium <- solnp(c(1, 1), ux, ineqfun = bcHighP, ineqLB = 0, ineqUB = m,
-    LB = c(0, 0), UB = c(Inf, Inf))
-# Plot the indifference curves and budget lines below.
+# We solved for consumption (and utility at that consumption) for the original price, the price after an increase, and after a decrease. 
 
 
 ```
 
 ```{r priceChangeGraph-solution}
-dp1 = 0.5
-bcLowP  <- function(x) (p1 - dp1) * x[1] + p2 * x[2]
-bcHighP <- function(x) (p1 + dp1) * x[1] + p2 * x[2]
-lowPEquilibrium <-
-  solnp(
-    c(1, 1),
-    ux,
-    ineqfun = bcLowP,
-    ineqLB = 0,
-    ineqUB = m,
-    LB = c(0, 0),
-    UB = c(Inf, Inf)
-  )
-highPEquilibrium <-
-  solnp(
-    c(1, 1),
-    ux,
-    ineqfun = bcHighP,
-    ineqLB = 0,
-    ineqUB = m,
-    LB = c(0, 0),
-    UB = c(Inf, Inf)
-  )
 curve(
   (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
   from = 0,
@@ -996,7 +979,6 @@ xTilde
 ```
 
 ```{r xTilde-solution}
-library(Rsolnp)
 u0 <- -tail(initialEquilibrium$values, 1)
 x0 <- initialEquilibrium$pars
 xTilde <-

@@ -33,26 +33,7 @@ gradethis_setup()
 tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
 knitr::include_graphics
-ux <- function(x) - x[1] ^ (alpha) * x[2] ^ (1 - alpha)
-bc <- function(x) p1 * x[1] + p2 * x[2]
-alpha = 0.25; p1 = 1.5; p2 = 1; m = 100
-equilibrium <- solnp(c(0.01, 0.01), ux, LB = c(0, 0), UB = c(Inf, Inf), 
-                     ineqfun = bc, ineqLB = 0, ineqUB = m)
 par(mar = c(5, 4, 1, 1))
-L <- ysym('x1^(0.25) * x2^(0.75) + lambda*(100 - 1.5*x1 - x2)')
-dL <- c(deriv(L, 'x1'), deriv(L, 'x2'), deriv(L, 'lambda'))
-MU1 <- solve(dL[[1]], 'lambda') |> y_rmvars()*p1 
-MU1 <- yac_str(MU1) |> Simplify() |> ysym()
-MU2 <- solve(dL[[2]], 'lambda') |> y_rmvars()*p2 
-MU2 <- yac_str(MU2) |> Simplify() |> ysym()
-MRS <- MU1/MU2 
-MRSsolve1 <- solve(MRS - p1/p2, 'x2') |> y_rmvars()
-BCsolve1 <- solve(dL[[3]], 'x2') |> y_rmvars()
-x1star <- solve(MRSsolve1 - BCsolve1, 'x1') |> y_rmvars() |> yac_expr() |> eval()
-MRSsolve2 <- solve(MRS - p1/p2, 'x1') |> y_rmvars()
-BCsolve2 <- solve(dL[[3]], 'x1') |> y_rmvars()
-x2star <- solve(MRSsolve2 - BCsolve2, 'x2') |> y_rmvars() |> yac_expr() |> eval()
-lambda <- parse(text = gsub('x2', x2star, gsub('x1', x1star, MU1/p1))) |> eval()
 ```
 
 ## Rational Choice
@@ -265,13 +246,19 @@ grade_this({if (!inherits(.result, c("yac_symbol"))) {
 
 Setting the derivatives of the Lagrangean equal to zero finds the "first-order conditions." These conditions find the "critical values" where the Lagrangean switches from increasing to decreasing (or vice-versa) corresponding to maximum (minimum) values. 
 
+```{r, eval=TRUE}
+u <- ysym('x1^(0.25) * x2^(0.75)')
+L <- u + ysym('lambda*(100 - 1.5*x1 - x2)')
+dL <- c(deriv(L, 'x1'), deriv(L, 'x2'), deriv(L, 'lambda'))
+```
+
 $$`r tex(dL[[1]])` = 0 \text{ (w.r.t. good 1)}$$
 $$`r tex(dL[[2]])` = 0 \text{ (w.r.t. good 2)}$$
 $$`r tex(dL[[3]])` = 0 \text{ (w.r.t. }\lambda)$$
 
 The basic recipe: 
 
-1. Solve the first-order conditions with respect to $x_1$ and $x_2$ for $\lambda$. 
+1. Solve the first-order conditions with respect to $x_1$ and $x_2$ for $\lambda$.
 2. Combine these two conditions to form the MU-per dollar or MRS condition. 
 $$\frac{MU_1}{p_1} = \frac{MU_2}{p_2} = \lambda \text{, or}$$
 Rearranging, this is equivalent to: 
@@ -297,7 +284,6 @@ Derive the $MRS$ of the example with the following steps:
 ```
 
 ```{r MRS-solution}
-u <- ysym('x1^(0.25) * x2^(0.75)')
 MU <- deriv(u, c('x1', 'x2'))
 MRS <- yac_str(MU[1]/MU[2]) |> 
   Simplify() |> 
@@ -307,14 +293,20 @@ MRS <- yac_str(MU[1]/MU[2]) |>
 ```{r MRS-check}
 grade_this({if (!inherits(.result, c("yac_symbol"))) {
     fail("Your class of your answer should be a yac_symbol")}
-  if (.result$yacas_cmd != "x2/(3.*x1)") { 
+  if (.result$yacas_cmd != "x2/(3*x1)") { 
     fail("The MRS should be x2/(3*x1)") }
   pass()
 })
 ```
 
-$$MRS = `r tex(MRS)` = \frac{p_1}{p_2}$$
+```{r, eval=TRUE}
+MU <- deriv(u, c('x1', 'x2'))
+MRS <- yac_str(MU[1]/MU[2]) |> 
+  Simplify() |> 
+  ysym()
+```
 
+$$MRS = `r tex(MRS)` = \frac{p_1}{p_2}$$
 ### Solving for Consumption
 
 Solve for the optimal $x_1^*$ and $x_2^*$. `Solve()` can take up to three arguments: 
@@ -347,6 +339,12 @@ grade_this({if (!inherits(.result, c("yac_symbol"))) {
 })
 ```
 
+```{r}
+xStar <- solve(c(MRS, dL[[3]]), c(p1/p2, 0), c('x1', 'x2')) |> 
+  y_rmvars()
+xStar <- with_value(xStar, 'x2', xStar[2]) |>
+  as_r()
+```
 
 ### Solving for $\lambda$ 
 
@@ -373,9 +371,17 @@ grade_this({if (!inherits(.result, c("numeric"))) {
 })
 ```
 
+```{r}
+lambda <- solve(dL[1], 'lambda') |> 
+    y_rmvars() |>
+    with_value('x1', xStar[1]) |>
+    with_value('x2', xStar[2]) |>
+    as_r()
+```
+
 If you print the solution for all three choice variables, it will look like this: 
 
-`r c(x1star, x2star, lambda)``
+$(`r c(xStar[1], xStar[2], lambda)`)$
 
 ## Computational Solution
 
@@ -419,7 +425,7 @@ Once we've defined these values, the solution for the optimal consumption bundle
 
 1. `pars`: the starting values (an initial "guess") for $x$ (which must be positive - and usually small - for economically-sensible answers);
 2. `fun`: the objective function (the utility function, `ux`); 
-3. `ineqfun`, `ineqLB`, and `ineqUB`: the constraint inequality function (linear expenditure function), lower bound (zero), and upper bound (income), respectively. 
+3. `ineqfun`, `ineqLB`, and `ineqUB`: the constraint inequality function (linear expenditure function), lower bound (zero), and upper bound (income), respectively.
 
 1. Solve our problem using the previous setup values using `solnp()` and name this object `equilibrium`.
 2. Print the values of consumption (`pars`), the Lagrange multiplier (`lagrange`), and the final value of utility at the equilibrium (the last element of (`values`).<br>
@@ -444,10 +450,18 @@ equilibrium <- solnp(
 ```{r computeSolve-check}
 grade_this({if (!inherits(.result, c("list"))) {
     fail("Your class of your answer should be a list")}
-  if (-tail(.result$values, 1) != 51.5) { 
+  if (round(-tail(.result$values, 1), 1) != 51.5) { 
     fail("The maximum of the utility function should be about 51.5") }
   pass()
 })
+```
+
+```{r}
+ux <- function(x) - x[1] ^ (alpha) * x[2] ^ (1 - alpha)
+bc <- function(x) p1 * x[1] + p2 * x[2]
+alpha = 0.25; p1 = 1.5; p2 = 1; m = 100
+equilibrium <- solnp(c(0.01, 0.01), ux, LB = c(0, 0), UB = c(Inf, Inf), 
+                     ineqfun = bc, ineqLB = 0, ineqUB = m)
 ```
 
 Note that the intuition from the analytical solution tells us that the "true" answer is $x_1 = 50/3 \approx 16.667$ and $x_2 = 75$ to ensure that this consumer spends 25% of their planned budget for the two goods on good 1, or one-third as much as they spend on good 2. Computational methods only give approximate answers, so it's good to double check! 

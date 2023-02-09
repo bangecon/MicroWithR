@@ -32,15 +32,6 @@ gradethis_setup()
 tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
 knitr::include_graphics
-u <- ysym('x1^0.25 * x2^0.75')
-MU1 <- deriv(u, 'x1')
-MU2 <- deriv(u, 'x2')
-print(c(MU1, MU2))
-MRS <- (MU1/MU2) |>
-  yac_str() |> 
-  Simplify() |>
-  ysym()
-MRS
 ```
 
 ## Utility
@@ -93,7 +84,7 @@ One function that satisfies the basic assumptions so far is a simple multiplicat
 
 $$U(x_1, x_2) = x_1x_2$$
 
-1. Use the `persp(x, y, z) function in r to graph this utility function for $0 \le x_1 \le 10$ and $0 \le x_2 \le 10$. (Hint: use seq() define $x$ and $y$ as sequences; and define $z$ as the outer product of $x$ and $y$.)
+1. Use the `persp(x, y, z)` function in r to graph this utility function for $0 \le x_1 \le 10$ and $0 \le x_2 \le 10$. (Hint: use seq() define $x$ and $y$ as sequences; and define $z$ as the outer product of $x$ and $y$.)
 
 2. Graph the indifference curves for this utility function for $U(*) = 10$ and $U(*) = 25$. (Hint: to graph an indifference curve, you need to fix $U(x_1,x_2) = \bar{U}$ and solve for $x_2 = f(x_1| U = \bar{U})$.)
 
@@ -148,7 +139,7 @@ $$U(x_1, x_2) = x_1^\alpha x_2^{1 - \alpha},\text{ where } 0 < \alpha < 1.$$
 
 ### Graphical Representation
 
-1. Use the `persp(x, y, z) function in r to graph this utility function for $0 \le x_1 \le 50$, $0 \le x_2 \le 50$, and $\alpha = 0.25$. (Hint: use seq() define $x$ and $y$ as sequences; and define $z$ as the outer product of $x$ and $y$.)
+1. Use the `persp(x, y, z)` function in r to graph this utility function for $0 \le x_1 \le 50$, $0 \le x_2 \le 50$, and $\alpha = 0.25$. (Hint: use seq() define $x$ and $y$ as sequences; and define $z$ as the outer product of $x$ and $y$.)
 
 ```{r CobbDouglas, exercise=TRUE, exercise.reveal_solution = TRUE}
 
@@ -247,6 +238,12 @@ grade_this({if (!inherits(.result, c("yac_symbol"))) {
 })
 ```
 
+```{r}
+u <- ysym('x1^0.25 * x2^0.75')
+MU1 <- deriv(u, 'x1')
+MU2 <- deriv(u, 'x2')
+```
+
 $$`r tex(MU1)`$$
 $$`r tex(MU2)`$$
 
@@ -285,16 +282,30 @@ grade_this({if (!inherits(.result, c("yac_symbol"))) {
 })
 ```
 
+```{r}
+MRS <- (MU1/MU2) |>
+  yac_str() |> 
+  Simplify() |>
+  ysym()
+MRS
+```
+
 $$`r tex(MRS)`$$
 
 ### General Form 
 
 We can do the same thing with the symbolic parameters to get the general form of the MRS for the Cobb-Douglas utility function. Define `v` as the general form of the utility function from the previous exercise using the parameter name "alpha" instead of the numerical value of 0.25 and repeat the steps to produce the MRS, `MRSv`. 
 
-In addition, we can take derivatives with respect to both goods in one line, which will give you a vector of derivative functions. The fancy math name for this is the *gradient* of $f$ with respect to $x$, denoted $\nabla f(x_1, x_2)$. Try this in your code. You can then get the $MRS$ by dividing the marginal utilities (dividing the first element of the gradient by the second). 
+In addition, we can take derivatives with respect to both goods in one line, which will give you a vector of derivative functions. The fancy math name for this is the *gradient* of $f$ with respect to $x$, denoted $\nabla f(x_1, x_2)$. You can then get the $MRS$ by dividing the marginal utilities (dividing the first element of the gradient by the second). Try this by running the following code. 
 
 ```{r generalMRS, exercise=TRUE, exercise.reveal_solution = TRUE}
-
+v <- ysym('x1^alpha * x2^(1-alpha)')
+MV <- deriv(v, c('x1', 'x2'))
+MRSv <- (MV[1]/MV[2]) |>
+  yac_str() |> 
+  Simplify() |>
+  ysym()
+MRSv
 ```
 
 ```{r generalMRS-solution}
@@ -318,9 +329,8 @@ grade_this({if (!inherits(.result, c("yac_symbol"))) {
 
 ```{r}
 v <- ysym('x1^alpha * x2^(1-alpha)')
-MV1 <- deriv(v, 'x1')
-MV2 <- deriv(v, 'x2')
-MRSv <- (MV1/MV2) |>
+MV <- deriv(v, c('x1', 'x2'))
+MRSv <- (MV[1]/MV[2]) |>
   yac_str() |> 
   Simplify() |>
   ysym()
@@ -402,12 +412,11 @@ grade_this({if (!inherits(.result, c("list"))) {
 })
 ```
 
-
 ### Perfect Complements
 
 For perfect complements, the indifference curves are L-shaped. Run the following code to graph a set of two indifference curves for donuts and beer for a consumer who sees them as perfect complements. 
 
-```{r perfectComplements, exercise = TRUE, exercise.reveal_solution = TRUE}
+```{r perfectComplements, exercise = TRUE}
 plot(
   x = c(rep(10, 11)),
   y = c(seq(10, 80, 7)),
