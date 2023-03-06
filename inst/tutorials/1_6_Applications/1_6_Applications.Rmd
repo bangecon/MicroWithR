@@ -1,5 +1,12 @@
 ---
 title: "1.6 Applications"
+editor_options: 
+  markdown: 
+    wrap: 72
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
 author: 
   name: "Created by [Jim Bang](http://www.github.com/bangecon)"
   email: BangJamesT@sau.edu
