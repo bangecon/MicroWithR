@@ -15,7 +15,5 @@ runTutorial <- function(module, lesson, practice = FALSE) {
     }
     file = paste0(appDir, "/", module, "_", lesson, ".Rmd")
   }
-
-
   learnr::run_tutorial(appDir)
 }
