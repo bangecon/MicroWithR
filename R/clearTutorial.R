@@ -1,6 +1,6 @@
-##' Recording a tutorial for MicroWithR.
+##' Clearing a tutorial for MicroWithR.
 ##'
-##' This function records a `MicroWithR` tutorial.
+##' This function clears previous recordings of a tutorial.
 ##'
 ##' @param data is the universe of all variables considered, which may include
 ##' both controls and excluded variables (e.g. variables eliminated by a model
@@ -14,7 +14,7 @@
 ##' @param practice is a logical value indicating whether to clear the main tutorial or practice.
 ##' @export
 
-recordTutorial <- function(chapter, lesson, practice = FALSE) {
+runTutorial <- function(module, lesson, practice = FALSE, ...) {
   if(practice == TRUE) {
     tutorial <- paste0("tutorials/", module, "_", lesson, "_Practice")
     appDir <- system.file(tutorial, package = "MicroWithR")
@@ -30,5 +30,5 @@ recordTutorial <- function(chapter, lesson, practice = FALSE) {
     }
     file = paste0(appDir, "/", module, "_", lesson, ".Rmd")
   }
-  shinytest::recordTest(appDir, shinyOptions = list(launch.browser = TRUE))
+  rmarkdown::shiny_prerendered_clean(appDir)
 }
