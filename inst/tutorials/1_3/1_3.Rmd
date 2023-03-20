@@ -53,13 +53,13 @@ Specific utility functions often have certain features that lead to specific fea
 ### Cardinal Utility: Jeremy Bentham (1780)
 
 ```{r, out.width = '300px'}
-knitr::include_graphics("1_3_files/JeremyBentham.jpg")
+knitr::include_graphics("JeremyBentham.jpg")
 ```
 
 ### Ordinal Utility: Vilfredo Pareto (1906)
 
 ```{r, out.width = '300px'}
-knitr::include_graphics("1_3_files/VilfredoPareto.jpg")
+knitr::include_graphics("VilfredoPareto.jpg")
 ```
 
 ### More on Jeremy Bentham
@@ -67,13 +67,13 @@ knitr::include_graphics("1_3_files/VilfredoPareto.jpg")
 You can visit Jeremy Bentham to this day! His mummified corpse sits on display in the atrium of the student centre at University College London. 
 
 ```{r}
-knitr::include_graphics("1_3_files/JeremyBenthamMummy.jpg")
+knitr::include_graphics("JeremyBenthamMummy.jpg")
 ```
 
 UCL used to display his head in a museum until students from King's College stole it as a prank (and since been recovered, but is no longer on display). It only comes out for "special occasions." 
 
 ```{r}
-knitr::include_graphics("1_3_files/JeremyBenthamHead.jpg")
+knitr::include_graphics("JeremyBenthamHead.jpg")
 ```
 
 ## "Well-Behaved" Utility Functions
@@ -619,7 +619,7 @@ grade_code()
 ### Neutral Good
 
 ```{r, out.width='300px'}
-knitr::include_graphics("1_3_files/NonAlcoholicBeer.jpg")
+knitr::include_graphics("NonAlcoholicBeer.jpg")
 ```
 
 With a neutral good, utility does not depend at all on the quantity of the neutral good. Run the following code to graph a set of indifference curves for the case where one good is "neutral." 
@@ -741,7 +741,7 @@ grade_code()
 ### Economic Bads
 
 ```{r, out.width='300px'}
-knitr::include_graphics("1_3_files/Pants.jpg")
+knitr::include_graphics("Pants.jpg")
 ```
 
 ```{r economicBad, exercise = TRUE, fig.height = 5, fig.width = 5}

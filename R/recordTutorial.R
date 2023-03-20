@@ -15,5 +15,5 @@ recordTutorial <- function(chapter, lesson, practice = FALSE) {
     }
     file = paste0(appDir, "/", module, "_", lesson, ".Rmd")
   }
-  shinytest::recordTest(file)
+  shinytest::recordTest(appDir)
 }

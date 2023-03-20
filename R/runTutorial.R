@@ -1,5 +1,5 @@
 #' @export
-runTutorial <- function(module, lesson, practice = FALSE) {
+runTutorial <- function(module, lesson, practice = FALSE, ...) {
   if(practice == TRUE) {
     tutorial <- paste0("tutorials/", module, "_", lesson, "_Practice")
     appDir <- system.file(tutorial, package = "MicroWithR")
