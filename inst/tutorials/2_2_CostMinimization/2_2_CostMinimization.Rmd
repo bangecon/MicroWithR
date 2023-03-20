@@ -26,9 +26,6 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
-library(Deriv)
-library(Ryacas)
-library(Rsolnp)
 gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
@@ -53,11 +50,23 @@ Since total cost is the *objective* the firm sets out to minimize, we do not set
 
 The right-hand side consists of labor costs (price per unit labor, i.e. wage, times the quantity of labor hired) plus capital costs (price per unit capital, i.e. rent, times the quantity of capital rented). 
 
+```{r costExpr, echo=FALSE}
+question("What is the syntax for the `expr` argument to plot an isocost curve with the `curve()` function, where the wage is 10, rental price of capital is 20, and total cost is 1000?",
+    answer("`10*L + 20*K`"),
+    answer("`1000 - 10*x - 20*y`"),
+    answer("`50 - 0.5*x`", correct = TRUE),
+    answer("`50 - 2*L`"),
+    allow_retry = TRUE
+  )
+```
+
+### Plotting Isocost Lines
+
 Solving for $K$, the isocost line becomes
 
 $$K = \frac{TC}{r} - \frac{w}{r}L.$$
 
-Plot the isocost lines for $TC = \{100, 75, 50\}$ for $0 \le L \le 50$ given a market wage of 1 and a market rental price of capital of 2. Orient the quantity of labor on the horizontal axis (labeled "Labor") and quantity of capital on the vertical axis (labeled "Capital").
+Plot the isocost lines for $TC = \{500, 750, 1000\}$ for $0 \le L \le 100$ given a market wage of 10 and a market rental price of capital of 20. Orient the quantity of labor on the horizontal axis (labeled "Labor") and quantity of capital on the vertical axis (labeled "Capital").
 
 ```{r isocost, exercise = TRUE}
 
@@ -75,14 +84,14 @@ curve(37.5 - x / 2,
       from = 0,
       to = 75,
       add = TRUE)
-arrows(x0 = 100/3,
-       y0 = 100/3,
-       x1 = 100/6,
-       y1 = 100/6)
 curve(25 - x / 2,
       from = 0,
       to = 50,
       add = TRUE)
+arrows(x0 = 50,
+       y0 = 25,
+       x1 = 25,
+       y1 = 12.5)
 ```
 
 
@@ -95,11 +104,24 @@ grade_this({if (!inherits(.result, c("list"))) {
 })
 ```
 
-### Isoquant Constraint
+### Isoquant *Constraint*
 
 Suppose that the firm wants to produce 2,500 units of output. Add the isoquant for the Cobb-Douglas production function from the previous section to the graph you started above. 
 
 $$f(L, K) = 100L^{1/3}K^{2/3} = 2500$$
+
+```{r quantExpr, echo=FALSE}
+question("Which of the following is NOT a correct syntax for the `expr` argument to plot an isoquant curve with the `curve()` function, where production is described by a Cobb-Douglass production function with labor-share of one-third, a total factor productivity of 100, and total output of 2,500?",
+    answer("100*x^(`1/3`) * y^(`2/3`)", correct = TRUE),
+    answer("125/(x^0.5)"),
+    answer("(2500/x^(`1/3`))^(3/2)"),
+    answer("25^(3/2) * x^(-3/2)"),
+    allow_retry = TRUE
+  )
+```
+
+### Plotting Isoquants
+
 ```{r isoquant, exercise = TRUE}
 
 ```
@@ -107,8 +129,8 @@ $$f(L, K) = 100L^{1/3}K^{2/3} = 2500$$
 ```{r isoquant-solution}
 curve((2500 / (100*x^(1/3)))^(3/2), 
       from = 0, 
-      to = 50,
-      ylim = c(0, 50),
+      to = 75,
+      ylim = c(0, 75),
       xlab = "Labor",
       ylab = "Capital")
 ```
@@ -124,7 +146,7 @@ grade_this({if (!inherits(.result, c("list"))) {
 
 ## Graphical Approach
 
-From our graph, it appears that this firm would minimize its cost of producing 2500 units by hiring about 25 units of labor and renting about 25 units of capital at a cost of 75. 
+From our graphs, it appears that this firm would minimize its cost of producing 2500 units by hiring about 25 units of labor and renting about 25 units of capital at a cost of 75. 
 
 ```{r}
 curve(37.5 - x / 2,
@@ -168,19 +190,26 @@ The Lagrangean for the firm with parameters defined from our example is:
 
 $$\mathcal{L} = L + 2K + \lambda(2500 - 100L^{1/3}K^{2/3})$$
 
+Run the code chunk below to obtain the first-order conditions for the cost minimization problem. 
+
 1. Define a `yac_symbol` object for the Lagrangean (name it "G" to avoid conflict withthe "L" for labor);
 2. Find the derivatives with respect to $L$, $K$, and $\lambda$;
 
-Wrap the function obtaining the derivatives in "()" so that it displays in the output. 
-
 ```{r foc, exercise = TRUE, exercise.reveal_solution = TRUE}
-
+library(Ryacas)
+library(Deriv)
+w = 10
+r = 20
+G <- ysym('10*L + 20*K + lambda*(2500 - 100*L^(1/3) * K^(2/3))')
+dG <- deriv(G, c('L', 'K', 'lambda'))
 ```
 
 ```{r foc-solution}
-w = 1
-r = 2
-G <- ysym('L + 2*K + lambda*(2500 - 100*L^(1/3) * K^(2/3))')
+library(Ryacas)
+library(Deriv)
+w = 10
+r = 20
+G <- ysym('10*L + 20*K + lambda*(2500 - 100*L^(1/3) * K^(2/3))')
 dG <- deriv(G, c('L', 'K', 'lambda'))
 ```
 
@@ -196,9 +225,9 @@ grade_this({if (!inherits(.result, c("yac_symbol"))) {
 Setting the derivatives of the Lagrangean equal to zero finds the "first-order conditions." These conditions find the "critical values" where the Lagrangean switches from increasing to decreasing (or vice-versa) corresponding to maximum (minimum) values. 
 
 ```{r}
-w = 1
-r = 2
-G <- ysym('L + 2*K + lambda*(2500 - 100*L^(1/3) * K^(2/3))')
+library(Ryacas)
+library(Deriv)
+G <- ysym('10*L + 20*K + lambda*(2500 - 100*L^(1/3) * K^(2/3))')
 dG <- deriv(G, c('L', 'K', 'lambda'))
 ```
 
@@ -214,7 +243,7 @@ $$\frac{w}{MP_L} = \frac{r}{MP_K} = \lambda \text{, or}$$
 
 $$MRTS_{LK} = \frac{MP_L}{MP_K} = \frac{w}{r}.$$
 
-Derive the $MRTS$ of the example with the following steps: 
+Run the code chunk below to derive the $MRTS$ of the example with the following steps: 
 
 1. Solve the first-order condition with respect to `L` for $\lambda$ using `Ryacas::solve()`. Pipe the result to `y_rmvars()` to remove the `lambda==` from the LHS, and divide the result by `w`. <br>
 This will give you $1/MP_L$, so we will name it `MPLinv`.
@@ -222,8 +251,20 @@ This will give you $1/MP_L$, so we will name it `MPLinv`.
 3. Repeat steps 1 and 2 for the first order condition with respect to `K` and name the result `MPKinv`. 
 4. Get the $MRTS = MPL/MPK$ by dividing `MPKinv` by `MPLinv`. 
 
-```{r MRTS, exercise = TRUE, exercise.reveal_solution = TRUE, exercise.lines = 12}
-
+```{r MRTS, exercise = TRUE, exercise.reveal_solution = TRUE, exercise.lines = 12, exercise.setup = "foc"}
+MPLinv <- solve(dG[[1]], 'lambda') |>
+  y_rmvars()/w 
+MPL <- yac_str(1/MPLinv) |>
+  Simplify() |>
+  ysym()
+MPKinv <- solve(dG[[2]], 'lambda') |>
+  y_rmvars()/r
+MPK <- yac_str(1/MPKinv) |>
+  Simplify() |>
+  ysym()
+MRTS <- yac_str(MPL/MPK) |> 
+  Simplify() |> 
+  ysym()
 ```
 
 ```{r MRTS-solution}
@@ -271,14 +312,31 @@ $$`r tex(MRTS)` = w/r$$
 
 ### Solving for Input Levels
 
-```{r solution, exercise = TRUE, exercise.lines = 12}
+Run the following code
 
+```{r solution, exercise = TRUE, exercise.lines = 12, exercise.setup = "MRTS"}
+Lstar <- with_value(dG[[3]], 'K',  simplify(y_rmvars(solve(MRTS, w/r, 'K')))) |>
+  solve('L') |>
+  y_rmvars() |> 
+  as_r()
+Kstar <- with_value(solve(MRTS, w/r, 'K'), 'L', Lstar) |> 
+  y_rmvars() |> 
+  as_r()
+lambda <- with_value(dG[[1]], 'K', as_r(y_rmvars(Kstar))) |>
+  with_value('L', as_r(y_rmvars(Lstar))) |>
+  solve('lambda') |>
+  y_rmvars() |>
+  as_r()
 ```
 
 ```{r solution-solution}
 Lstar <- with_value(dG[[3]], 'K',  y_rmvars(solve(MRTS, w/r, 'K'))) |>
-  solve('L') 
-Kstar <- with_value(solve(MRTS, w/r, 'K'), 'L', y_rmvars(Lstar)) 
+  solve('L') |>
+  y_rmvars() |> 
+  as_r()
+Kstar <- with_value(solve(MRTS, w/r, 'K'), 'L', Lstar) |> 
+  y_rmvars() |> 
+  as_r()
 lambda <- with_value(dG[[1]], 'K', as_r(y_rmvars(Kstar))) |>
   with_value('L', as_r(y_rmvars(Lstar))) |>
   solve('lambda') |>
@@ -296,46 +354,41 @@ grade_this({if (!inherits(.result, c("numeric"))) {
 })
 ```
 
-What does $\lambda$ represent?
+What does $\lambda$ *represent*?
 
 ## Computational Approach
 
 ### Expenditure Minimization
 
-What makes the computational approach to this problem tricky is the fact that the constraint is the value of the *nonlinear* utility function. The code we used to solve the problem is: 
+Suppose that we wanted to find the expenditure minimizing way to achieve 2500 "utils" of utility for a consumer whose preferences follow a Cobb-Douglas utility function and prices of $x_1$ and $x_2$ equal to 20 and 10, respectively 
+
+$$U(x) = 100x_1^{1/3}x_2^{2/3}$$
+
+$$e(x) = 20x_1 + 10x_2$$
+
+What made the computational approach to expenditure minimization tricky is the fact that the constraint is the value of the *nonlinear* utility function, while the objective is the *linear* expenditure function. The code we used to solve the problem was: 
 
 ```{r xTilde, echo = TRUE}
+library(Rsolnp)
+A = 100
+alpha = 1/3
+p1 = 10
+p2 = 20
 ux <- function(x) {
-  - x[1] ^ (alpha) * x[2] ^ (1 - alpha)
+  A * x[1] ^ (alpha) * x[2] ^ (1 - alpha)
 }
 bc <- function(x) {
   p1*x[1] + p2*x[2]
 }
-alpha = 0.25
-p1 = 1.5
-p2 = 1
-m = 100
-equilibrium <- solnp(
-  c(1, 1),
-  ux,
-  ineqfun = bc,
-  ineqLB = 0,
-  ineqUB = m,
-  LB = c(0, 0),
-  UB = c(Inf, Inf)
-)
-dp1 = 0.5
-bcTilde <- function(x) {
-  (p1 - dp1)*x[1] + p2*x[2]
-}
 xTilde <- solnp(
-  pars = equilibrium$pars,
-  fun = bcTilde,
+  pars = c(1,1),
+  fun = bc,
   ineqfun = ux,
-  ineqLB = -Inf,
-  ineqUB = tail(equilibrium$values, 1),
+  ineqLB = 2500,
+  ineqUB = Inf,
   LB = c(0, 0),
-  UB = c(Inf, Inf)
+  UB = c(Inf, Inf), 
+  control = list(delta = 1e-5)
 )
 ```
 
@@ -349,13 +402,26 @@ Find the cost-minimizing level of labor and capital at a wage of 1 and rental pr
 ```
 
 ```{r costMin-solution}
+A = 100
 alpha = 1/3
-y0 = 2500
-w = 1
-r = 2
-costMin <- solnp(pars = c(1, 1), fun = function(x) w*x[1] + r*x[2],
-                 ineqfun = function(x) 100*x[1]^alpha*x[2]^(1-alpha)-y0,
-                 ineqLB = 0, ineqUB = Inf, LB = c(0, 0))
+p1 = 10
+p2 = 20
+ux <- function(x) {
+  A * x[1] ^ (alpha) * x[2] ^ (1 - alpha)
+}
+bc <- function(x) {
+  p1*x[1] + p2*x[2]
+}
+costmin <- solnp(
+  pars = c(1,1),
+  fun = bc,
+  ineqfun = ux,
+  ineqLB = 2500,
+  ineqUB = Inf,
+  LB = c(0, 0),
+  UB = c(Inf, Inf), 
+  control = list(delta = 1e-5)
+)
 ```
 
 ```{r costMin-check}

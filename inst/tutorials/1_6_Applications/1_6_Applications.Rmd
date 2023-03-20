@@ -1,5 +1,12 @@
 ---
 title: "1.6 Applications"
+editor_options: 
+  markdown: 
+    wrap: 72
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
 author: 
   name: "Created by [Jim Bang](http://www.github.com/bangecon)"
   email: BangJamesT@sau.edu
@@ -53,7 +60,8 @@ intertemporalEquilibrium <- solnp(c(1, 1), ux, ineqfun = bc,
 
 ## Overview
 
-There are many, many specific applications for consumer choice. Here, we model a few using our utility maximization framework: 
+There are many, many specific applications for consumer choice. 
+Here, we model a few using our utility maximization framework: 
 
 1. Excise Taxes
 2. In-Kind Transfers
@@ -63,14 +71,16 @@ There are many, many specific applications for consumer choice. Here, we model a
 
 ## Alcoholic Beverage (Excise) Tax
 
-Recall the beer and donuts example from our budget constraint section. Consider a consumer with the income ($m = 20$) and price ($p_b = 2$ and $p_d = 1$) parameters from that example along with preferences described by a Cobb-Douglas utility function with equal budget shares on each good. 
+Recall the beer and donuts example from our budget constraint section. 
+Consider a consumer with the income ($m = 20$) and price ($p_b = 2$ and $p_d = 1$) parameters from that example along with preferences described by a Cobb-Douglas utility function with equal budget shares on each good. 
 
 $$\max_x \bigg\{ U(x_b,x_d) = x_b^{0.5}x_d^{0.5} \bigg\}$$
 $$\text{s.t. } 2x_b + x_d \le 20$$
 
 ### Initial Solution
 
-Calculate and graph the initial equilibrium (with beer on the x-axis and donuts on the y-axis as before). 
+Calculate and graph the initial equilibrium 
+(with beer on the x-axis and donuts on the y-axis as before). 
 
 ```{r taxInitialEquilibrium, exercise = TRUE}
 
@@ -103,7 +113,8 @@ grade_code()
 
 ### Alcoholic-Beverage Tax Solution
 
-Suppose the government levies a $0.50/unit tax on beer. Calculate the new equilibrium.  
+Suppose the government levies a $0.50/unit tax on beer. 
+Calculate the new equilibrium.  
 
 ```{r taxEquilibrium, exercise = TRUE}
 
@@ -131,7 +142,8 @@ grade_code()
 
 ### Alcoholic-Beverage Tax Graph
 
-Graph the equilibrium (indifference curve and budget line) before and after the tax. Place beer on the x-axis (labeled "Beer") and donuts on the y-axis (labeled "Donuts). 
+Graph the equilibrium (indifference curve and budget line) before and after the tax. 
+Place beer on the x-axis (labeled "Beer") and donuts on the y-axis (labeled "Donuts). 
 
 ```{r taxGraph, exercise = TRUE}
 
@@ -163,7 +175,9 @@ abline(m / pd, -(pb + t) / pd,
 grade_code() 
 ```
 
-Note that the tax reduces beer consumption and consumer utility. However, since the budget share is constant, the tax does *not* affect donut consumption in this example. A consumer with slightly different preferences (like constant elasticity of substitution, shown below for r = 0.5) might respond differently.
+Note that the tax reduces beer consumption and consumer utility. 
+However, since the budget share is constant, the tax does *not* affect donut consumption in this example. 
+A consumer with slightly different preferences (like constant elasticity of substitution, shown below for r = 0.5) might respond differently.
 
 Run the following code to simulate the CES case.
 
@@ -399,7 +413,7 @@ m2 = 20
 r = 0.20
 curve(
   m2 + (1 + r) * (m1 - x),
-  xlim = c(0, m2 + (1 + r) * m1),
+  xlim = c(0, m2 + (1 + r3) * m1),
   ylim = c(0, m2 + (1 + r) * m1),
   xlab = expression(x[1]),
   ylab = expression(x[2])
@@ -559,7 +573,100 @@ From this we can see that *current* consumption is not all that sensitive to the
 
 ## Insurance and Risk Premia
 
+### Overview
 
+Choice under uncertainty involves maximizing utility over different *states* or outcomes of some random event. A simple way of formulating this problem is to consider two possible states: a bad outcome in which the consumer suffers some loss of assets and occurs with probability $\pi$; and a good outcome in which the consumer keeps their entire asset endowment and occurs with probablity $1-\pi$. 
+
+The consumer starts with an initial endowment of assets, $E$. They may choose to insure as much of that endowment against a fixed loss ($L < E$) as they want at price, or *premium*, of $p$. Without insurance, the consumer only enjoys $E - L$ (with probability $\pi$) if the bad outcome occurs; they enjoy $E$ fully (with probability $1-\pi$) if there is no loss. 
+
+The consumer may "buy" additional units of bad-state consumption by insuring the losses at price, $p$ for each dollar of bad-state consumption they choose to insure. The consumer chooses the amount of insurance, $I$ before observing the uncertain state outcome. 
+
+To make the problem more concrete, use the following parameter values: 
+1. $E = \$100,000$
+2. $L = \$50,000$
+3. $\pi = 0.2$
+4. $p = 0.2$
+
+### Budget Constraint
+
+The budget constraint for this consumer works out to be: 
+
+$$pc_b + (1-p)c_g \le E(m)$$
+where $E(m)$ is the expected income of the consumer, i.e. $E - pL$.
+
+Plot the budget constraint for the consumer. 
+
+```{r insuranceBC, exercise = TRUE}
+
+```
+
+```{r insuranceBC-solution}
+E  = 100000
+L  =  50000
+pi =  0.2
+p  =  0.2
+# Entire Budget Constraint
+curve((E - pi * L) / (1 - p) - (p / (1 - p)) * x,
+      from = 0,
+      to = (E - p * L) / p,
+      xlab = expression(c[b]),
+      ylab = expression(c[g])
+)
+# Relevant Budget Constraint between No Insurance and Full Insurance
+curve((E - pi * L) / (1 - p) - (p / (1 - p)) * x,
+      from = E - p * L,
+      to = E + p * L,
+      xlab = expression(c[b]),
+      ylab = expression(c[g])
+)
+```
+
+### Preferences
+
+Suppose that the consumer has preferences that we can express as the square root of good and bad state consumption levels, and that the overall level of utility is based on the *expected value* of whichever state we observe.
+
+$$E[u(c_b, c_g)] = \pi\sqrt{c_b} + (1-\pi)\sqrt{c_g}$$
+
+Plot the indifference curve for 
+
+```{r insuranceUtility, exercise = TRUE}
+
+```
+
+```{r insuranceUtility-solution}
+curve(((sqrt(99500) - pi * sqrt(x)) / (1 - pi)) ^ 2, from = 0, to = 100000)
+```
+
+```{r insuranceUtility-check}
+grade_code()
+```
+
+### Equilibrium
+
+```{r insuranceEquilibrium, exercise = TRUE}
+
+```
+
+```{r insuranceEquilibrium-solution}
+ux <- function(x) {
+  -(pi*sqrt(x[1]) + (1-pi)*sqrt(x[2]))
+}
+bc <- function(x) {
+  p*x[1] + (1-p)*x[2] 
+}
+insuranceEquilibrium <- solnp(
+  pars = c(E, E), 
+  fun = ux, 
+  ineqfun = bc,
+  ineqLB = 0, 
+  ineqUB = E - pi*L, 
+  LB = c(E - L, E - p*L)
+)
+```
+
+```{r insuranceEquilibrium-check}
+
+```
 
 ## Labor Supply
 

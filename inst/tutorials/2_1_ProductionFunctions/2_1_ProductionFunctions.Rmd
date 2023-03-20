@@ -39,7 +39,7 @@ yac('MaxEvalDepth(100000)')
 
 1. Cost-Minimizing Combination of Inputs: For a *given* level of (expected) output (firm demand) choose the *combination* of inputs that minimizes the cost of producing that amount to derive the cost function.
 2. Profit-Maximizing Level of Output: Choose the *level* of output that maximizes profits by adjusting quantity and/or price of the output. 
-3. Profit-Maximizing Level of Inputs: Choose the *levels* of all inputs that maximizes profits by adjusting the quantity and/or price for inputs. 
+3. Profit-Maximizing Level of Inputs: Choose the *levels* of all inputs that maximizes profits by adjusting the quantity and/or price for inputs. (???)
 
 ### Components
 
@@ -50,17 +50,17 @@ yac('MaxEvalDepth(100000)')
 ### Complications
 
 1. Time Horizon
-a. Short Run
-b. Long Run
-c. Sunk versus Fixed Costs
+    a. Short Run
+    b. Long Run
+    c. Sunk versus Fixed Costs
 2. Market Structure
-a. Price Taker
-b. Price Maker
-c. In-Between
+    a. Price Taker
+    b. Price Maker
+    c. In-Between
 3. Transactions Costs
-a. Negotiation
-b. Monitoring
-c. Enforcement
+    a. Negotiation
+    b. Monitoring
+    c. Enforcement
 
 ## Theory of the Firm
 
@@ -126,9 +126,10 @@ $$f()\text{ describes the technology for transforming inputs (L and K) into outp
 Since production functions exhibit many of the same properties as utility functions, the Cobb-Douglas function is a common functional form for examples. In the context of production with labor and capital inputs, the Cobb-Douglass (production) function is: 
 
 $$ y = AL^{\alpha}K^{(1-\alpha)},\text{ where}$$
+Where: 
 
-$$\alpha\text{ is labor's productivity share}$$
-$$A\text{ represents "total factor productivity," or the overall level of technology}$$
+  - $\alpha$ is labor's productivity share.
+  - $A$ represents "total factor productivity," or the overall level of technology.
 
 ### Other Examples
 
@@ -396,7 +397,7 @@ grade_this({if (!inherits(.result, c("yac_symbol"))) {
 
 ### General Form
 
-```{r, echo = TRUE}
+```{r MRTSq, echo = TRUE}
 q <- ysym('A * L^(alpha) * K^(1-alpha)')
 MRTSq <- (deriv(q, 'L') / deriv(q, 'K')) |>
   yac_str() |> 
@@ -412,7 +413,7 @@ Let's see what happens when we scale up *all* of the inputs in the production fu
 
 Evaluate the Cobb Douglas production function from our example for $(L,K) = {(10,10), (20,20), (30,30)}$. (Hint: create a new function of `L` and `K` called `f` that converts the `yac_symbol` `y` into an `r` expression \[`yac_expr'\] and evaluates it \[`eval`\].)
 
-```{r RTS, exercise = TRUE, exercise.reveal_solution = TRUE}
+```{r RTS, exercise = TRUE, exercise.reveal_solution = TRUE, exercise.setup = 'marginalRateOfSubstitution-solution'}
 f <- function(L, K) {eval(yac_expr(y))}
 
 ```

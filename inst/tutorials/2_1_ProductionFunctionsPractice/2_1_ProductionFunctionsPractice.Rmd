@@ -39,6 +39,11 @@ Suppose that $A = 100$ and $\alpha = \beta = 2/3$.
 1. Plot the short-run production function setting $K = 50$.
 
 ```{r shortrun, exercise = TRUE}
+curve(100*x^(2/3)*50^(2/3),
+  type = 'l',
+  xlim = c(0, 50),
+  xlab = "Labor",
+  ylab = "Capital")
 
 ```
 
@@ -65,6 +70,12 @@ grade_this({if (!inherits(.result, c("list"))) {
   c. $(L, K) = (75, 75)$
 
 ```{r scale, exercise = TRUE}
+y = function(L, K) {
+  100*L^(2/3)*K^(2/3)
+}
+y(25,25)
+y(50,50)
+y(75,75)
 
 ```
 
@@ -87,6 +98,15 @@ grade_this({if (round(.result, 2) != 31628.72) {
 3. Plot the isoquants for $Q = 25000$, $Q = 50000$, and $Q = 75000$
 
 ```{r isoquants, exercise = TRUE}
+curve((25000 / (100*x^(2/3)))^(3/2),
+  type = 'l',
+  ylim = c(0, 200),
+  xlim = c(0, 200),
+  xlab = "Labor",
+  ylab = "Capital"
+)
+curve((50000 / (100*x^(2/3)))^(3/2), add = TRUE)
+curve((75000 / (100*x^(2/3)))^(3/2), add = TRUE)
 
 ```
 

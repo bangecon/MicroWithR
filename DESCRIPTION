@@ -13,12 +13,13 @@ LazyData: true
 Depends: 
   R (>= 4.1.2),
   learnr,
-  gradethis
+  gradethis, 
+  shinytest
 Imports: 
-  Deriv, 
   ggplot2, 
-  Ryacas, 
   Rsolnp, 
   nleqslv, 
+  Ryacas, 
+  Deriv, 
   googlesheets4
 RoxygenNote: 7.2.3

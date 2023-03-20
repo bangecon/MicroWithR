@@ -1,0 +1,51 @@
+---
+output: pdf_document
+---
+
+# `MicroWithR` Cheat Sheet
+
+1.  Basic Operators
+
+| Operator                | Outcome(s)                                |
+|-------------------------|-------------------------------------------|
+| `<-`, `->`, `=`         | Assign: left, right, generic              |
+| `!`                     | Not                                       |
+| `|`, `||`               | Or: element-wise, entire list             |
+| `&`, `&&`               | And: element-wise, entire list            |
+| `==`, `<`, `>`          | Equal to, less than, greater than         |
+| `+`, `-`, `*`, `/`, `^` | Add, subtract, multiply, divide, exponent |
+| `|>`                    | Pipe code result forward                  |
+
+2.  Base R Functions
+
+| Function                                         | Outcome(s)                                          |
+|-----------------------------------|-------------------------------------|
+| `plot()`, `curve()`                              | Create a new x-y or function plot                   |
+| `abline()`                                       | Add line with specified intercept/slope to plot     |
+| `lines()`, `segments()`, `arrows()`, `polygon()` | Add line or shape to plot with specified x-y coords |
+| `function()`                                     | Define a math or R function                         |
+
+3.  Numerical Solutions Functions
+
+| Function [`package::function()`] | Outcome                            |
+|----------------------------------|------------------------------------|
+| `nleqslv::nleqslv()`             | Solves systems of equations        |
+| `Rsolnp::solnp()`                | Nonlinear constrained optimization |
+
+4.  Analytic Solutions Functions
+
+| Function [`package::function()`]         | Outcome                                             |
+|--------------------------------|----------------------------------------|
+| `Ryacas::ysym()`, `Ryacas::yac_symbol()` | Convert characters/expression to yac_sym object     |
+| `Ryacas::yac_str()`                      | Convert yac_sym object to character string          |
+| `Ryacas::as_r()`, `Ryacas::yac_expr()`   | Convert yac_sym to R object/expression              |
+| `Ryacas::y_rmvars()`                     | Remove variables (i.e. left-hand side)              |
+| `stats::deriv()`, `Deriv::Deriv()`       | Take symbolic derivatives (R expression)            |
+| `Ryacas::deriv()`                        | Take symbolic derivatives (yac_sym object)          |
+| `base::solve()`                          | Invert a matrix, solve a numerical linear system    |
+| `deriv::Solve()`                         | Solve string expressions for specified variables    |
+| `Ryacas::solve()`                        | Solve yac_sym equations for specified variables     |
+| `Ryacas::with_value()`                   | Substitute value or yac_sym expression for variable |
+| `Deriv::Simplify()`                      | Simplify string expressions (works pretty well)     |
+| `Ryacas::simplify()`                     | Simplify yac_sym objects (works less well)          |
+| `Ryacas::yac(MaxEvalDepth())`            | Set the maximum stack depth                         |

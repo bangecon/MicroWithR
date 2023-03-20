@@ -26,9 +26,6 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
-library(Ryacas)
-library(Deriv)
-library(Rsolnp)
 gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
@@ -44,10 +41,11 @@ Then, it must budget its fixed inputs (in our example, capital) based on (1) the
 For expected sales of $y = 2500$ units of output and inpput prices $w = 1$ and $w = 2$, the firm in our previous example minimized costs at 25 units of labor and 25 units of capital at a total cost of 75. 
 
 ```{r, echo=TRUE}
+library(Rsolnp)
 alpha = 1/3
 y0 = 2500
-w = 1
-r = 2
+w = 10
+r = 20
 costMin <- solnp(pars = c(1, 1), fun = function(x) w*x[1] + r*x[2],
                  ineqfun = function(x) 100*x[1]^alpha*x[2]^(1-alpha),
                  ineqLB = y0, ineqUB = Inf, LB = c(0, 0))
@@ -67,7 +65,7 @@ c. Assigns the last value (`tail(x, 1)`) of the `values` in `costMinTemp` to the
 </details>
 
 ```{r costSchedule, exercise = TRUE, exercise.reveal_solution = TRUE}
-w = 1; r = 2
+w = 10; r = 20
 costSchedule <-
   data.frame(
     Quantity = seq(from = 0, to = 5000, by = 100),

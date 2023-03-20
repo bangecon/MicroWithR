@@ -77,7 +77,7 @@ We will focus mainly on income and price.
 
 The following code computes the initial equilibrium: 
 
-```{r, echo = TRUE, eval = TRUE}
+```{r initialEquilibrium, echo = TRUE, results=FALSE}
 ux <- function(x)
   - x[1] ^ (a) * x[2] ^ (1 - a)
 bc <- function(x)
@@ -114,7 +114,7 @@ amount for the income change, say \$5.
     and new optimal bundles and the initial and new values of the
     utility function.
 
-```{r cdIncomeChange, exercise = TRUE, exercise.reveal_solution = TRUE}
+```{r cdIncomeChange, exercise = TRUE, exercise.setup = 'initialEquilibrium'}
 
 ```
 
@@ -138,7 +138,7 @@ dmEquilibrium[c(1, 3)]
 grade_code()
 ```
 
-```{r}
+```{r dmEquilibrium, exercise.setup = 'initialEquilibrium'}
 m = 100
 dm = 5
 dmEquilibrium <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m + dm, 
@@ -165,7 +165,7 @@ decrease in price for good 1.
     decrease in $p_1$ to \$1.00.
 2.  Print the (already-stored) initial and new optimal bundles.
 
-```{r priceChange, exercise = TRUE, exercise.reveal_solution = TRUE}
+```{r priceChange, exercise = TRUE, exercise.setup = 'initialEquilibrium'}
 
 
 ```
@@ -202,7 +202,7 @@ highPEquilibrium <-
 grade_code()
 ```
 
-```{r}
+```{r dpEquilibrium, exercise.setup = 'initialEquilibrium'}
 dp1 = 0.5
 bcLowP  <- function(x)
   (p1 - dp1) * x[1] + p2 * x[2]
@@ -231,7 +231,7 @@ $$\frac{\Delta x_1}{\Delta p_1} \Bigg|_{x_1 = x_1^*} \approx `r round((highPEqui
 Run the following code to see the graph of the effect of an increase and
 decrease in income equal to 5.
 
-```{r incomeChangeGraph, exercise = TRUE}
+```{r incomeChangeGraph, exercise = TRUE, exercise.setup = 'dmEquilibrium'}
 curve(
   (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
   from = 0,
@@ -346,7 +346,7 @@ Graph the indifference curves and budget lines for each equilibrium:
 2.  $p_1 = \$2.00$ (Indifference curve )
 3.  $p_1 = \$1.00$
 
-```{r priceChangeGraph, exercise = TRUE, exercise.reveal_solution = TRUE}
+```{r priceChangeGraph, exercise = TRUE, exercise.setup = 'dpEquilibrium'}
 # We solved for consumption (and utility at that consumption) for the original price, the price after an increase, and after a decrease. 
 
 
@@ -438,12 +438,12 @@ Notice that for these preferences the increase in consumption for $x_1$ is linea
 
 Run the following code to take the derivative of demand for $x_1$ and $x_2$ with respect to income and prices. 
 
-```{r analyticalStatics, exercise = TRUE}
-statics <- deriv(D, c('m', 'p1', 'p2'))
+```{r analyticalStatics, exercise = TRUE, exercise.setup = 'demand-solution'}
+(statics <- deriv(D, c('m', 'p1', 'p2')))
 ```
 
 ```{r analyticalStatics-solution}
-statics <- deriv(D, c('m', 'p1', 'p2'))
+(statics <- deriv(D, c('m', 'p1', 'p2')))
 ```
 
 ```{r analyticalStatics-check}
@@ -470,7 +470,7 @@ The *Engel Curve* plots the demand for a good against the level of
 income. In our Cobb-Douglas example, this "curve" is a straight line.
 Plot the Engel curve for the example.
 
-```{r cdEngel, exercise = TRUE, exercise.reveal_solution = TRUE}
+```{r cdEngel, exercise = TRUE, exercise.setup = 'dmEquilibrium'}
 
 ```
 
@@ -498,7 +498,7 @@ choose to set $x_2 = x_1^2$ (to put consumption in the corner of the
 "L". Run the following code to see the analytical solution and its graph
 for different levels of income.
 
-```{r nonlinearIEP, exercise = TRUE}
+```{r nonlinearIEP, exercise = TRUE, exercise.setup = 'initialEquilibrium'}
 m4 = seq(60, 120, 20)
 complements <- function(x) {
   - min(x[1] ^ 2, 25 * x[2])
@@ -512,7 +512,7 @@ nonlinearIEPEquilibrium060m <-
     ineqUB = m4[1],
     LB = c(0,0), 
     UB = c(Inf, Inf)
-  )
+  );
 nonlinearIEPEquilibrium080m <-
   solnp(
     c(1, 1),
@@ -522,7 +522,7 @@ nonlinearIEPEquilibrium080m <-
     ineqUB = m4[2],
     LB = c(0,0), 
     UB = c(Inf, Inf)
-  )
+  );
 nonlinearIEPEquilibrium100m <-
   solnp(
     c(1, 1),
@@ -532,7 +532,7 @@ nonlinearIEPEquilibrium100m <-
     ineqUB = m4[3],
     LB = c(0,0), 
     UB = c(Inf, Inf)
-  )
+  );
 nonlinearIEPEquilibrium120m <-
   solnp(
     c(1, 1),
@@ -542,8 +542,8 @@ nonlinearIEPEquilibrium120m <-
     ineqUB = m4[4],
     LB = c(0,0), 
     UB = c(Inf, Inf)
-  )
-par(mfrow = c(1, 3))
+  );
+par(mfrow = c(1, 3));
 plot(
   x = rep(nonlinearIEPEquilibrium060m$pars[1], 10),
   y = seq(nonlinearIEPEquilibrium060m$pars[2], 120, length.out = 10),
@@ -553,72 +553,72 @@ plot(
   ylim = c(0, m4[4] / p2),
   xlab = expression(x[1]),
   ylab = expression(x[2])
-)
+);
 segments(
   x0 = nonlinearIEPEquilibrium060m$pars[1],
   x1 = 120,
   y0 = nonlinearIEPEquilibrium060m$pars[2],
   y1 = nonlinearIEPEquilibrium060m$pars[2],
   col = 'dark green'
-)
+);
 segments(
   x0 = nonlinearIEPEquilibrium080m$pars[1],
   x1 = nonlinearIEPEquilibrium080m$pars[1],
   y0 = nonlinearIEPEquilibrium080m$pars[2],
   y1 = 120,
   col = 'dark green'
-)
+);
 segments(
   x0 = nonlinearIEPEquilibrium080m$pars[1],
   x1 = 120,
   y0 = nonlinearIEPEquilibrium080m$pars[2],
   y1 = nonlinearIEPEquilibrium080m$pars[2],
   col = 'dark green'
-)
+);
 segments(
   x0 = nonlinearIEPEquilibrium100m$pars[1],
   x1 = nonlinearIEPEquilibrium100m$pars[1],
   y0 = nonlinearIEPEquilibrium100m$pars[2],
   y1 = 120,
   col = 'dark green'
-)
+);
 segments(
   x0 = nonlinearIEPEquilibrium100m$pars[1],
   x1 = 120,
   y0 = nonlinearIEPEquilibrium100m$pars[2],
   y1 = nonlinearIEPEquilibrium100m$pars[2],
   col = 'dark green'
-)
+);
 segments(
   x0 = nonlinearIEPEquilibrium120m$pars[1],
   x1 = nonlinearIEPEquilibrium120m$pars[1],
   y0 = nonlinearIEPEquilibrium120m$pars[2],
   y1 = 120,
   col = 'dark green'
-)
+);
 segments(
   x0 = nonlinearIEPEquilibrium120m$pars[1],
   x1 = 120,
   y0 = nonlinearIEPEquilibrium120m$pars[2],
   y1 = nonlinearIEPEquilibrium120m$pars[2],
   col = 'dark green'
-)
-abline(100 / p2,-p1 / p2, col = 'red')
-curve(x ^ 2 / 25, add = TRUE)
+);
+abline(100 / p2,-p1 / p2, col = 'red');
+curve(x ^ 2 / 25, add = TRUE);
 curve(
   p2 * x ^ 2 / 25 + p1 * x,
   xlim = c(0, nonlinearIEPEquilibrium120m$pars[1]),
   ylim = c(0, m4[4]),
   xlab = expression(x[1]),
   ylab = 'Income'
-)
+);
 curve(
   p2 * x + 5 * p1 * sqrt(x),
   xlim = c(0, nonlinearIEPEquilibrium120m$pars[2]),
   ylim = c(0, m4[4]),
   xlab = expression(x[2]),
   ylab = 'Income'
-)
+);
 par(mfrow = c(1,1))
 ```
 
@@ -637,6 +637,7 @@ nonlinearIEPEquilibrium060m <-
     LB = c(0,0), 
     UB = c(Inf, Inf)
   )
+
 nonlinearIEPEquilibrium080m <-
   solnp(
     c(1, 1),
@@ -647,6 +648,7 @@ nonlinearIEPEquilibrium080m <-
     LB = c(0,0), 
     UB = c(Inf, Inf)
   )
+
 nonlinearIEPEquilibrium100m <-
   solnp(
     c(1, 1),
@@ -657,6 +659,7 @@ nonlinearIEPEquilibrium100m <-
     LB = c(0,0), 
     UB = c(Inf, Inf)
   )
+
 nonlinearIEPEquilibrium120m <-
   solnp(
     c(1, 1),
@@ -667,7 +670,9 @@ nonlinearIEPEquilibrium120m <-
     LB = c(0,0), 
     UB = c(Inf, Inf)
   )
+
 par(mfrow = c(1, 3))
+
 plot(
   x = rep(nonlinearIEPEquilibrium060m$pars[1], 10),
   y = seq(nonlinearIEPEquilibrium060m$pars[2], 120, length.out = 10),
@@ -678,6 +683,7 @@ plot(
   xlab = expression(x[1]),
   ylab = expression(x[2])
 )
+
 segments(
   x0 = nonlinearIEPEquilibrium060m$pars[1],
   x1 = 120,
@@ -685,6 +691,7 @@ segments(
   y1 = nonlinearIEPEquilibrium060m$pars[2],
   col = 'dark green'
 )
+
 segments(
   x0 = nonlinearIEPEquilibrium080m$pars[1],
   x1 = nonlinearIEPEquilibrium080m$pars[1],
@@ -692,6 +699,7 @@ segments(
   y1 = 120,
   col = 'dark green'
 )
+
 segments(
   x0 = nonlinearIEPEquilibrium080m$pars[1],
   x1 = 120,
@@ -699,6 +707,7 @@ segments(
   y1 = nonlinearIEPEquilibrium080m$pars[2],
   col = 'dark green'
 )
+
 segments(
   x0 = nonlinearIEPEquilibrium100m$pars[1],
   x1 = nonlinearIEPEquilibrium100m$pars[1],
@@ -706,6 +715,7 @@ segments(
   y1 = 120,
   col = 'dark green'
 )
+
 segments(
   x0 = nonlinearIEPEquilibrium100m$pars[1],
   x1 = 120,
@@ -713,6 +723,7 @@ segments(
   y1 = nonlinearIEPEquilibrium100m$pars[2],
   col = 'dark green'
 )
+
 segments(
   x0 = nonlinearIEPEquilibrium120m$pars[1],
   x1 = nonlinearIEPEquilibrium120m$pars[1],
@@ -720,6 +731,7 @@ segments(
   y1 = 120,
   col = 'dark green'
 )
+
 segments(
   x0 = nonlinearIEPEquilibrium120m$pars[1],
   x1 = 120,
@@ -727,8 +739,11 @@ segments(
   y1 = nonlinearIEPEquilibrium120m$pars[2],
   col = 'dark green'
 )
+
 abline(100 / p2,-p1 / p2, col = 'red')
+
 curve(x ^ 2 / 25, add = TRUE)
+
 curve(
   p2 * x ^ 2 / 25 + p1 * x,
   xlim = c(0, nonlinearIEPEquilibrium120m$pars[1]),
@@ -736,6 +751,7 @@ curve(
   xlab = expression(x[1]),
   ylab = 'Income'
 )
+
 curve(
   p2 * x + 5 * p1 * sqrt(x),
   xlim = c(0, nonlinearIEPEquilibrium120m$pars[2]),
@@ -743,6 +759,7 @@ curve(
   xlab = expression(x[2]),
   ylab = 'Income'
 )
+
 par(mfrow = c(1,1))
 ```
 
@@ -759,7 +776,7 @@ prices of good 1 equal to 1.0, 1.5, and 2.0. (Orient quantity on the
 x-axis ranging from 0 to 60 and price
 on the y-axis ranging from 0 to 2.5)
 
-```{r demandPoints, exercise = TRUE, exercies.reveal_solution = TRUE}
+```{r demandPoints, exercise = TRUE, exercise.setup = 'dpEquilibrium'}
 
 ```
 
@@ -783,7 +800,7 @@ grade_code()
 
 Connect the dots with line segments. 
 
-```{r demandSegments, exercise = TRUE, exercies.reveal_solution = TRUE}
+```{r demandSegments, exercise = TRUE, exercise.setup = 'dpEquilibrium'}
 plot(
   initialEquilibrium$pars[1],
   p1,
@@ -843,7 +860,7 @@ b. Define `c` as the value of the `pars` result from the current iteration solut
 c. Define the $i^th$ element of `c1` as the first element of the `pars` variable (the optimal level of consumption for that price) of each solution.
 3. Plot the demand curve of p1 (y-axis) versus c1 (x-axis).
 
-```{r demandCurve, exercise = TRUE, exercise.reveal_solution = TRUE}
+```{r demandCurve, exercise = TRUE, exercise.setup = 'dpEquilibrium'}
 p1seq <- seq(0.5, 2.5, 0.1)
 c1 <- NULL
 for (i in 1:length(p1seq)) {
@@ -917,7 +934,7 @@ $$x_1(p_1, m) = `r tex(D[1])`$$
     *quantity* in order to plot the *inverse* demand function (with
     price on the y-axis as usual).
 
-```{r demandFunction, exercise = TRUE, exercise.reveal_solution = TRUE}
+```{r demandFunction, exercise = TRUE, exercise.setup = 'dpEquilibrium'}
 
 ```
 
@@ -961,7 +978,7 @@ To separate the income and substitution, the first order of business is finding 
 $$min_x \bigg\{p_1x_1 + p_2x_2 \bigg\}$$
 $$\text{s.t. } u_0^* - u(x_1, x_2) \le 0$$
 
-```{r xTilde, exercise = TRUE, exercise.reveal_solution = TRUE}
+```{r xTilde, exercise = TRUE, exercise.setup = 'dpEquilibrium'}
 library(Rsolnp)
 u0 <- -tail(initialEquilibrium$values, 1)
 x0 <- initialEquilibrium$pars
@@ -975,6 +992,7 @@ xTilde <-
     LB = c(0, 0),
     UB = c(Inf, Inf)
   )
+
 xTilde
 ```
 
@@ -991,6 +1009,7 @@ xTilde <-
     LB = c(0, 0),
     UB = c(Inf, Inf)
   )
+
 xTilde
 ```
 
@@ -1116,6 +1135,6 @@ question("What is the approximate dollar-denominated welfare effect (i.e. income
 
 ### Calculating Consumer Surplus
 
-Once you've found the $\tilde{x}$, finding the consumer surplus is relatively straightforward. In our case, the expenditures needed at the new prices in order to reach the original utility is the value of the objective function for the expenditure minimization problem we solved to calculate $\tilde{x}$, `xTilde$objective`, or `r xTilde$objective`; the expenditures needed to reach the new optimal utility is simply the consumer's money income, `m`. The change in consumer surplus will be the difference `r round(m - xTilde$objective, 2)`. 
+Once you've found $\tilde{x}$, finding the consumer surplus is relatively straightforward. In our case, the expenditures needed at the new prices in order to reach the original utility is the value of the expenditure function at $\tilde{x}$, which equals the last value in `xTilde$values`, or `r round(tail(xTilde$values, 1), 2)`; the expenditures needed to reach the new optimal utility is simply the consumer's money income, `m`. The change in consumer surplus will be the difference `r round(m - tail(xTilde$values, 1), 2)`. 
 
 Some policy analyses use this to evaluate the welfare effects of policy changes in terms of real income. The trick is estimating (with as few assumptions as possible!) the unobserved $\tilde{x}$. 

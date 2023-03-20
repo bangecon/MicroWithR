@@ -1,0 +1,53 @@
+---
+title: "1.4 Rational Consumer Choice"
+author: "Jim Bang"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+output:
+  ioslides_presentation: default
+  beamer_presentation: default
+  slidy_presentation: default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center', out.width = '80%')
+knitr::include_graphics
+```
+
+## Constant Elasticity of Substitution
+
+$$U(x) = (x_1^{1/2} + x_2^{1/2})^2, $$ 
+
+so that the elasticity of substitution is $\sigma = \frac{1}{1-r} = 2$. 
+
+The consumer has income of \$100 and the prices of goods one and two are \$2 and \$1, respectively. 
+
+```{r computeSetup}
+library(Rsolnp)
+r = 0.5; p1 = 2; p2 = 1; m = 100
+ux <- function(x) {- (x[1]^r + x[2] ^ r) ^ (1/r)}
+bc <- function(x) {p1 * x[1] + p2 * x[2]}
+par(mar = c(2.5, 2.5, 0, 0))
+```
+
+## Computational solution. 
+
+```{r computeSolve}
+eq <- solnp(
+  pars = c(1, 1), fun = ux,
+  ineqfun = bc, ineqLB = 0, ineqUB = m,
+  LB = c(0, 0), UB = c(Inf, Inf), 
+  control = c(trace = 0))
+eq$pars
+-eq$lagrange
+-tail(eq$values, 1)
+```
+
+## Graphical solution. 
+
+```{r graph}
+curve(((-tail(eq$values, 1))^r - x^r)^(1/r), col='green',
+  from = 0, to = m / p1, ylim = c(0, m / p2),
+  xlab = expression(x[1]), ylab = expression(x[2]))
+abline(m / p2, -p1 / p2, col = 'red')
+points(x = eq$pars[1], y = eq$pars[2], pch = 20)
+```

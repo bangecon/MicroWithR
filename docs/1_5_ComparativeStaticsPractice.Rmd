@@ -1,0 +1,95 @@
+---
+title: "1.5 Comparative Statics"
+editor_options: 
+  markdown: 
+    wrap: 72
+output: beamer_presentation
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
+knitr::include_graphics
+```
+
+## Quasi-Linear Utility
+
+Consider a consumer who initially budgets an income of 100 for consuming goods 1 and 2; faces prices of good 1 and good 2 equal to 1.5 and 1.0, respectively; and exhibits quasi-linear preferences described by the following utility function:  
+
+$$U(x) = x_1^{0.25} + x_2,$$
+$$\text{s.t.: }1.5x_1+x_2 \le 100$$
+
+1. Plot the Engel Curve for this consumer for good 1 by computationally solving and connecting at least 5 points of the curve. You may choose any changes in income you like; the "solution" uses $\pm 5$ and $\pm 10$.
+
+```{r engelComputational, exercise = TRUE}
+
+```
+
+```{r engelComputational-solution}
+library(Rsolnp)
+ux <- function(x) -x[1] ^ (a) + x[2] 
+bc <- function(x) p1 * x[1] + p2 * x[2]
+a = 0.25; p1 = 1.5; p2 = 1; m = 100; dm = 5
+initialEquilibrium <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m, 
+                            LB = c(0, 0), UB = c(Inf, Inf))
+dmEquilibrium1 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m + dm, 
+                            LB = c(0, 0), UB = c(Inf, Inf))
+dmEquilibrium2 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m - dm, 
+                            LB = c(0, 0), UB = c(Inf, Inf))
+dmEquilibrium3 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m + 2*dm, 
+                            LB = c(0, 0), UB = c(Inf, Inf))
+dmEquilibrium4 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m - 2*dm, 
+                            LB = c(0, 0), UB = c(Inf, Inf))
+x1 <- c(initialEquilibrium$pars[1], dmEquilibrium1$pars[1], dmEquilibrium2$pars[1],
+        dmEquilibrium3$pars[1], dmEquilibrium4$pars[1])
+m1 <- c(initialEquilibrium$ineqx0, dmEquilibrium1$ineqx0, dmEquilibrium2$ineqx0,
+        dmEquilibrium3$ineqx0, dmEquilibrium4$ineqx0)
+plot(m1, x1, xlim = c(0,120), ylim = c(0, 100))
+segments(m1[1], x1[1], m1[2], x1[2])
+segments(m1[2], x1[2], m1[3], x1[3])
+segments(m1[3], x1[3], m1[4], x1[4])
+segments(m1[4], x1[4], m1[5], x1[5])
+```
+
+```{r engelComputational-check}
+
+```
+
+2. Plot the Demand Function for $x_1$. for this consumer for good 1 by computationally solving and connecting at least 5 points of the curve. You may choose any changes in price you like; the "solution" uses $\pm 0.5$ and $\pm 1.0$.
+
+```{r demandComputational, exercise = TRUE}
+
+```
+
+```{r demandComputational-solution}
+dp1 = 0.5
+bcLowP1  <- function(x) (p1 - dp1) * x[1] + p2 * x[2]
+bcHighP1 <- function(x) (p1 + dp1) * x[1] + p2 * x[2]
+bcLowP2  <- function(x) (p1 - 2*dp1) * x[1] + p2 * x[2]
+bcHighP2 <- function(x) (p1 + 2*dp1) * x[1] + p2 * x[2]
+lowPEquilibrium1 <- solnp(c(1, 1), ux, ineqfun = bcLowP1, ineqLB = 0, ineqUB = m,
+    LB = c(0, 0), UB = c(Inf, Inf))
+highPEquilibrium1 <- solnp(c(1, 1), ux, ineqfun = bcHighP1, ineqLB = 0, ineqUB = m,
+    LB = c(0, 0), UB = c(Inf, Inf))
+lowPEquilibrium2 <- solnp(c(1, 1), ux, ineqfun = bcLowP2, ineqLB = 0, ineqUB = m,
+    LB = c(0, 0), UB = c(Inf, Inf))
+highPEquilibrium2 <- solnp(c(1, 1), ux, ineqfun = bcHighP2, ineqLB = 0, ineqUB = m,
+    LB = c(0, 0), UB = c(Inf, Inf))
+p1 <- c(p1-2*dp1, p1-dp1, p1, p1+dp1, p1+2*dp1)
+x1 <- c(lowPEquilibrium2$pars[1], lowPEquilibrium1$pars[1], 
+        initialEquilibrium$pars[1], highPEquilibrium1$pars[1], 
+        highPEquilibrium2$pars[1])
+plot(x1, p1, xlim = c(0, 200), ylim = c(0, 2.5))
+segments(x1[1], p1[1], x1[2], p1[2])
+segments(x1[2], p1[2], x1[3], p1[3])
+segments(x1[3], p1[3], x1[4], p1[4])
+segments(x1[4], p1[4], x1[5], p1[5])
+```
+
+```{r demandComputational-check}
+
+```
