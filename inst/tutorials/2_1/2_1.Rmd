@@ -39,7 +39,7 @@ yac('MaxEvalDepth(100000)')
 
 1. Cost-Minimizing Combination of Inputs: For a *given* level of (expected) output (firm demand) choose the *combination* of inputs that minimizes the cost of producing that amount to derive the cost function.
 2. Profit-Maximizing Level of Output: Choose the *level* of output that maximizes profits by adjusting quantity and/or price of the output. 
-3. Profit-Maximizing Level of Inputs: Choose the *levels* of all inputs that maximizes profits by adjusting the quantity and/or price for inputs. (???)
+3. Long-Run Readjustment: Adjust the level of capital to minimize costs at the given price and quantity in the market. This might happen at the firm level (adjusting firm capacity) or at the industry level (entry/exit of firms).
 
 ### Components
 

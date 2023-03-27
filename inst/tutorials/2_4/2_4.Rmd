@@ -14,6 +14,7 @@ date: "`r format(Sys.Date(), '%d %b %Y')`"
 <style type="text/css">
 h1{font-size: 24pt}
 h2{font-size: 20pt}
+
 h3{font-size: 18pt}
 h4,h5,h6{font-size: 16pt}
 body{font-size: 16pt}
@@ -30,11 +31,15 @@ gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
 
-## The Profit Function
+## Review: The Firm's Three Problems:
 
-Perfect Competition
+1. ~~Cost-Minimizing Combination of Inputs.~~
+2. <span style="color: red;">Profit-Maximizing Level of Output. </span>
+3. Long-Run Readjustment.
 
-$$\matrix{ \matrix{\text{1. Many, many sellers (and buyers)} \\ \text{2. Homogeneous product} \\ \text{3. Perfect information}} \Biggr\} \\ \text{4. Free entry/exit} \\ \text{  }} \matrix{\text{ } \\ \implies \\ \text{ } \\ \implies \\ \text{ } }  \matrix{\Biggl\{ \matrix{\text{Firms are} \\ \text{price} \\ \text{takers}} \\ \text{Profits/losses} \\ \text{are temporary}}$$
+### Perfectly Competitive Output Markets
+
+$$\matrix{ \matrix{\text{1. Many sellers and buyers} \\ \text{2. Homogeneous product} \\ \text{3. Perfect information}} \Biggr\} \\ \text{4. Free entry and exit} \\ \text{  }} \matrix{\text{ } \\ \implies \\ \text{ } \\ \implies \\ \text{ } }  \matrix{\Biggl\{ \matrix{\text{Firms are} \\ \text{price} \\ \text{takers}} \\ \text{Profits/losses} \\ \text{are temporary}}$$
 
 ### The Producer's Problem
 
@@ -42,70 +47,123 @@ $$\matrix{ \matrix{\text{1. Many, many sellers (and buyers)} \\ \text{2. Homogen
 2. Endogenous (choice) variable: 
 3. Exogenous variable(s): 
 
-### General Form 
+### The Profit Function: General Form 
 
 $$\max_Q \{ \pi(Q) = TR(Q) - C(Q) \} $$
 Since price is *exogenous* (determined by the market), $TR = PQ$:
 $$\pi(Q) = PQ - C(Q)$$
 
-### Per-Unit Form
+### The Profit Function: Per-Unit Form
 
 Since $C(Q) = ATC(Q) \cdot Q$, we can rewrite profits as: 
 
 $$\pi(Q) = [P - ATC(Q)]Q$$
 
-## Analytical Approach
+### Market Equilibrium
 
-Suppose that our firm's technology leads to a cost function that can be approximated by the function:
+$$Q_d = 6,000,000 - 2,000,000P$$
+$$Q_s = 10,000,000*P$$ 
 
-$$C(Q) = \frac{Q^3}{20} - \frac{9Q^2}{10} + 10Q + 5$$
+Solve for the market equilibrium price and quantity.
 
-and that market conditions imply that $P = 10$.
+```{r market, exercise = TRUE}
 
-Solve the producer's problem analytically using `Ryacas`. 
+```
 
+```{r market-solution}
+market <- function(x) {
+    supply <- 10000000*x[1] - x[2]
+    demand <- 6000000 - 2000000*x[1] - x[2]
+    return(c(supply, demand))
+}
+equilibrium <- nleqslv(c(2,2), market)
+P <- equilibrium$x[1]
+P
+```
+
+```{r market-hint}
+# In our introduction module, we solved the following example where:
+# Q_s = P 
+# Q_d = 10 - P 
+market <- function(x) {                 # x[1] is price; x[2] is quantity
+    supply <- x[1] - x[2]               # nleqslv finds "zeros": P - Q_s = 0
+    demand <- 10 - x[1] - x[2]          # 10 - P - Q_d = 0
+    return(c(supply, demand))           # Return a vector function
+}
+equilibrium <- nleqslv(c(2,2), market)  # Solve where both equations equal 0.
+```
+
+```{r market-check}
+grade_code()
+```
+
+## Profit Maximization
+
+When we left our representative firm, we could express the short-run production function (with capacity optimized for $Q = 2500$) in terms of the cube-root of the labor input, $f(L|K=25) = 100*25^{2/3}*L^{1/3}$. The cost function is:
+
+$$C(Q) = 10L(Q) + 20K.$$
+
+Substituting $K=25$, and solving $f(L|K = 25)$ for $L$, we have: 
+
+$$L(Q) = \frac{Q^3}{625,000,000}$$
+
+$$C(Q) = \frac{Q^3}{62,500,000} + 500$$
+
+Note that the firm chose (optimized) its capacity on expecting to sell 2,500 units of output. Suppose that after building its capital input, market conditions yielded the following supply and demand functions: 
+
+### Analytical Approach
+
+Run the following code to solve the producer's problem analytically using `Ryacas`. 
+
+<details style="line-height:105%"><summary>Click here to view the steps for the analytical solution.</summary>
 1. Load `Ryacas`.
 2. Define the profit function. 
 3. Derive $d\pi/dQ$ and simplify. 
 4. Solve $d\pi/dQ = 0$ for $Q$, remove the variables, and reformat to an ordinary `R` object. 
+</details>
 
 ```{r profitmaxAnalytical, exercise = TRUE}
-
+library(Ryacas)
+pi <- ysym('0.5*Q - 500 - Q^3 / 62500000') # Define the profit function as a yac_symbol
+dpi   <- deriv(pi, 'Q') |>                 # Take the derivative (and simplify)
+  simplify()
+qStar <- solve(dpi, 0, 'Q')[1] |>          # Solve for Q (take the first [>0] value)
+  y_rmvars()                               # Isolate the solution.
 ```
 
 ```{r profitmaxAnalytical-solution}
 library(Ryacas)
-pi    <- ysym('7*Q - (0.05*Q^3 - 0.9*Q^2 + 10*Q + 5)')
+pi <- ysym('0.5*Q - 500 - Q^3 / 62500000') # 
 dpi   <- deriv(pi, 'Q') |>
   simplify()
-qStar <- solve(dpi, 'Q')[2] |>
-  y_rmvars() |>
-  as_r()
+qStar <- solve(dpi, 'Q')[1] |>
+  y_rmvars() 
 ```
 
 ```{r profitmaxAnalytical-check}
-grade_this(
-  if(round(.result) != 10) {
-    fail("The solution should be negligibly close to 10.")} 
-  pass()
-)
+grade_code()
 ```
 
-```{r}
+```{r, message=FALSE}
 library(Ryacas)
-pi    <- ysym('7*Q - (0.05*Q^3 - 0.9*Q^2 + 10*Q + 5)')
+pi <- ysym('0.5*Q - 500 - Q^3 / 62500000') # 
 dpi   <- deriv(pi, 'Q') |>
   simplify()
-qStar <- solve(dpi, 'Q')[2] |>
-  y_rmvars() |>
-  as_r()
+qStar <- solve(dpi, 'Q')[1] |>
+  y_rmvars() 
 ```
 
 The first-order condition for the profit-maximization problem is: 
 
 $$`r Ryacas::tex(dpi)` = 0$$
 
-## Graphical Approach
+This is the condition that sets $MR = MC$. 
+
+The profit-maximizing quantity is: 
+
+$$Q^* = `r tex(qStar) \approx `r round(as_r(qStar), 3)` $$
+
+### Graphical Approach
 
 Run the following code to construct the following graphs: 
 
@@ -115,124 +173,56 @@ Run the following code to construct the following graphs:
 4. Marginal (change in) profit versus quantity (bottom right); 
 
 ```{r profitmaxGraph, exercise = TRUE}
-par(mfrow = c(2,2))                                                   # Set a 2-by-2 plot window.
-curve(
-  0.05 * x ^ 3 - 0.9 * x ^ 2 + 10 * x + 5,                            # Total cost curve
-  col = 'red',         # Line color
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$"           # Y-axis label
-)                                           
-curve(7 * x, col = 'blue', add = TRUE)                                # Total revenue curve
-curve(7 * x - 5, lty = 'dashed', add = TRUE)                          # MR = MC reference line
-curve(
-  7 * x - (0.05 * x ^ 3 - 0.9 * x ^ 2 + 10 * x + 5),                  # Total profit curve
-  col = 'black',
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$",          # Y-axis label
-  ylim = c(-10, 10)    # Y-axis range
-)
-lines(x = c(0, 15),                                                   # Zero-profit reference line
-      y = c(0, 0),
-      lty = 'dashed')  # Line type
-curve(
-  0.15 * x ^ 2 - 1.8 * x + 10,                                        # Marginal cost curve
-  col = 'red',         # Line color
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$",          # Y-axis label
-  ylim = c(0, 12.5)    # Y-axis range
-)
-curve(0.05 * x ^ 2 - 0.9 * x + 10 + 5 / x, col = 'brown', add = TRUE) # Average total cost curve
-curve(0.05 * x ^ 2 - 0.9 * x + 10,                                    # Average variable cost curve
-      col = 'brown',   # Line color
-      add = TRUE,
-      lty = 'dashed')  # Line type
-lines(x = c(0, 15),                                                   # Average/marginal revenue curve (price)
-      y = c(7, 7), 
-      col = 'blue')
-lines(x = c(0, 15),                                                   # Shutdown reference line
-      y = c(5.95, 5.95),
-      lty = 'dashed')
-curve(
-  7 - (0.15 * x ^ 2 - 1.8 * x + 10),                                  # Marginal profit curve
-  col = 'black',
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$",          # Y-axis label
-  ylim = c(-10, 10)    # Y-axis range
-)
-lines(x = c(0, 15),                                                   # d(Profit) = 0 reference line
-      y = c(0, 0),
-      lty = 'dashed')  # Line type
+par(mfrow = c(2,2))                                  # Set a 2-by-2 plot window.
+curve(500 + x^3 / 62500000,                          # Total cost curve
+  from = 0, to = 5000, ylim = c(0,2500),             # Start/end x, y-axis limits
+  xlab = "Q", ylab = "TR/TC", col = 'red')           # Axis labels, line color
+curve(x / 2, col = 'blue', add = T)                  # Total revenue curve
+b = 500 + as_r(qStar)^3 / 62500000 - 0.5*as_r(qStar) # Tangent line intercept
+curve(b + 0.5 * x,                                   # Cost tangent at Qstar
+      lty = 'dashed', col = 'red', add = T)
+curve(0.5 * x - (500 + x^3 / 62500000),              # Total profit curve
+  from = 0, to = 5000, ylim = c(-500, 600), xlab = "Q", ylab = "Profit")
+lines(x = c(0, 5000), y = c(0, 0), lty = 'dashed')   # Zero-profit reference line
+curve(3*x^2 / 62500000,                              # Marginal cost curve
+  from = 0, to = 5000, ylim = c(0, 1), xlab = "Q", ylab = "MC/AC", col = 'red')
+curve(x^2/62500000 + 500/x, col = 'brown', add = T)  # Average total cost curve
+curve(x^2 / 62500000,                                # Average variable cost curve
+      col = 'brown', lty = 'dashed', add = T) 
+lines(x = c(0, 5000), y = c(0.5, 0.5), col = 'blue') # Price/marginal revenue curve
+curve(0.5 - (3*x^2 / 62500000),                      # Marginal profit curve
+  from = 0, to = 5000, ylim = c(-0.6, 0.6), xlab = "Q", ylab = expression(DeltaProfit))
+lines(x = c(0, 5000), y = c(0, 0), lty = 'dashed')   # dProfit = 0 reference line
 ```
 
 ```{r profitmaxGraph-solution}
-par(mfrow = c(2,2))                                                   # Set a 2-by-2 plot window.
-curve(
-  0.05 * x ^ 3 - 0.9 * x ^ 2 + 10 * x + 5,                            # Total cost curve
-  col = 'red',         # Line color
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$"           # Y-axis label
-)                                           
-curve(7 * x, col = 'blue', add = TRUE)                                # Total revenue curve
-curve(
-  7 * x - (0.05 * x ^ 3 - 0.9 * x ^ 2 + 10 * x + 5),                  # Total profit curve
-  col = 'black',
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$",          # Y-axis label
-  ylim = c(-10, 10)    # Y-axis range
-)
-lines(x = c(0, 15),                                                   # Zero-profit reference line
-      y = c(0, 0),
-      lty = 'dashed')  # Line type
-curve(
-  0.15 * x ^ 2 - 1.8 * x + 10,                                        # Marginal cost curve
-  col = 'red',         # Line color
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$",          # Y-axis label
-  ylim = c(0, 12.5)    # Y-axis range
-)
-curve(0.05 * x ^ 2 - 0.9 * x + 10 + 5 / x, col = 'brown', add = TRUE) # Average total cost curve
-curve(0.05 * x ^ 2 - 0.9 * x + 10,                                    # Average variable cost curve
-      col = 'brown',   # Line color
-      add = TRUE,
-      lty = 'dashed')  # Line type
-lines(x = c(0, 15),                                                   # Average/marginal revenue curve (price)
-      y = c(7, 7), col = 'blue', add = TRUE)
-lines(x = c(0, 15),                                                   # Shutdown reference line
-      y = c(5.95, 5.95),
-      lty = 'dashed', add = TRUE)
-curve(
-  7 - (0.15 * x ^ 2 - 1.8 * x + 10),                                  # Marginal profit curve
-  col = 'black',
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$",          # Y-axis label
-  ylim = c(-10, 10)    # Y-axis range
-)
-lines(x = c(0, 15),                                                   # d(Profit) = 0 reference line
-      y = c(0, 0),
-      lty = 'dashed')  # Line type
+par(mfrow = c(2,2))                                  # Set a 2-by-2 plot window.
+curve(500 + x^3 / 62500000,                          # Total cost curve
+  from = 0, to = 5000, ylim = c(0,2500),             # Start/end x, y-axis limits
+  xlab = "Q", ylab = "TR/TC", col = 'red')           # Axis labels, line color
+curve(x / 2, col = 'blue', add = T)                  # Total revenue curve
+b = 500 + as_r(qStar)^3 / 62500000 - 0.5*as_r(qStar) # Tangent line intercept
+curve(b + 0.5 * x,                                   # Cost tangent at Qstar
+      lty = 'dashed', col = 'red', add = T)
+curve(0.5 * x - (500 + x^3 / 62500000),              # Total profit curve
+  from = 0, to = 5000, ylim = c(-500, 600), xlab = "Q", ylab = "Profit")
+lines(x = c(0, 5000), y = c(0, 0), lty = 'dashed')   # Zero-profit reference line
+curve(3*x^2 / 62500000,                              # Marginal cost curve
+  from = 0, to = 5000, ylim = c(0, 1), xlab = "Q", ylab = "MC/AC", col = 'red')
+curve(x^2/62500000 + 500/x, col = 'brown', add = T)  # Average total cost curve
+curve(x^2 / 62500000,                                # Average variable cost curve
+      col = 'brown', lty = 'dashed', add = T) 
+lines(x = c(0, 5000), y = c(0.5, 0.5), col = 'blue') # Price/marginal revenue curve
+curve(0.5 - (3*x^2 / 62500000),                      # Marginal profit curve
+  from = 0, to = 5000, ylim = c(-0.6, 0.6), xlab = "Q", ylab = expression(DeltaProfit))
+lines(x = c(0, 5000), y = c(0, 0), lty = 'dashed')   # dProfit = 0 reference line
 ```
 
 ```{r profitmaxGraph-check}
 grade_code()
 ```
 
-## Computational Approach
+### Computational Approach
 
 Find the solution to the profit-maximization problem numerically. 
 
@@ -244,21 +234,25 @@ Careful! Since our profit function has multiple "critical values" (points where 
 
 ```{r profitmaxNumerical-solution}
 library(Rsolnp)
-loss <- function(x) {
-  - 7*x + (0.05*x^3 - 0.9*x^2 + 10*x + 5)
-}
-solution <- solnp(
-  pars = 1,
-  fun = loss,  # Solnp calculates minima so we want to minimize loss 
-  LB = 0
-)
+loss <- function(x) -(0.5*x - (x^3 / 62500000 + 500))  # Define losses
+profitMax <- solnp(pars = 1, fun = loss, LB = 0)
+```
+
+```{r profitmaxNumerical-hint}
+# Don't forget to load your libraries!
+
+# Define losses (minus-profits) as the function(x) because 'solnp()' finds a min 
+
+# Since there's no constraint, we only need three arguments: 
+  # (1) a starting value of Q; 
+  # (2) the objective function; 
+  # (3) the lower bound for Q, "x" (unnecessary with an interior solution). 
 ```
 
 ```{r profitmaxNumerical-check}
 grade_this(
-  if(round(.result$pars) != 10) {
-    fail("The solution should be negligibly close to 10.")} 
-  pass()
+  if(round(.result$pars, 1) != 3227.5) {
+    fail("The solution should be about 3227.5.")} 
+  pass("Same as we got from the analytical approach")
 )
 ```
-

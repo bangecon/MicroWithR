@@ -71,11 +71,7 @@ library(Rsolnp)
 loss <- function(x) {
   - 20*x + (x^3 - 8*x^2 +30*x + 5) # Express as a loss function to match min
 }
-solution <- rsolnp(
-  par = c(1,1),
-  fun = profit, 
-  LB = 0
-)
+solution <- rsolnp(par = c(1,1), fun = loss, LB = 0)
 ```
 
 ```{r firm-check}
@@ -94,32 +90,13 @@ grade_this({if (!inherits(.result, c("list"))) {
 ```
 
 ```{r graph-solution}
-mc <- function(x) {
-  3 * x ^ 2 - 16 * x + 30
-}
-atc <- function(x) {
-  x ^ 2 - 8 * x + 30 + 5 / x
-}
-avc <- function(x) {
-  x ^ 2 - 8 * x + 30
-}
-curve(
-  mc,
-  from = 0,
-  to = 8,
-  ylim = c(0, 40),
-  col = 'red'
-)
-curve(atc, 
-      add = TRUE, 
-      col = 'brown')
-curve(avc,
-      add = TRUE,
-      col = 'brown',
-      lty = 'dashed')
-lines(x = c(0, 8),
-      y = c(20, 20),
-      col = 'blue')
+mc <- function(x) 3 * x ^ 2 - 16 * x + 30
+atc <- function(x) x ^ 2 - 8 * x + 30 + 5 / x 
+avc <- function(x) x ^ 2 - 8 * x + 30
+curve(mc, from = 0, to = 8, ylim = c(0, 40), col = 'red' )
+curve(atc, add = TRUE, col = 'brown')
+curve(avc, add = TRUE, col = 'brown', lty = 'dashed')
+lines(x = c(0, 8), y = c(20, 20), col = 'blue')
 ```
 
 ```{r graph-check}
@@ -130,3 +107,13 @@ grade_this({if (!inherits(.result, c("list"))) {
   pass()
 })
 ```
+
+### Extra Practice
+
+Try solving the problem with the following supply, demand, and cost functions: 
+
+$$Q_d = 1,200 - 20P$$
+
+$$Q_s = 100P$$
+
+$$C(Q) = \frac{Q^3}{20} - \frac{9Q^2}{10} + 10Q + 5$$

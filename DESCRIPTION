@@ -1,6 +1,6 @@
 Package: MicroWithR
 Title: [learnr] Tutorials for Using R for Intermediate Microeconomics
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
     person(given = "James",
            family = "Bang",

@@ -1,5 +1,5 @@
 ---
-title: "2.4 Competitive Firms' Output Choices in the Short Run"
+title: "2.5 Competitive Firm/Industry Long-Run Readjustment"
 output: 
   learnr::tutorial: 
     progressive: true
@@ -26,19 +26,17 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
-library(Ryacas)
-library(Deriv)
 gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
-knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+knitr::opts_chunk$set(echo = FALSE, fig.align = 'center', fig.height = 6, fig.width = 6)
 ```
 
-## The Firm's Three Problems
+## Review: The Firm's Three Problems:
 
-1. Input cost minimization
-2. Output profit maximization
-3. Input profit maximization
+1. ~~Input cost minimization~~
+2. ~~Output profit maximization~~
+3. <span style="color: red;">Long-Run Readjustment</span>
 
-### Competitive Input Markets
+### Perfectly Competitive Input Markets
 
 $$\matrix{ \matrix{\text{1. Many, many buyers} \\ \text{2. Homogeneous inputs} \\ \text{3. Perfect information}} \Biggr\} \\ \text{4. Free entry/exit} \\ \text{  }} \matrix{\text{ } \\ \implies \\ \text{ } \\ \implies \\ \text{ } }  \matrix{\Biggl\{ \matrix{\text{Firms are} \\ \text{price} \\ \text{takers}} \\ \text{Profits/losses} \\ \text{are temporary}}$$
 
@@ -48,81 +46,263 @@ $$\matrix{ \matrix{\text{1. Many, many buyers} \\ \text{2. Homogeneous inputs} \
 2. Endogenous (choice) variable(s): 
 3. Exogenous variable(s): 
 
-### Short Run
+### Initial Equilibrium (Short Run)
 
-For simplicity we will solve the model using a Cobb-Douglas production function with input shares 1/3 and 2/3, and TFP parameter 100: 
+Let's set up the initial equilibrium with the initial values of the market price (P) and quantity (Q_m); planned levels of  output (Q_0), labor (L_0), and capital (K_0); actual short-run labor (L), capital (K), and output (Q), and profit (Pi)
 
-$$f(L,K) = 100L^{1/3}K^{2/3}$$.
+```{r initialEqSetup, echo = TRUE}
+library(Rsolnp)                                 
+A = 100
+a = 1 / 3
+w = 10
+r = 20
+P = NULL
+Qm = NULL
+Q0 = NULL
+L0 = NULL
+K = NULL
+Q = NULL
+L = NULL
+Pi = NULL
+control = list(trace = 0)
+```
 
-The firm's goal is to choose inputs optimally to maximize profits. 
+When we last left our representative competitive firm, they operated in a market where $P = 0.5$ and  maximized profit at $Q_i^* = \sqrt{\frac{31,250,000}{3}} \approx 3,227.5$ earning a total profit of $\$575.8$ (whew, whoever wrote this example could have come up with friendlier numbers!). Let's remind ourselves of how to solve the market equilibrium and set the first element of each market variable (`X[1]`) to the initial equilibrium. 
 
-$$\max_{L,K} \{ \pi(L,K) = P \cdot f(L,K) - (wL + rK) \} $$
+```{r initialEqMarket, echo = TRUE}
+supply <- function(x)
+  10000000 * x[1] - x[2]
+demand <- function(x)
+  6000000 - 2000000 * x[1] - x[2]
+marketEq <- nleqslv(c(2, 2), function(x)
+  c(supply(x), demand(x)))
+P[1] = marketEq$x[1]
+Qm[1] = marketEq$x[2]
+Q0[1] = 2500
+cbind(P, Qm, Q0)
+```
 
-From the firm's perspective, markets determine input and output prices *exogenously*. Set $P = 10$, $w = 1$, $r = 2$
+The firm expected to produce 2,500 units and planned its capacity likewise. This meant building 25 units of capital and planning to hire 25 units of labor. 
 
-In the short run, firms' previous choice of capital firms constrain their choices. Set $K = \bar{K} = 25$
+```{r initialEqK}
+cost <- function(x)
+  w * x[1] + r * x[2]
+output <- function(x)
+  A * x[1] ^ a * x[2] ^ (1 - a)
+costMin <- solnp(
+  pars = c(1, 1),
+  fun = cost,
+  ineqfun = output,
+  ineqLB = Q0[1],
+  ineqUB = Inf,
+  LB = c(0, 0),
+  control = control
+)
+L0[1] = costMin$pars[1]
+K[1] = costMin$pars[2]
+cbind(L0, K)
+```
 
-Inserting all of these substitutions and simplifying, we have:
+Based on this short run guess and the market price of $\$0.50$, the firm chose its output (and, hence its short run variable input) to maximize profits. 
 
-$$\max_{L} \{ 5000 \cdot (5L)^{1/3} - (L + 100) \}$$.
+```{r initialEqQ}
+labor <- function(x)
+  x ^ 3 / (K[1] ^ 2 * A ^ 3)
+loss <- function(x)
+  - (P[1] * x - (w * labor(x) + r * K[1]))
+piMax <- solnp(pars = 1, fun = loss, LB = 0)
+Q[1] = piMax$pars
+L[1] = labor(piMax$pars)
+Pi[1] = -tail(piMax$values, 1)
+cbind(Q, L, Pi)
+```
 
-## Analytical Approach
+From this outcome, the firm could lower its costs (and slightly increase profits) in the long run by increasing its capacity (choosing a level of capital that optimizes for 3,227.5 instead of 2,500 as initially expected). 
+
+Maybe this happens because independent startups enter a profit-making industry (exit a loss-making industry) or maybe this happens as capital pours into existing firms from investors looking for above-market returns - who knows! 
+
+Either way, let's solve it!
 
 ```{r}
+knitr::include_graphics('images/woohoo.jpg')
+```
+
+## Long Run Convergence
+
+The firm(s) will iteratively readjust levels of capital, readjust quantities (which shifts market supply), and adjust to changes in the market (shift in supply changes price) until industry profits equal zero. 
+
+1. Input cost minimization
+2. Output profit maximization
+3. Long-Run Readjustment
+4. Repeat until Zero Profit ($P = ATC$)
+
+### Market Adjustment
+
+The problem with this inflow of capital, is that it happens industry-wide. The firm could sit by and not do this, but it would just mean other firms (new or existing) will do it instead, so failing to do so leaves \$\$ on the table. 
+
+```{r}
+supply <-
+  function(x)
+    (Q[1] / Q0[1]) * (10000000 * x[1]) - x[2]   # Scale up market supply
+demand <- function(x)
+  6000000 - 2000000 * x[1] - x[2]
+marketEq <- nleqslv(c(2, 2), function(x)
+  c(supply(x), demand(x)))
+P[2] = marketEq$x[1]
+Qm[2] = marketEq$x[2]
+cbind(P, Qm)
+```
+
+### Cost (Re-)Minimization
+
+Given this new market reality, firms will want to adjust their capital input to (conditionally) minimize costs. 
+
+Solve for the cost-minimizing level of capital for the previous short-run level of output. 
+
+```{r updateK, exercise = TRUE, exercise.setup = "initialEquilibrium"}
 
 ```
 
-```{r}
-w = 1
-r = 2
-pi  <- ysym('10*100*L^(1/3)*K^(2/3) - (w*L + r*K)')
-dpi <- deriv(pi, c('L', 'K')) 
-MPL <- solve(dpi[1], 'w') |>
-  y_rmvars()
-MPK <- solve(dpi[2], 'r') |>
-  y_rmvars()
-MRTS <- MPL/MPK 
-MRTS <- yac_str(MRTS) |>
-  Simplify() |> 
-  ysym()
-Kstar <- solve(MRTS, w/r, 'K') |>
-  y_rmvars()
-MPL <- with_value(MPL, 'K', Kstar) 
-solution <- solve(MPL, w, 'L')
+```{r updateK-solution}
+Q0[2] = Q[1]
+costMin <- solnp(
+  pars = c(1, 1),
+  fun = cost,
+  ineqfun = output,
+  ineqLB = Q0[2],
+  ineqUB = Inf,
+  LB = c(0, 0),
+  control = control
+)
+L0[2] = costMin$pars[1]
+K[2] = costMin$pars[2]
+cbind(Q0, L0, K)
 ```
 
-```{r}
-
+```{r updateK-check}
+grade_code()
 ```
 
-## Graphical Approach
+### Profit (Re-)Maximization
 
-
-
-```{r}
+```{r profitRemax, exercise = TRUE, exercise.setup = "updateK-solution"}
 
 ```
 
-```{r}
-
+```{r profitRemax-solution}
+labor <-
+  function(x)
+    x ^ 3 / (K[2] ^ 2 * A ^ 3)           # Note the change in index!
+loss <-
+  function(x)
+    - (P[2] * x - (w * labor(x) + r * K[2])) # New index here, too!
+piMax <- solnp(
+  pars = 1,
+  fun = loss,
+  LB = 0,
+  control = control
+)
+Q[2] = piMax$pars
+L[2] = labor(piMax$pars)
+Pi[2] = -tail(piMax$values, 1)
+cbind(Q, L, Pi)
 ```
 
-```{r}
-
+```{r profitRemax-hint}
+# Don't forget to load your libraries!
+# Define losses (minus-profits) as the function(x) because 'solnp()' finds a min 
+# Since there's no constraint, we only need three arguments: 
+  # (1) a starting value of Q; 
+  # (2) the objective function; 
+  # (3) the lower bound for Q, "x" (unnecessary with an interior solution). 
 ```
 
-## Numerical Approach
-
-
-
-```{r}
-
+```{r profitmaxNumerical-check}
+grade_this(
+  if(round(.result$pars, 1) != 3227.5) {
+    fail("The solution should be about 3227.5.")} 
+  pass("Same as we got from the analytical approach")
+)
 ```
 
+The representative firm in our market increased its output from 3227.5 to 4166.7, or about 29%
+
+### Iterating the solution
+
+Step 4 tells us makes this problem ideal for the computer to solve using a "for" or "while" loop! I've done this for you, but with come careful *thinking* (not coding) we can set it up to calculate the full convergence to the long run equilibrium!
+
 ```{r}
-
-```
-
-```{r}
-
+tol = 1e-5
+i = 2
+while (Pi[i - 1] > tol) {
+  supply <- function(x)
+    (Q[i - 1] / Q0[1]) * (10000000 * x[1]) - x[2]
+  demand <- function(x)
+    6000000 - 2000000 * x[1] - x[2]
+  marketEq <- nleqslv(c(2, 2), function(x)
+    c(supply(x), demand(x)))
+  P[i] = marketEq$x[1]
+  Qm[i] = marketEq$x[2]
+  Q0[i] = Q[i - 1]
+  costMin <-
+    solnp(
+      pars = c(1, 1),
+      fun = cost,
+      ineqfun = output,
+      ineqLB = Q0[i],
+      ineqUB = Inf,
+      LB = c(0, 0),
+      control = control
+    )
+  L0[i] = costMin$pars[1]
+  K[i] = costMin$pars[2]
+  labor <- function(x)
+    x ^ 3 / (K[i] ^ 2 * A ^ 3)
+  loss <- function(x)
+    - (P[i] * x - (w * labor(x) + r * K[i]))
+  piMax <- solnp(
+    pars = 1,
+    fun = loss,
+    LB = 0,
+    control = control
+  )
+  Q[i] = piMax$pars
+  L[i] = labor(piMax$pars)
+  Pi[i] = -tail(piMax$values, 1)
+  i = i + 1 # `while()` requires us to reset i each time if you want to store them.
+}
+result <-
+  data.frame(
+    Time = c(1:length(P)),
+    Price = P,
+    Q.Market = Qm,
+    Q.Planned = Q0,
+    L.Planned = L0,
+    K = K,
+    Q = Q,
+    L = L,
+    Profit = Pi
+  )
+attach(result)      # This attaches the "result" data frame to reference its names.
+plot(
+  Time,
+  rep(0.3, nrow(result)),
+  ylim = c(0, 1),
+  type = 'l',
+  ylab = 'Cost/Profit/Price/Ratio'
+)
+lines(Time, K / L, col = 'blue')
+lines(Time, Profit / Q, col = 'red')
+lines(Time, Price, col = 'green')
+legend(
+  'right',
+  legend = c(
+    'Long-Run Average Cost',
+    'Per-Unit Profit',
+    'Price',
+    'Capital-Labor Ratio'
+  ),
+  lty = 1,
+  col = c('black', 'red', 'green', 'blue')
+)
 ```

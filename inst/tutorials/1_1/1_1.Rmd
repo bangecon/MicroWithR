@@ -28,13 +28,9 @@ library(learnr)
 library(gradethis)
 gradethis_setup()
 tutorial_options(exercise.reveal_solution = TRUE, exercise.eval = FALSE, exercise.checker = gradethis_exercise_checker)
+options(tutorial.event_recorder = learnr:::debug_event_recorder)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6.5, fig.width = 8.5)
-m = 20
-p_d = 1
-p_b = 2
-par(mar = c(4, 4, 1, 1))
 ```
-
 
 ## The Budget Constraint
 
@@ -113,9 +109,9 @@ Price changes alter the budget line by making *one* good relatively more or less
 
 ```{r priceChange}
 question(
-  "For a budget line with donuts on the horizontal axis and beer on the vertical axis, an increase in the price of beer will:", 
-  answer("make the budget line steeper"),
-  answer("make the budget line flatter", correct = TRUE),
+  "For a budget line with beer on the horizontal axis and donuts on the vertical axis, an increase in the price of beer will:", 
+  answer("make the budget line steeper", correct = TRUE),
+  answer("make the budget line flatter"),
   answer("not affect the slope of the budget line")
 )
 ```

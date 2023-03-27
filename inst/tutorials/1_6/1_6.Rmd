@@ -277,7 +277,7 @@ $$\max_x \bigg\{ U(x_b,x_d) = x_b^{0.9}x_d^{0.9} \bigg\}$$
 $$\text{s.t. } 2x_b + x_d \le 20$$
 
 ```{r, out.width = '300px'}
-knitr::include_graphics("barney-beer.gif")
+knitr::include_graphics("images/barney-beer.gif")
 ```
 
 ### Initial Equilibrium Solution

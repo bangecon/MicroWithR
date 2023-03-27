@@ -26,9 +26,6 @@ body{font-size: 16pt}
 ```{r setup, include = FALSE}
 library(learnr)
 library(gradethis)
-library(Ryacas)
-library(Deriv)
-library(Rsolnp)
 gradethis_setup()
 tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
@@ -65,144 +62,56 @@ The graphical solution shows the intuition for the equilibrium, which is:
 $$\frac{MU_1}{MU_2}=\frac{p_1}{p_2}$$
 2. The consumer exactly spends their budgeted income. 
 $$p_1x_1 + p_2x_2 = m$$
+
 <details style="line-height:105%"><summary>Click here to view the code for the graph.</summary>
-`u <- function(x) { x[1] ^ (alpha) * x[2] ^ (1 - alpha)}`<br>
-`alpha = 0.25`<br>
-`p1 = 1.5`<br>
-`p2 = 1`<br>
-`m = 100`<br>
-`equilibrium <- constrOptim(`<br>
-&nbsp;&nbsp;`c(0.01, 0.01),`<br>
-&nbsp;&nbsp;`u,`<br>
-&nbsp;&nbsp;`NULL,`<br>
-&nbsp;&nbsp;`ui = c(-p1, -p2),`<br>
-&nbsp;&nbsp;`ci = c(-m),`<br>
-&nbsp;&nbsp;`control = list(fnscale = -1))`<br>
-`equilibrium$lambda <-`<br>
-&nbsp;&nbsp;`alpha * equilibrium$par[1] ^ (alpha - 1) * equilibrium$par[2] ^ (1 - alpha) / p1`<br>
-`curve(`<br>
-&nbsp;&nbsp;`equilibrium$value^(1 / (1 - alpha)) / (x^(alpha / (1 - alpha))),`<br>
-&nbsp;&nbsp;`0, m / p1,`<br>
-&nbsp;&nbsp;`xlab = expression(x[1]),`<br>
-&nbsp;&nbsp;`ylab = expression(x[2]),`<br>
-&nbsp;&nbsp;`xlim = c(0, m / p1),`<br>
-&nbsp;&nbsp;`ylim = c(0, m / p2),`<br>
-&nbsp;&nbsp;`col = 'dark green')`<br>
-`abline(m / p2,-p1 / p2, col = 'red')`<br>
-`points(equilibrium$par[1], equilibrium$par[2], col = 'blue', pch = 20)`<br>
-`curve(`<br>
-&nbsp;&nbsp;`(1.1*equilibrium$value)^(1 / (1 - alpha)) / (x^(alpha / (1 - alpha))),`<br>
-&nbsp;&nbsp;`0, m / p1,`<br>
-&nbsp;&nbsp;`xlab = expression(x[1]),`<br>
-&nbsp;&nbsp;`ylab = expression(x[2]),`<br>
-&nbsp;&nbsp;`xlim = c(0, m / p1),`<br>
-&nbsp;&nbsp;`ylim = c(0, m / p2),`<br>
-&nbsp;&nbsp;`col = 'dark green',`<br>
-&nbsp;&nbsp;`add = TRUE,`<br>
-&nbsp;&nbsp;`lty = 'dashed')`<br>
-`curve(`<br>
-&nbsp;&nbsp;`(0.9*equilibrium$value)^(1 / (1 - alpha)) / (x^(alpha / (1 - alpha))),`<br>
-&nbsp;&nbsp;`0, m / p1,`<br>
-&nbsp;&nbsp;`xlab = expression(x[1]),`<br>
-&nbsp;&nbsp;`ylab = expression(x[2]),`<br>
-&nbsp;&nbsp;`xlim = c(0, m / p1),`<br>
-&nbsp;&nbsp;`ylim = c(0, m / p2),`<br>
-&nbsp;&nbsp;`col = 'dark green',`<br>
-&nbsp;&nbsp;`add = TRUE,`<br>
-&nbsp;&nbsp;`lty = 'dashed')`<br>
-`text(equilibrium$par[1] + 4, equilibrium$par[2] + 4,`<br>
-&nbsp;&nbsp;`paste0('x = (', round(equilibrium$par[1], 2), ', ',`<br>
-&nbsp;&nbsp;&nbsp;&nbsp;`round(equilibrium$par[2], 2), ')\nu(x) = ', round(equilibrium$value, 2)))`<br>
-`text(50, (1.1*equilibrium$value)^(1 / (1 - alpha)) / (50^(alpha / (1 - alpha))) + 3,`
-&nbsp;&nbsp;`paste0('u(x) = ', round(1.1*equilibrium$value, 2))) `
-`text(50, (0.9*equilibrium$value)^(1 / (1 - alpha)) / (50^(alpha / (1 - alpha))) + 3,`
-&nbsp;&nbsp;`paste0('u(x) = ', round(0.9*equilibrium$value, 2))) `
+`a = 0.25; p1 = 1.5; p2 = 1; m = 100`<br>
+`ux <- function(x) -x[1] ^ (a) * x[2] ^ (1 - a)`<br>
+`bc <- function(x) p1 * x[1] + p2 * x[2]`<br>
+`eq <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m,`<br>
+&nbsp;&nbsp;`LB = c(0, 0), UB = c(Inf, Inf), control = list(trace = 0))`<br>
+`curve((-ux(eq$pars))^(1/(1-a)) / (x^(a/(1-a))),`<br>
+&nbsp;&nbsp;`from = 0, to = m / p1, ylim = c(0, m / p2),`<br>
+&nbsp;&nbsp;`xlab = expression(x[1]), ylab = expression(x[2]), col = 'darkgreen')`<br>
+`abline(m / p2, -p1 / p2, col = 'red')`<br>
+`points(eq$pars[1], eq$pars[2], col = 'blue', pch = 20)`<br>
+`curve((1.1 * -ux(eq$pars))^(1/(1-a)) / (x^(a/(1-a))),`<br>
+&nbsp;&nbsp;`add = TRUE, col = 'darkgreen', lty = 'dashed')`<br>
+`curve((0.9 * -ux(eq$pars))^(1/(1-a)) / (x^(a/(1-a))),`<br>
+&nbsp;&nbsp;`add = TRUE, col = 'darkgreen', lty = 'dashed')`<br>
+`text(eq$pars[1] + 4, eq$pars[2] + 4,`<br>
+&nbsp;&nbsp;`paste0('x = (', round(eq$pars[1], 2), ', ',` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;`round(eq$pars[2], 2), ')\nu(x) = ', round(-ux(eq$pars), 2)))`<br>
+`text(50, (1.1 * -ux(eq$pars))^(1/(1-a)) / (50^(a/(1-a))) + 3,`<br>
+&nbsp;&nbsp;`paste0('u(x) = ', round(1.1 * -ux(eq$pars), 2)))`<br>
+`text(50, (0.9 * -ux(eq$pars))^(1/(1-a)) / (50^(a/(1-a))) + 3,`<br>
+&nbsp;&nbsp;`paste0('u(x) = ', round(0.9 * -ux(eq$pars), 2)))` <br>
 </details>
 
 ```{r, fig.width=6, fig.height=8, fig.align='center', out.width = '75%'}
-ux <- function(x) {
-  -x[1] ^ (alpha) * x[2] ^ (1 - alpha)
-}
-bc <- function(x) {
-  p1 * x[1] + p2 * x[2]
-}
-alpha = 0.25
-p1 = 1.5
-p2 = 1
-m = 100
-equilibrium <- solnp(
-  c(0.01, 0.01),
-  ux,
-  ineqfun = bc,
-  ineqLB = 0,
-  ineqUB = m,
-  LB = c(0, 0),
-  UB = c(Inf, Inf), 
-  control = list(trace = 0)
-)
-curve(
-  (-tail(equilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  0,
-  m / p1,
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  xlim = c(0, m / p1),
-  ylim = c(0, m / p2),
-  col = 'darkgreen'
-)
-abline(m / p2, -p1 / p2,
-       col = 'red')
-points(equilibrium$pars[1],
-       equilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-curve(
-  (1.1 * -tail(equilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  0,
-  m / p1,
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  xlim = c(0, m / p1),
-  ylim = c(0, m / p2),
-  col = 'darkgreen',
-  add = TRUE,
-  lty = 'dashed'
-)
-curve(
-  (0.9 * -tail(equilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  0,
-  m / p1,
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  xlim = c(0, m / p1),
-  ylim = c(0, m / p2),
-  col = 'darkgreen',
-  add = TRUE,
-  lty = 'dashed'
-)
-text(
-  equilibrium$pars[1] + 4,
-  equilibrium$pars[2] + 4,
-  paste0(
-    'x = (',
-    round(equilibrium$pars[1], 2),
-    ', ',
-    round(equilibrium$pars[2], 2),
-    ')\nu(x) = ',
-    round(-tail(equilibrium$values, 1), 2)
-  )
-)
-text(50,
-     (1.1 * -tail(equilibrium$values, 1)) ^ (1 / (1 - alpha)) / (50 ^ (alpha / (1 - alpha))) + 3,
-     paste0('u(x) = ',
-            round(1.1 * -tail(equilibrium$values, 1), 2)))
-text(50,
-     (0.9 * -tail(equilibrium$values, 1)) ^ (1 / (1 - alpha)) / (50 ^ (alpha / (1 - alpha))) + 3,
-     paste0('u(x) = ',
-            round(0.9 * -tail(equilibrium$values, 1), 2))) 
+a = 0.25; p1 = 1.5; p2 = 1; m = 100
+ux <- function(x) -x[1] ^ (a) * x[2] ^ (1 - a)
+bc <- function(x) p1 * x[1] + p2 * x[2]
+eq <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m,
+  LB = c(0, 0), UB = c(Inf, Inf), control = list(trace = 0))
+curve((-ux(eq$pars))^(1/(1-a)) / (x^(a/(1-a))),
+  from = 0, to = m / p1, ylim = c(0, m / p2),
+  xlab = expression(x[1]), ylab = expression(x[2]), col = 'darkgreen')
+abline(m / p2, -p1 / p2, col = 'red')
+points(eq$pars[1], eq$pars[2], col = 'blue', pch = 20)
+curve((1.1 * -ux(eq$pars))^(1/(1-a)) / (x^(a/(1-a))),
+  add = TRUE, col = 'darkgreen', lty = 'dashed')
+curve((0.9 * -ux(eq$pars))^(1/(1-a)) / (x^(a/(1-a))),
+  add = TRUE, col = 'darkgreen', lty = 'dashed')
+text(eq$pars[1] + 4, eq$pars[2] + 4,
+  paste0('x = (', round(eq$pars[1], 2), ', ', 
+    round(eq$pars[2], 2), ')\nu(x) = ', round(-ux(eq$pars), 2)))
+text(50, (1.1 * -ux(eq$pars))^(1/(1-a)) / (50^(a/(1-a))) + 3,
+  paste0('u(x) = ', round(1.1 * -ux(eq$pars), 2)))
+text(50, (0.9 * -ux(eq$pars))^(1/(1-a)) / (50^(a/(1-a))) + 3,
+  paste0('u(x) = ', round(0.9 * -ux(eq$pars), 2))) 
 ```
 
-## Analytical Solution - Setup
+## Analytical Approach
 
 ### Five Key Steps
 
@@ -216,35 +125,40 @@ The "Lagrangian" function for our example is:
 
 $$\mathcal{L} = x_1^{0.25}x_2^{0.75} + \lambda (100 - 1.5x_1 - x_2)$$
 
+<details style="line-height:105%"><summary>Click here to view the steps for solving the problem analytically.</summary>
 For the constrained optimization problem given above, use the `deriv` function to:
 
 1. Define a yac_symbol object for the utility function and the Lagrangian;
 2. Find the gradient with respect to $x_1$, $x_2$, *and* $\lambda$;
 
 Wrap the function obtaining the derivatives in "()" so that it displays in the output. 
-
-```{r foc, exercise = TRUE, exercise.reveal_solution = TRUE}
-
-```
-
-```{r foc-solution}
-u <- ysym('x1^(0.25) * x2^(0.75)')
-L <- u + ysym('lambda*(100 - 1.5*x1 - x2)')
-dL <- deriv(L, c('x1', 'x2', 'lambda'))
-```
-
-```{r foc-check}
-grade_this({if (!inherits(.result, c("yac_symbol"))) {
-    fail("Your class of your answer should be a yac_symbol")}
-  if (.result[1] != "0.25*x1^(-0.75)*x2^0.75-1.5*lambda") { 
-    fail("The first FOC should be 0.25*(x2/x1)^0.75-1.5*lambda") }
-  pass()
-})
-```
+</details>
 
 ### First-Order Conditions
 
 Setting the derivatives of the Lagrangean equal to zero finds the "first-order conditions." These conditions find the "critical values" where the Lagrangean switches from increasing to decreasing (or vice-versa) corresponding to maximum (minimum) values. 
+
+Run the following code to derive the first order conditions (first derivative - changes with respect to each variable - equal to zero) for the Lagrangean function. 
+
+```{r foc, exercise = TRUE, exercise.reveal_solution = TRUE}
+library(Ryacas)
+u <- ysym('x1^(0.25) * x2^(0.75)')          # Define u(x) as a yac_symbol
+L <- u + ysym('lambda*(100 - 1.5*x1 - x2)') # Define L(x) as a yac_symbol
+dL <- deriv(L, c('x1', 'x2', 'lambda'))     # Take the derivatives - "gradient"
+dL
+```
+
+```{r foc-solution}
+library(Ryacas)
+u <- ysym('x1^(0.25) * x2^(0.75)')
+L <- u + ysym('lambda*(100 - 1.5*x1 - x2)')
+dL <- deriv(L, c('x1', 'x2', 'lambda'))
+dL
+```
+
+```{r foc-check}
+grade_code()
+```
 
 ```{r, eval=TRUE}
 u <- ysym('x1^(0.25) * x2^(0.75)')
@@ -255,6 +169,8 @@ dL <- c(deriv(L, 'x1'), deriv(L, 'x2'), deriv(L, 'lambda'))
 $$`r tex(dL[[1]])` = 0 \text{ (w.r.t. good 1)}$$
 $$`r tex(dL[[2]])` = 0 \text{ (w.r.t. good 2)}$$
 $$`r tex(dL[[3]])` = 0 \text{ (w.r.t. }\lambda)$$
+
+### Solving for the Equilibrium
 
 The basic recipe: 
 
@@ -268,19 +184,22 @@ $$\frac{MU_1}{MU_2} = \frac{p_1}{p_2}.$$
 5. Repeat 3 and 4 **or** substitute $x_1^*$ to solve for $x_2^*$
 6. Substitute $x_1^*$ and $x_2^*$ in the first-order conditions to find $\lambda$.
 
-## Analytical Approach - Equilibrium
-
 ### The MRS Condition
 
+<details style="line-height:105%"><summary>Click here to view the steps for solving the problem analytically.</summary>
 Derive the $MRS$ of the example with the following steps: 
 
 1. Solve the first-order conditions with respect the $x_1$ for $\lambda$ using `solve` from `Ryacas`. Pipe this forward to `y_rmvars()` to remove the `lambda ==` and multiply the result by `p1`. Name this object `MU1`. <br>
 2. Convert the result to a string with `yac_str` and cancel terms with `Simplify()`. Convert the result back to a `yac_symbol` with `ysym`. 
 3. Repeat 1 and 2 for the first-order condition with respect to $x_2$ and name it `MU2`. 
 4. Divide `MU1/MU2` to get the MRS. 
+</details>
 
 ```{r MRS, exercise = TRUE, exercise.reveal_solution = TRUE, exercise.lines = 12}
-
+MU <- deriv(u, c('x1', 'x2'))  # Derive the marginal utilities (could get from L)
+MRS <- yac_str(MU[1]/MU[2]) |> # Calculate, simplify, and format the MRS = MU1/MU2 
+  Simplify() |> 
+  ysym()
 ```
 
 ```{r MRS-solution}
@@ -309,7 +228,8 @@ MRS <- yac_str(MU[1]/MU[2]) |>
 $$MRS = `r tex(MRS)` = \frac{p_1}{p_2}$$
 ### Solving for Consumption
 
-Solve for the optimal $x_1^*$ and $x_2^*$. `Solve()` can take up to three arguments: 
+<details style="line-height:105%"><summary>Click here to view the steps for solving the problem analytically.</summary>
+`Solve()` can take up to three arguments:
 
 1. The right-hand side expression, formatted as a `yac_symbol` (required). 
 2. The left-hand side expression, which may be either an equation or numerical value (default is zero). 
@@ -318,15 +238,31 @@ Solve for the optimal $x_1^*$ and $x_2^*$. `Solve()` can take up to three argume
 In addition, each of these arguments may be vectors, so you may solve multiple equations for multiple variables. 
 
 The solution for $x_1$ will still contain the variable $x_2$ even though we have found the numerical solution for $x_2$. We can clean this up using `with_value()`. 
+</details>
+
+Solve for the optimal $x_1^*$ and $x_2^*$. 
 
 ```{r solution, exercise = TRUE, exercise.reveal_solution = TRUE}
-
+xStar <- 
+  solve(c(MRS, dL[[3]]), # Simultaneously solve the MRS condition and Budget
+    c(p1 / p2, 0),       # Set the MRS equal to p1/p2 and Budget to zero
+    c('x1', 'x2')) |>    # Solve for x1 and x2
+  y_rmvars()             # Remove the variables (x1 = ...) from the expression
+xStar <- 
+  with_value(xStar,      # Make a value replacement in the solution
+    'x2', xStar[2]) |>   # Replace 'x2' with its solution (element 2 of xStar)
+  as_r()                 # Reformat as a numerical R object
 ```
 
 ```{r solution-solution}
-xStar <- solve(c(MRS, dL[[3]]), c(p1/p2, 0), c('x1', 'x2')) |> 
-  y_rmvars()
-xStar <- with_value(xStar, 'x2', xStar[2]) |>
+xStar <- 
+  solve(c(MRS, dL[[3]]), 
+    c(p1/p2, 0), c('x1', 'x2')) |> 
+    y_rmvars()
+xStar <- 
+  with_value(xStar, 
+    'x2', 
+    xStar[2]) |>
   as_r()
 ```
 
@@ -348,10 +284,14 @@ xStar <- with_value(xStar, 'x2', xStar[2]) |>
 
 ### Solving for $\lambda$ 
 
-1. Substitute the value in the first po
+1. Substitute the value in the first position
 
 ```{r lambda, exercise = TRUE}
-
+lambda <- solve(dL[1], 'lambda') |> # Solve the FOC with respect to x1 for lambda
+    y_rmvars() |>                   # Remove the left-hand side (lambda = ...)
+    with_value('x1', xStar[1]) |>   # Substitute the solution for x1 for x1
+    with_value('x2', xStar[2]) |>   # Substitute the solution for x2 for x2
+    as_r()                          # Reformat as a numerical R object
 ```
 
 ```{r lambda-solution}
@@ -363,12 +303,7 @@ lambda <- solve(dL[1], 'lambda') |>
 ```
 
 ```{r lambda-check}
-grade_this({if (!inherits(.result, c("numeric"))) {
-    fail("Your class of your answer should be a numeric scalar")}
-  if (round(.result, 3) != 0.515) { 
-    fail("The value of lambda should be about 0.515") }
-  pass()
-})
+grade_code()
 ```
 
 ```{r}
@@ -396,55 +331,64 @@ Set up the solution by defining the following
 1. A utility function, `ux` defined as a `function(x)` object where `x = c(x[1], x[2])`. <br>
 Note: most optimization functions find the function minimum by default. Some have an option that switches from minimization to maximization; `solnp` does *not*, so we will minimize the *negation* of the utility function (i.e. put a "-" sign in front).
 2. The budget constraint, `bc` defined similarly to `ux`. 
-3. The parameters `alpha`, `p1`, `p2`, and `m` using the numerical values from the example.
+3. The parameters `a`, `p1`, `p2`, and `m` using the numerical values from the example.
 
 ```{r computeSetup, exercise = TRUE, exercise.reveal_solution = TRUE}
 
 ```
 
 ```{r computeSetup-solution}
-ux <- function(x) {
-  - x[1] ^ (alpha) * x[2] ^ (1 - alpha)
-}
-bc <- function(x) {
-  p1 * x[1] + p2 * x[2]
-}
-alpha = 0.25
-p1 = 1.5
-p2 = 1
-m = 100
+library(Rsolnp)
+a = 0.25; p1 = 1.5; p2 = 1; m = 100    # Set exogenous parameter values
+ux <- function(x) -x[1]^a * x[2]^(1-a) # Define the objective to MINIMIZE (minus-u)
+bc <- function(x) p1*x[1] + p2*x[2]    # Define the budget constraint
 ```
 
 ```{r computeSetup-check}
 grade_code() 
 ```
 
-### Solution
+### Solving Constrained Optimization in R: `Rsolnp::solnp()`
 
-Once we've defined these values, the solution for the optimal consumption bundle involves a single function, `constrOptim`, that doesn't even require installing a separate package! The arguments for this function are (in order): 
+Once we've defined these values, the solution for the optimal consumption bundle involves a single function, `solnp()`, from the `Rsolnp` package (which imports automatically with our `MicroWithR`, but still needs to be loaded using `library()`)
+
+The required arguments for this function are (in order): 
 
 1. `pars`: the starting values (an initial "guess") for $x$ (which must be positive - and usually small - for economically-sensible answers);
-2. `fun`: the objective function (the utility function, `ux`); 
-3. `ineqfun`, `ineqLB`, and `ineqUB`: the constraint inequality function (linear expenditure function), lower bound (zero), and upper bound (income), respectively.
+2. `fun`: the function to be *minimized* (the *disutility* function, `ux`); 
 
-1. Solve our problem using the previous setup values using `solnp()` and name this object `equilibrium`.
-2. Print the values of consumption (`pars`), the Lagrange multiplier (`lagrange`), and the final value of utility at the equilibrium (the last element of (`values`).<br>
-Hint: you can extract the last element of a vector using the `tail(v, 1)` function. 
+For constrained optimization (as we currently face) we also need: 
 
-```{r computeSolve, exercise = TRUE, exercise.reveal_solution = TRUE}
+3. `ineqfun`: the inequality constraint function
+4. `ineqLB`: the lower bound of `ineqfun` (for the budget constraint, $-\infty$ coded as `-Inf`)
+5. `ineqUB`: the upper bound of `ineqfun` (for the budget constraint, income - `m`).
+
+Finally, we often forget to constrain the solution to positive quantities (effectively no short-selling of consumption!). 
+
+6. `LB`: the lower bound on the parameters (`x1` and `x2`), which in most economic problems we set as a vector of zeros - c(0, 0) for two-good consumer choice; c(0, 0, 0) for three goods, etc.
+7. `UB`: the upper bound on the parameters, which in most problems we leave unspecified and defaults to no upper bound or `UB = c(Inf, Inf)`.  
+8. `control`: a list of technical control parameters, as well as whether to show the "trace" output of objective function and parameter values at each iteration (`control = list(trace = 0)` to hide). 
+
+The output of the `solnp` function is a `list` object. You can view all of the components of a list by just typing the name of the object. You can view (or extract for other calculations) individual components of a list by specifying the list name and the name of the component within the list separated by `$`. For example, `eq$pars` gives you the solutions of the x values in a `solnp` solution named `eq`. 
+
+### Equilibrium Consumption
+
+Setting up the problem is the key: once you do this (carefully!) there is only one line of code to get the solution. Do this, then print the elements of the solution corresponding to the `pars` (x values) `lagrange` (Lagrange multiplier), and the final value of the objective function. 
+
+Hint: you defined the utility function as `ux = function(x) {...}`. Evaluate `ux` at the solution `pars`. Recall that the true value of *utility* is the negative of the *disutility* function we used in the optimization. 
+
+Note: The true value of the Lagrange multiplier for the *utility-maximization* problem is also the negative of the Lagrange of the *disutility-minimization* problem. 
+
+```{r computeSolve, exercise = TRUE, exercise.setup = 'computeSetup-solution'}
 
 ```
 
 ```{r computeSolve-solution}
-equilibrium <- solnp(
-  c(1, 1),
-  ux,
-  ineqfun = bc,
-  ineqLB = 0,
-  ineqUB = m,
-  LB = c(0, 0),
-  UB = c(Inf, Inf)
-)
+eq <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m,
+  LB = c(0, 0), UB = c(Inf, Inf))
+eq$pars
+-eq$lagrange
+-ux(eq$pars)
 ```
 
 ```{r computeSolve-check}
@@ -457,10 +401,10 @@ grade_this({if (!inherits(.result, c("list"))) {
 ```
 
 ```{r}
-ux <- function(x) - x[1] ^ (alpha) * x[2] ^ (1 - alpha)
+a = 0.25; p1 = 1.5; p2 = 1; m = 100
+ux <- function(x) - x[1] ^ (a) * x[2] ^ (1 - a)
 bc <- function(x) p1 * x[1] + p2 * x[2]
-alpha = 0.25; p1 = 1.5; p2 = 1; m = 100
-equilibrium <- solnp(c(0.01, 0.01), ux, LB = c(0, 0), UB = c(Inf, Inf), 
+eq <- solnp(c(0.01, 0.01), ux, LB = c(0, 0), UB = c(Inf, Inf), 
                      ineqfun = bc, ineqLB = 0, ineqUB = m)
 ```
 
@@ -470,7 +414,11 @@ Note that the intuition from the analytical solution tells us that the "true" an
 
 We can also graph the equilibrium. 
 
-1. Graph the indifference curve ($x_2 = f(x_1^*;u^*)$, in `'dark green'`) using x-limits (`xlim`) equal to $(0, m/p_1)$ and y-limits (`ylim`) equal to $(0, m/p_2)$ and axis labels (`xlab` and `ylab`) of $x_1$ and $x_2$.<br>(Hint: solve $u(x)$ for $x_2$ as a function of $x_1$ and $u$, then plug in the maximizing value of utility from the solution.)
+The trick to graphing the equilibrium is graphing the right indifference curve. We want to make sure we graph the indifference curve where $u(x) = u^*$, where $u^*$ is the value of the utility at the optimal consumption bundle. 
+
+Since $u^*$ is just a number (once we solve for the optimal x), just rearrange $u(x_1, x_2) = u^*$ to get $x_2 = f(x_1; u^*)$. Doing this by hand is not too bad for most examples if you remember some algebra for exponents and other elementary functions, but you can also use `Ryacas`.
+
+1. Graph the indifference curve ($x_2 = f(x_1^*; u^*)$, in `'dark green'`) using x-limits (`xlim`) equal to $(0, m/p_1)$ and y-limits (`ylim`) equal to $(0, m/p_2)$ and axis labels (`xlab` and `ylab`) of $x_1$ and $x_2$.
 2. Add the budget constraint using `abline` in `'red'`. 
 3. Add a point for equilibrium using `points` in `'blue'`.
 
@@ -479,24 +427,20 @@ We can also graph the equilibrium.
 ```
 
 ```{r graph-solution}
-curve(
-  (-tail(equilibrium$values, 1)) ^ (1 / (1 - alpha)) / (x ^ (alpha / (1 - alpha))),
-  0,
-  m / p1,
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  xlim = c(0, m / p1),
-  ylim = c(0, m / p2),
-  col = 'darkgreen'
-)
-abline(m / p2, -p1 / p2,
-       col = 'red')
-points(equilibrium$pars[1],
-       equilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
+curve((-ux(eq$pars))^(1/(1-a))/(x^(a/(1-a))), # x2 = f(x1, u)
+  from = 0, to = m/p1, ylim = c(0, m/p2),              # x domain; y-axis limits
+  xlab = expression(x[1]), ylab = expression(x[2]),    # Fancy axis labels
+  col = 'darkgreen')
+curve(m/p2 - x*(p1/p2), add = TRUE, col = 'red')       # Add a red budget line 
+points(eq$pars[1], eq$pars[2],       # Add a point at x*
+       col = 'blue', pch = 20)
 ```
 
 ```{r graph-check}
-
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(-tail(.result$values, 1), 1) != 51.5) { 
+    fail("The maximum of the utility function should be about 51.5") }
+  pass()
+})
 ```

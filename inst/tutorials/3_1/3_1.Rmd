@@ -1,5 +1,5 @@
 ---
-title: "2.4 Competitive Firms' Output Choices in the Short Run"
+title: "3.1 Supply and Demand in Competitive Markets"
 output: 
   learnr::tutorial: 
     progressive: true
@@ -26,111 +26,515 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
-library(Ryacas)
-library(Deriv)
 gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
 
-<style type="text/css">
-h1{font-size: 24pt}
-h2{font-size: 20pt}
-h3{font-size: 18pt}
-h4,h5,h6{font-size: 16pt}
-body{font-size: 16pt}
-</style>
+## Deriving Market Supply
 
-## The Firm's Three Problems
+Market supply is the "horizontal sum" (adding up the quantities along the x-axis) of the individual supply curves. 
 
-1. Input cost minimization
-2. Output profit maximization
-3. Input profit maximization
+In perfectly competitive markets we implicitly assume identical technologies (same production function and same parameters).
 
-### Competitive Input Markets
+### Review: Cost Minimization and Short-Run Marginal Cost
 
-$$\matrix{ \matrix{\text{1. Many, many buyers} \\ \text{2. Homogeneous inputs} \\ \text{3. Perfect information}} \Biggr\} \\ \text{4. Free entry/exit} \\ \text{  }} \matrix{\text{ } \\ \implies \\ \text{ } \\ \implies \\ \text{ } }  \matrix{\Biggl\{ \matrix{\text{Firms are} \\ \text{price} \\ \text{takers}} \\ \text{Profits/losses} \\ \text{are temporary}}$$
+Let's start with our firm's marginal cost schedule from section 2.3. The production function for that firm took a Cobb-Douglas form with labor share equal to $1/3$ and total factor productivity parameter $100$. It also faced input prices of $w = 10$ and $r = 20$. The firm planned its initial capital input (and planned labor input) based on an expected quantity of $2500$. 
 
-### The Producer's Input-Hiring Problem
+$$\min_{L,K} \bigg\{C(L, K) = 10L + 20K \bigg\}$$
 
-1. Objective: 
-2. Endogenous (choice) variable(s): 
-3. Exogenous variable(s): 
+$$\text{s.t.: } f(L,K) = 100L^{1/3}K^{2/3} \ge 2500$$
 
-### Short Run
+The "Lagrangian" function for our example is: 
 
-For simplicity we will solve the model using a Cobb-Douglas production function with input shares 1/3 and 2/3, and TFP parameter 100: 
+$$\mathcal{L} = wL + rK + \lambda (2500 - 100L^{1/3}K^{2/3})$$
 
-$$f(L,K) = 100L^{1/3}K^{2/3}$$.
+Solve for the cost-minimizing combination of labor and capital to produce 2500 units. 
 
-The firm's goal is to choose inputs optimally to maximize profits. 
-
-$$\max_{L,K} \{ \pi(L,K) = P \cdot f(L,K) - (wL + rK) \} $$
-
-From the firm's perspective, markets determine input and output prices *exogenously*. Set $P = 10$, $w = 1$, $r = 2$
-
-In the short run, firms' previous choice of capital firms constrain their choices. Set $K = \bar{K} = 25$
-
-Inserting all of these substitutions and simplifying, we have:
-
-$$\max_{L} \{ 5000 \cdot (5L)^{1/3} - (L + 100) \}$$.
-
-## Analytical Approach
-
-```{r}
+```{r costMin, exercise = TRUE}
 
 ```
 
-```{r}
-w = 1
-r = 2
-pi  <- ysym('10*100*L^(1/3)*K^(2/3) - (w*L + r*K)')
-dpi <- deriv(pi, c('L', 'K')) 
-MPL <- solve(dpi[1], 'w') |>
-  y_rmvars()
-MPK <- solve(dpi[2], 'r') |>
-  y_rmvars()
-MRTS <- MPL/MPK 
-MRTS <- yac_str(MRTS) |>
+```{r costMin-solution}
+library(Rsolnp)
+A = 100
+a = 1/3
+Q0 = 2500
+w = 10
+r = 20
+control = list(trace = 0)
+cost <- function(x) w*x[1] + r*x[2]
+output <- function(x) A * x[1]^a * x[2]^(1-a)
+costMin <- solnp(
+  pars = c(1, 1),
+  fun = cost,
+  ineqfun = output,
+  ineqLB = Q0,
+  ineqUB = Inf,
+  LB = c(0, 0),
+  control = control
+)
+```
+
+```{r costMin-check}
+grade_code()
+```
+
+### Individual Firm Supply Curve (Marginal Cost Curve)
+
+The first step towards deriving the short-run supply curve is to derive the short-run total costs. We did this computationally in section 2.3. With only one variable input, doing this analytically is not so difficult: total fixed cost is the price of the fixed input times the planned level of the fixed input(s), or $rK = 20 \cdot 25$; total variable cost is $w \cdot L(Q)$, where $L(Q)$ is found by substituting $K=25$ into the production function and inverting it to solve for $L$ as a function of $Q$, or $L(Q) = ({Q}/{AK^{2/3}})^3 = Q^3/6,250,000$. Multiplying $L(Q)$ by $w=10$, we get:
+
+$$ TC = \frac{Q^3}{625,000} + 500$$
+
+Applying the power rule for derivatives, we get: 
+
+$$P(Q) = MC = \frac{dTC}{dQ} = \frac{3Q^2}{625,000}$$
+
+If you don't feel confident doing the derivation on your own, Ryacas can help as a tool:
+
+```{r mc, exercise = TRUE}
+
+```
+
+```{r mc-solution, message = FALSE}
+library(Ryacas)
+TC <- ysym('Q^3 / 625000 + 500')
+MC <- deriv(TC, 'Q') 
+```
+
+```{r mc-check}
+grade_code()
+```
+
+Since the production always entails diminishing returns, average variable cost reaches its minimum at $Q = 0$ so the firm's (inverse) supply curve is the entire marginal cost curve for $Q \ge 0$. 
+
+To get firm i's supply curve ($Q_s^i = f(P)$) all we need to do is invert the marginal cost function, which in our case yields: 
+
+$$Q = \Big(\frac{625,000P}{3}\Big)^{1/2} = 250\cdot\frac{\sqrt{30P}}{3}$$
+
+### Many Identical Firms
+
+If the market has 100 identical firms, then finding the market supply curve is pretty straightforward: multiply the individual firms' quantities supplied (at each given price) times 100. Hence, in our market, 
+
+$$Q_s = 25,000 \cdot \frac{\sqrt{30P}}{3}$$
+
+The inverse supply function (for plotting P on the y-axis) is: 
+
+$$P(Q_s) = \frac{3Q^2}{6,250,000,000}$$
+
+Plot the market supply in the usual (Marshallian) way, with price on the vertical axis and quantity on the horizontal axis. 
+
+```{r marketSupplyPlot, exercise = TRUE}
+
+```
+
+```{r marketSupplyPlot-solution}
+curve(
+  3 * x ^ 2 / 625000000,
+  from = 0,
+  to = 7000,
+  ylim = c(0, 2.5),
+  xlab = 'Quantity',
+  ylab = 'Price'
+)
+```
+
+```{r marketSupplyPlot-check}
+grade_code()
+```
+
+## Deriving Market Demand
+
+Market demand is the "horizontal sum" (adding up the quantities along the x-axis) of the individual demand curves. 
+
+### Review: The Consumer's Problem
+
+The consumer problem maximizes utility subject to the budget constraint. For example, we used a Cobb-Douglas utility function with budget shares 0.25 and 0.75 on goods 1 and 2, respectively; prices 1.5 and 1.0; and income equal to 100. 
+
+$$\max_x \bigg\{ U(x_1, x_2) = x_1^{0.25}x_2^{0.75} \bigg\}$$
+
+$$\text{s.t.: }1.5x_1+x_2 \le 100$$
+The "Lagrangian" function for our example is: 
+
+$$\mathcal{L} = x_1^{0.25}x_2^{0.75} + \lambda (100 - 1.5x_1 - x_2)$$
+
+Solve this problem for the given prices as a warm-up. Print the optimal consumption (`pars`), Lagrange multiplier (`lagrange`), and value of the utility function at the optimal consumption. 
+
+```{r singleConsumer, exercise = TRUE, exercise.reveal_solution = TRUE}
+
+```
+
+```{r singleConsumer-solution}
+library(Rsolnp)
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100    # Set exogenous parameter values
+ux <-
+  function(x)
+    - x[1] ^ a * x[2] ^ (1 - a) # Define the objective to MINIMIZE (minus-u)
+bc <-
+  function(x)
+    p1 * x[1] + p2 * x[2]    # Define the budget constraint
+eq <- solnp(
+  c(1, 1),
+  ux,
+  ineqfun = bc,
+  ineqLB = 0,
+  ineqUB = m,
+  LB = c(0, 0),
+  UB = c(Inf, Inf)
+)
+eq$pars
+- eq$lagrange
+- ux(eq$pars)
+```
+
+```{r singleConsumer-check}
+grade_code() 
+```
+
+### Individual Consumer Demand
+
+In section 1.5, we derived the individual consumer demand in two ways: (1) analytically, solving $x_1$ as a function of income, preferences, and prices using `Ryacas`; (2) computationally, solving for many numerical values of $x_1$ changing only $p_1$, while holding all other parameters constant. 
+
+Let's do the latter here: 
+
+```{r individualDemand, exercise = TRUE, exercise.setup = 'singleConsumer-solution'}
+
+
+```
+
+```{r individualDemand-solution}
+p1 <- seq(0.25, 2.5, 0.05)
+bc <- function(x) p1[i]*x[1] + p2*x[2] # p1 is now a vector
+c1 <- NULL
+for (i in 1:length(p1)) {
+  if(i == 1) {
+    pars <- c(1,1)
+  } else {
+    pars <- c
+  }
+  c <- solnp(
+    pars = pars,
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    control = list(trace = 0)
+  )$pars
+  c1[i] <- c[1]
+}
+plot(c1,
+     p1,
+     type = 'l',
+     xlim = c(0, 50),
+     ylim = c(0, 2.5),
+     xlab = 'Quantity of Good 1',
+     ylab = 'Price of Good 1')
+```
+
+```{r individualDemand-check}
+grade_this()
+```
+
+The analytical solution for the demand curve was:
+
+```{r demand}
+library(Ryacas)
+library(Deriv)
+u <- ysym('x1^(alpha) * x2^(1-alpha)')
+L <- u + ysym('lambda*(m - p1*x1 - p2*x2)')
+dL <- deriv(L, c('x1', 'x2', 'lambda'))
+MU <- deriv(u, c('x1', 'x2'))
+MRS <- yac_str(MU[1]/MU[2]) |> 
   Simplify() |> 
   ysym()
-Kstar <- solve(MRTS, w/r, 'K') |>
-  y_rmvars()
-MPL <- with_value(MPL, 'K', Kstar) 
-solution <- solve(MPL, w, 'L')
+D <- solve(c(MRS, dL[[3]]), c(ysym('p1/p2'), 0), c('x1', 'x2')) |> 
+  y_rmvars() |>
+  simplify()
+D[1] <- with_value(D[1], 'x2', D[2]) |> 
+  simplify()
 ```
 
-```{r}
+$$x_1(p_1, m) = `r tex(D[1])`$$
+
+### Identical Consumers
+
+A simple (and wrong) thing we could do is assume all consumers have identical incomes and preferences. If this is the case then demand for good on is simply 
+
+$$x_1(p_1, m) = N `r tex(D[1])`,$$
+
+where $N$ is the number of consumers that comprise the market. 
+
+Here is a simple code that would graph the market demand curve for 1, 2, and 3 consumers identical to the one in our example. Run it. 
+
+```{r identicalConsumers, exercise = TRUE, exercise.setup = 'individualDemand-solution'}
+p1 <- seq(0.25, 2.5, 0.05)
+bc <- function(x)
+  p1[i] * x[1] + p2 * x[2]
+c1.1 <- NULL
+c1.2 <- NULL
+c1.3 <- NULL
+for (i in 1:length(p1)) {
+  if (i == 1) {
+    pars <- c(1, 1)
+  } else {
+    pars <- c
+  }
+  c <- solnp(
+    pars = pars,
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf),
+    control = list(trace = 0)
+  )$pars
+  c1.1[i] <- c[1]
+  c1.2[i] <- 2 * c[1]
+  c1.3[i] <- 3 * c[1]
+}
+plot(
+  c1.3,
+  p1,
+  type = 'l',
+  xlim = c(0, 150),
+  ylim = c(0, 2.5),
+  xlab = 'Quantity of Good 1',
+  ylab = 'Price of Good 1'
+)
+lines(c1.2, p1, type = 'l', col = 'blue')
+lines(c1.1, p1, type = 'l', col = 'green')
+legend(
+  'topright',
+  legend = c('3 Consumers', '2 Consumers', '1 Consumer'),
+  lty = 1,
+  col = c('black', 'blue', 'green')
+)
+```
+
+```{r identicalConsumers-solution}
+p1 <- seq(0.25, 2.5, 0.05)
+bc <- function(x)
+  p1[i] * x[1] + p2 * x[2]
+c1.1 <- NULL
+c1.2 <- NULL
+c1.3 <- NULL
+for (i in 1:length(p1)) {
+  if (i == 1) {
+    pars <- c(1, 1)
+  } else {
+    pars <- c
+  }
+  c <- solnp(
+    pars = pars,
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf),
+    control = list(trace = 0)
+  )$pars
+  c1.1[i] <- c[1]
+  c1.2[i] <- 2 * c[1]
+  c1.3[i] <- 3 * c[1]
+}
+plot(
+  c1.3,
+  p1,
+  type = 'l',
+  xlim = c(0, 150),
+  ylim = c(0, 2.5),
+  xlab = 'Quantity of Good 1',
+  ylab = 'Price of Good 1'
+)
+lines(c1.2, p1, type = 'l', col = 'blue')
+lines(c1.1, p1, type = 'l', col = 'green')
+legend(
+  'topright',
+  legend = c('3 Consumers', '2 Consumers', '1 Consumer'),
+  lty = 1,
+  col = c('black', 'blue', 'green')
+)
+```
+
+```{r identicalConsumers-check}
+grade_code()
+```
+
+### Heterogeneous Consumers - Setup
+
+Heterogeneous consumers is trickier, because we must solve each consumer's choice problem separately. But, if we can at least assume consumers have at least the same *type* of preferences (e.g. Cobb-Douglas or constant elasticity of substitution), we can at least use a loop to solve the problem. What's more, we can assign the relevant household parameters (income, preferences) randomly. This isn't *too* hard in R since it just requires a second "for" loop (this time over consumers) within the for loop over different prices. 
+
+<details style="line-height:105%"><summary>Click here to view the code for the graph.</summary>
+1. `runif()` to randomly assign 200 different values of the good-1 budget share parameter, $\alpha$, according to a uniform continuous distribution between 0.1 and 0.9.
+2. `rlnorm()` to randomly assign 200 incomes, $m$, according to a lognormal distribution with a mean of about 100. 
+3. Initialize a matrix to hold the consumption values for each consumer and price with rows equal to the number of different values of price and columns equal to the number of consumers.
+</details>
+
+The code below sets up the parameters for a loop over prices between 0.25 and 2.5 for 200 consumers. Add a line of code to the setup below to print the basic summary statistics for the budget-share parameter ($\alpha$) and income ($m$). (Hint: use `cbind()` to bind the columns together and `summary()` to obtain the summary.)
+
+```{r differentConsumersSetup, exercise = TRUE, exercise.setup = 'identicalConsumers'}
+set.seed(8675309)     # Set the random "seed" so we all get the exact same results
+a <- runif(200, min = 0.1, max = 0.9)
+m <- rlnorm(200, meanlog = log(100), sdlog = 0.25)
+c1 <- matrix(nrow = length(p1), ncol = length(a))
+ux <-
+  function(x)
+    - x[1] ^ a[j] * x[2] ^ (1 - a[j]) # The budget-share parameter differs
+bc <- function(x)
+  p1[i] * x[1] + p2 * x[2]
+# Write a line of code to get basic summary statistics for the budget-share parameters and incomes of the consumers. 
 
 ```
 
-## Graphical Approach
+```{r differentConsumersSetup-solution}
+set.seed(8675309)     # Set the random "seed" so we all get the exact same results
+a <- runif(200, min = 0.1, max = 0.9)
+m <- rlnorm(200, meanlog = log(100), sdlog = 0.25)
+c1 <- matrix(nrow = length(p1), ncol = length(a))
+ux <-
+  function(x)
+    - x[1] ^ a[j] * x[2] ^ (1 - a[j]) # The budget-share parameter differs
+bc <- function(x)
+  p1[i] * x[1] + p2 * x[2]
+# Write a line of code to get basic summary statistics for the budget-share parameters and incomes of the consumers. 
+summary(cbind(a, m))
+```
 
+```{r differentConsumersSetup-check}
+grade_code()
+```
 
+### Heterogeneous Consumers - Individual Demand Schedules
 
-```{r}
+The following code to builds a matrix of individual demand schedules for good 1 (`c1`). Add lines of code after the loop that (1) calculate the sum of the consumers' individual quantities along the rows at each price; (2) print the summary statistics for the market demand variable defined in step (1). 
+
+```{r differentConsumersEquilibrium, exercise = TRUE, exercise.setup = 'differentConsumersSetup-solution'}
+for (i in 1:length(p1)) {
+  if (i == 1) {
+    pars <- c(1, 1)
+  } else {
+    pars <- c
+  }
+  for (j in 1:length(m)) {
+    c1[i, j] <-
+      solnp(
+        pars = pars,
+        ux,
+        ineqfun = bc,
+        ineqLB = 0,
+        ineqUB = m[j],
+        LB = c(0, 0),
+        UB = c(Inf, Inf),
+        control = list(trace = 0)
+      )$pars[1]
+  }
+}
+# Add your code here: 
+
 
 ```
 
-```{r}
+```{r differentConsumersEquilibrium-solution}
+for (i in 1:length(p1)) {
+  if (i == 1) {
+    pars <- c(1, 1)
+  } else {
+    pars <- c
+  }
+  for (j in 1:length(m)) {
+    c1[i, j] <-
+      solnp(
+        pars = pars,
+        ux,
+        ineqfun = bc,
+        ineqLB = 0,
+        ineqUB = m[j],
+        LB = c(0, 0),
+        UB = c(Inf, Inf),
+        control = list(trace = 0)
+      )$pars[1]
+  }
+}
+marketDemand <- rowSums(c1)
+summary(marketDemand)
+```
+
+### Heterogeneous Consumers - Individual Demand Curves
+
+Run the following code to plot the individual demand curves for the first 10 consumers (column) of the individuals' demand schedules. Rainbow the tastes!
+
+```{r differentConsumersPlots, excercise = TRUE, exercise.setup = 'differentConsumersEquilibrium-solution'}
+plot(
+  x = c1[, 1],
+  y = p1,
+  type = 'l',
+  xlim = c(0, max(c1[, 1:10])),
+  ylim = c(0, 2.5), 
+  xlab = expression(Quantity~of~x[1]), 
+  ylab = 'Price'
+)
+lines(c1[, 2],  p1, col = 'green3')
+lines(c1[, 3],  p1, col = 'darkblue')
+lines(c1[, 4],  p1, col = 'darkorange2')
+lines(c1[, 5],  p1, col = 'red3')
+lines(c1[, 6],  p1, col = 'blue')
+lines(c1[, 7],  p1, col = 'purple3')
+lines(c1[, 8],  p1, col = 'brown4')
+lines(c1[, 9],  p1, col = 'gray')
+lines(c1[, 10], p1, col = 'gold2')
+```
+
+```{r differentConsumersPlots-solution}
+plot(
+  x = c1[, 1],
+  y = p1,
+  type = 'l',
+  xlim = c(0, max(c1[, 1:10])),
+  ylim = c(0, 2.5), 
+  xlab = expression(Quantity~of~x[1]), 
+  ylab = 'Price'
+)
+lines(c1[, 2],  p1, col = 'green3')
+lines(c1[, 3],  p1, col = 'darkblue')
+lines(c1[, 4],  p1, col = 'darkorange2')
+lines(c1[, 5],  p1, col = 'red3')
+lines(c1[, 6],  p1, col = 'blue')
+lines(c1[, 7],  p1, col = 'purple3')
+lines(c1[, 8],  p1, col = 'brown4')
+lines(c1[, 9],  p1, col = 'gray')
+lines(c1[, 10], p1, col = 'gold2')
+```
+
+```{r differentConsumersPlots-check}
+grade_code()
+```
+
+### Heterogeneous Consumers - Market Demand Curve
+
+Plot the market demand with quantity on the horizontal axis and price on the vertical axis. 
+
+```{r marketEquilibrium, exercise = TRUE, exercise.setup = 'differentConsumersPlots-solution'}
 
 ```
 
-```{r}
-
+```{r marketEquilibrium-solution}
+plot(
+  x = marketDemand,
+  y = p1,
+  type = 'l',
+  xlim = c(0, max(marketDemand)),
+  ylim = c(0, 2.5), 
+  xlab = expression(Quantity~of~x[1]), 
+  ylab = 'Price'
+)
 ```
 
-## Numerical Approach
-
-
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
+```{r marketEquilibrium-check}
+grade_code()
 ```

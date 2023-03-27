@@ -863,7 +863,7 @@ c. Define the $i^th$ element of `c1` as the first element of the `pars` variable
 ```{r demandCurve, exercise = TRUE, exercise.setup = 'dpEquilibrium'}
 p1seq <- seq(0.5, 2.5, 0.1)
 c1 <- NULL
-for (i in 1:length(p1seq)) {
+for(i in 1:length(p1seq)) {
   if(i == 1) {
     pars <- c(1,1)
   } else {
@@ -876,7 +876,8 @@ for (i in 1:length(p1seq)) {
     ineqLB = 0,
     ineqUB = m,
     LB = c(0, 0),
-    UB = c(Inf, Inf)
+    UB = c(Inf, Inf), 
+    control = list(trace = 0)
   )$pars
   c1[i] <- c[1]
 }
@@ -905,7 +906,8 @@ for (i in 1:length(p1seq)) {
     ineqLB = 0,
     ineqUB = m,
     LB = c(0, 0),
-    UB = c(Inf, Inf)
+    UB = c(Inf, Inf), 
+    control = list(trace = 0)
   )$pars
   c1[i] <- c[1]
 }
