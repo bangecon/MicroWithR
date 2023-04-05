@@ -131,7 +131,7 @@ Plot the market supply in the usual (Marshallian) way, with price on the vertica
 curve(
   3 * x ^ 2 / 625000000,
   from = 0,
-  to = 7000,
+  to = 25000,
   ylim = c(0, 2.5),
   xlab = 'Quantity',
   ylab = 'Price'
@@ -197,16 +197,47 @@ grade_code()
 
 In section 1.5, we derived the individual consumer demand in two ways: (1) analytically, solving $x_1$ as a function of income, preferences, and prices using `Ryacas`; (2) computationally, solving for many numerical values of $x_1$ changing only $p_1$, while holding all other parameters constant. 
 
-Let's do the latter here: 
+Since this involves a `for()` loop, I've coded the computational method for you here: 
 
-```{r individualDemand, exercise = TRUE, exercise.setup = 'singleConsumer-solution'}
+```{r individualDemand, exercise = TRUE}
+p1 <- seq(0.25, 2.5, 0.05)
+bc <- function(x) p1[i]*x[1] + p2*x[2] # p1 is now a vector
+c1 <- NULL
+for (i in 1:length(p1)) {
+  if(i == 1) {
+    pars <- c(1,1)
+  } else {
+    pars <- c
+  }
+  c <- solnp(
+    pars = pars,
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    control = list(trace = 0)
+  )$pars
+  c1[i] <- c[1]
+}
+plot(c1,
+     p1,
+     type = 'l',
+     xlim = c(0, 50),
+     ylim = c(0, 2.5),
+     xlab = 'Quantity of Good 1',
+     ylab = 'Price of Good 1')
+```
 
-
+```{r individualDemand-setup}
+library(Rsolnp); a = 0.25; p2 = 1; m = 100
+ux <- function(x) - x[1] ^ a * x[2] ^ (1 - a) 
 ```
 
 ```{r individualDemand-solution}
 p1 <- seq(0.25, 2.5, 0.05)
-bc <- function(x) p1[i]*x[1] + p2*x[2] # p1 is now a vector
+bc <- function(x) p1[i]*x[1] + p2*x[2] # p1 is a vector to loop through the different prices.
 c1 <- NULL
 for (i in 1:length(p1)) {
   if(i == 1) {
@@ -270,10 +301,9 @@ where $N$ is the number of consumers that comprise the market.
 
 Here is a simple code that would graph the market demand curve for 1, 2, and 3 consumers identical to the one in our example. Run it. 
 
-```{r identicalConsumers, exercise = TRUE, exercise.setup = 'individualDemand-solution'}
+```{r identicalConsumers, exercise = TRUE}
 p1 <- seq(0.25, 2.5, 0.05)
-bc <- function(x)
-  p1[i] * x[1] + p2 * x[2]
+bc <- function(x) p1[i]*x[1] + p2*x[2] # p1 is a vector to loop through prices.
 c1.1 <- NULL
 c1.2 <- NULL
 c1.3 <- NULL
@@ -285,7 +315,7 @@ for (i in 1:length(p1)) {
   }
   c <- solnp(
     pars = pars,
-    ux,
+    fun = ux,
     ineqfun = bc,
     ineqLB = 0,
     ineqUB = m,
@@ -294,12 +324,12 @@ for (i in 1:length(p1)) {
     control = list(trace = 0)
   )$pars
   c1.1[i] <- c[1]
-  c1.2[i] <- 2 * c[1]
+  c1.2[i] <- 2 * c[1] # With 2 identical consumers, demand is just 2x that of 1.  
   c1.3[i] <- 3 * c[1]
 }
 plot(
-  c1.3,
-  p1,
+  x = c1.3,
+  y = p1,
   type = 'l',
   xlim = c(0, 150),
   ylim = c(0, 2.5),
@@ -314,6 +344,18 @@ legend(
   lty = 1,
   col = c('black', 'blue', 'green')
 )
+```
+
+```{r identicalConsumers-setup}
+library(Rsolnp); a = 0.25; p2 = 1; m = 100; p1 <- seq(0.25, 2.5, 0.05)
+ux <- function(x) - x[1] ^ a * x[2] ^ (1 - a) 
+bc <- function(x) p1[i]*x[1] + p2*x[2] 
+for (i in 1:length(p1)) {
+  if(i == 1) {pars <- c(1,1) } 
+  else {pars <- c1[i-1]}
+  c1[i] <- solnp(pars = pars, ux, ineqfun = bc, ineqLB = 0, ineqUB = m, LB = c(0, 0),
+    UB = c(Inf, Inf), control = list(trace = 0))$pars[1]
+}
 ```
 
 ```{r identicalConsumers-solution}
@@ -378,14 +420,15 @@ Heterogeneous consumers is trickier, because we must solve each consumer's choic
 
 The code below sets up the parameters for a loop over prices between 0.25 and 2.5 for 200 consumers. Add a line of code to the setup below to print the basic summary statistics for the budget-share parameter ($\alpha$) and income ($m$). (Hint: use `cbind()` to bind the columns together and `summary()` to obtain the summary.)
 
-```{r differentConsumersSetup, exercise = TRUE, exercise.setup = 'identicalConsumers'}
-set.seed(8675309)     # Set the random "seed" so we all get the exact same results
-a <- runif(200, min = 0.1, max = 0.9)
-m <- rlnorm(200, meanlog = log(100), sdlog = 0.25)
-c1 <- matrix(nrow = length(p1), ncol = length(a))
+```{r differentConsumersSetup, exercise = TRUE}
+set.seed(8675309) # Set the random "seed" so we all get the exact same results
+p1 <- seq(0.25, 2.5, 0.05)
+a <- runif(200, min = 0.1, max = 0.9) # Sequence of random budget shares
+m <- rlnorm(200, meanlog = log(100), sdlog = 0.25) # Sequence of random incomes
+c1 <- matrix(nrow = length(p1), ncol = length(a)) # Matrix to store quantitites
 ux <-
   function(x)
-    - x[1] ^ a[j] * x[2] ^ (1 - a[j]) # The budget-share parameter differs
+    - x[1] ^ a[j] * x[2] ^ (1 - a[j]) 
 bc <- function(x)
   p1[i] * x[1] + p2 * x[2]
 # Write a line of code to get basic summary statistics for the budget-share parameters and incomes of the consumers. 
@@ -393,16 +436,17 @@ bc <- function(x)
 ```
 
 ```{r differentConsumersSetup-solution}
-set.seed(8675309)     # Set the random "seed" so we all get the exact same results
-a <- runif(200, min = 0.1, max = 0.9)
-m <- rlnorm(200, meanlog = log(100), sdlog = 0.25)
-c1 <- matrix(nrow = length(p1), ncol = length(a))
-ux <-
-  function(x)
-    - x[1] ^ a[j] * x[2] ^ (1 - a[j]) # The budget-share parameter differs
+library(Rsolnp)
+set.seed(8675309) # Set the random "seed" so we all get the exact same results
+p1 <- seq(0.25, 2.5, 0.05)
+p2 <- 1
+a <- runif(200, min = 0.1, max = 0.9) # Sequence of random budget shares
+m <- rlnorm(200, meanlog = log(100), sdlog = 0.25) # Sequence of random incomes
+c1 <- matrix(nrow = length(p1), ncol = length(a)) # Matrix to store quantitites
+ux <- function(x)
+    - x[1] ^ a[j] * x[2] ^ (1 - a[j]) 
 bc <- function(x)
   p1[i] * x[1] + p2 * x[2]
-# Write a line of code to get basic summary statistics for the budget-share parameters and incomes of the consumers. 
 summary(cbind(a, m))
 ```
 
@@ -414,16 +458,15 @@ grade_code()
 
 The following code to builds a matrix of individual demand schedules for good 1 (`c1`). Add lines of code after the loop that (1) calculate the sum of the consumers' individual quantities along the rows at each price; (2) print the summary statistics for the market demand variable defined in step (1). 
 
-```{r differentConsumersEquilibrium, exercise = TRUE, exercise.setup = 'differentConsumersSetup-solution'}
+```{r differentConsumersEquilibrium, exercise = TRUE}
 for (i in 1:length(p1)) {
   if (i == 1) {
     pars <- c(1, 1)
   } else {
-    pars <- c
+    pars <- c$pars
   }
   for (j in 1:length(m)) {
-    c1[i, j] <-
-      solnp(
+      c <- solnp(
         pars = pars,
         ux,
         ineqfun = bc,
@@ -432,7 +475,8 @@ for (i in 1:length(p1)) {
         LB = c(0, 0),
         UB = c(Inf, Inf),
         control = list(trace = 0)
-      )$pars[1]
+      )
+    c1[i, j] <- c$pars[1]
   }
 }
 # Add your code here: 
@@ -440,15 +484,24 @@ for (i in 1:length(p1)) {
 
 ```
 
+```{r differentConsumersEquilibrium-setup, exercise = TRUE}
+library(Rsolnp)
+set.seed(8675309); m <- rlnorm(200, meanlog = log(100), sdlog = 0.25) 
+p1 <- seq(0.25, 2.5, 0.05); p2 = 1; a <- runif(200, min = 0.1, max = 0.9)
+c1 <- matrix(nrow = length(p1), ncol = length(a)) 
+ux <- function(x) - x[1] ^ a[j] * x[2] ^ (1 - a[j]) 
+bc <- function(x) p1[i] * x[1] + p2 * x[2]
+```
+
 ```{r differentConsumersEquilibrium-solution}
 for (i in 1:length(p1)) {
   if (i == 1) {
     pars <- c(1, 1)
   } else {
-    pars <- c
+    pars <- c$pars
   }
   for (j in 1:length(m)) {
-    c1[i, j] <-
+    c <-
       solnp(
         pars = pars,
         ux,
@@ -458,7 +511,8 @@ for (i in 1:length(p1)) {
         LB = c(0, 0),
         UB = c(Inf, Inf),
         control = list(trace = 0)
-      )$pars[1]
+      )
+    c1[i, j] <- c$pars[1]
   }
 }
 marketDemand <- rowSums(c1)
@@ -469,7 +523,7 @@ summary(marketDemand)
 
 Run the following code to plot the individual demand curves for the first 10 consumers (column) of the individuals' demand schedules. Rainbow the tastes!
 
-```{r differentConsumersPlots, excercise = TRUE, exercise.setup = 'differentConsumersEquilibrium-solution'}
+```{r differentConsumersPlots, excercise = TRUE}
 plot(
   x = c1[, 1],
   y = p1,
@@ -488,6 +542,24 @@ lines(c1[, 7],  p1, col = 'purple3')
 lines(c1[, 8],  p1, col = 'brown4')
 lines(c1[, 9],  p1, col = 'gray')
 lines(c1[, 10], p1, col = 'gold2')
+```
+
+```{r differentConsumersEquilibrium-setup, exercise = TRUE}
+library(Rsolnp)
+set.seed(8675309); m <- rlnorm(200, meanlog = log(100), sdlog = 0.25) 
+p1 <- seq(0.25, 2.5, 0.05); p2 = 1; a <- runif(200, min = 0.1, max = 0.9)
+c1 <- matrix(nrow = length(p1), ncol = length(a)) 
+ux <- function(x) - x[1] ^ a[j] * x[2] ^ (1 - a[j]) 
+bc <- function(x) p1[i] * x[1] + p2 * x[2]
+for (i in 1:length(p1)) {
+  if (i == 1) {pars <- c(1, 1)} else {pars <- c$pars}
+  for (j in 1:length(m)) {
+    c <- solnp(pars = pars, ux, ineqfun = bc, ineqLB = 0, ineqUB = m[j],
+        LB = c(0, 0), UB = c(Inf, Inf), control = list(trace = 0))
+    c1[i, j] <- c$pars[1]
+  }
+}
+marketDemand <- rowSums(c1)
 ```
 
 ```{r differentConsumersPlots-solution}
@@ -519,8 +591,26 @@ grade_code()
 
 Plot the market demand with quantity on the horizontal axis and price on the vertical axis. 
 
-```{r marketEquilibrium, exercise = TRUE, exercise.setup = 'differentConsumersPlots-solution'}
+```{r marketEquilibrium, exercise = TRUE}
 
+```
+
+```{r marketEquilibrium-setup, exercise = TRUE}
+library(Rsolnp)
+set.seed(8675309); m <- rlnorm(200, meanlog = log(100), sdlog = 0.25) 
+p1 <- seq(0.25, 2.5, 0.05); p2 = 1; a <- runif(200, min = 0.1, max = 0.9)
+c1 <- matrix(nrow = length(p1), ncol = length(a)) 
+ux <- function(x) - x[1] ^ a[j] * x[2] ^ (1 - a[j]) 
+bc <- function(x) p1[i] * x[1] + p2 * x[2]
+for (i in 1:length(p1)) {
+  if (i == 1) {pars <- c(1, 1)} else {pars <- c$pars}
+  for (j in 1:length(m)) {
+    c <- solnp(pars = pars, ux, ineqfun = bc, ineqLB = 0, ineqUB = m[j],
+        LB = c(0, 0), UB = c(Inf, Inf), control = list(trace = 0))
+    c1[i, j] <- c$pars[1]
+  }
+}
+marketDemand <- rowSums(c1)
 ```
 
 ```{r marketEquilibrium-solution}
@@ -528,7 +618,7 @@ plot(
   x = marketDemand,
   y = p1,
   type = 'l',
-  xlim = c(0, max(marketDemand)),
+  xlim = c(0, 25000),
   ylim = c(0, 2.5), 
   xlab = expression(Quantity~of~x[1]), 
   ylab = 'Price'
@@ -538,3 +628,7 @@ plot(
 ```{r marketEquilibrium-check}
 grade_code()
 ```
+
+## Equilibrium 
+
+

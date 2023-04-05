@@ -26,13 +26,13 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
-gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
+gradethis_setup(exercise.reveal_solution = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
 
 ## Review: The Firm's Three Problems:
 
-<span style="color: red;">text1. Cost-Minimizing Combination of Inputs: For a *given* level of (expected) output (firm demand) choose the *combination* of inputs that minimizes the cost of producing that amount to derive the cost function.</span>
+1. <span style="color: red;">Cost-Minimizing Combination of Inputs: For a *given* level of (expected) output (firm demand) choose the *combination* of inputs that minimizes the cost of producing that amount to derive the cost function.</span>
 2. Profit-Maximizing Level of Output: Choose the *level* of output that maximizes profits by adjusting quantity and/or price of the output. 
 3. Long-Run Readjustment: Adjust the level of capital to minimize costs at the given price and quantity in the market. This might happen at the firm level (adjusting firm capacity) or at the industry level (entry/exit of firms).
 
@@ -44,14 +44,14 @@ Then, it must budget its fixed inputs (in our example, capital) based on (1) the
 
 ### Initial Solution
 
-For expected sales of $y = 2500$ units of output and inpput prices $w = 1$ and $w = 2$, the firm in our previous example minimized costs at 25 units of labor and 25 units of capital at a total cost of 75. 
+For expected sales of $y = 2500$ units of output and inpput prices $w = 10$ and $w = 20$, the firm in our previous example minimized costs at 25 units of labor and 25 units of capital at a total cost of 75. 
 
 ```{r initialSolution, echo=TRUE}
 library(Rsolnp)     # Don't forget to load libraries!
 alpha = 1 / 3
-y0 = 2500
 w = 10
 r = 20
+y0 = 2500
 costMin <- solnp(
   pars = c(1, 1),
   fun = function(x)
@@ -78,7 +78,7 @@ b. Assigns the $i^th$ row of the `Labor` variable in `costSchedule` equal to the
 c. Assigns the last value (`tail(x, 1)`) of the `values` in `costMinTemp` to the `Total_Cost` variable, and calculates the average cost as `Total_Cost` divided by `Quantity`.
 </details>
 
-```{r costSchedule, exercise = TRUE, exercise.reveal_solution = TRUE, exercise.setup = "initialSolution"}
+```{r costSchedule, exercise = TRUE, exercise.setup = 'initialSolution'}
 crtsSchedule <-
   data.frame(
     Quantity = seq(from = 0, to = 5000, by = 100),          # Initialize 51 Q's 
@@ -88,10 +88,10 @@ crtsSchedule <-
     Average_Cost = NA
   )
 tc <- function(x) {
-  w * x[1] + r * x[2]                                   # Define objective 
+  w * x[1] + r * x[2]                                       # Define objective 
 }
 crts <- function(x) {
-  100 * x[1] ^ alpha * x[2] ^ (1 - alpha)               # Define constraint
+  100 * x[1] ^ alpha * x[2] ^ (1 - alpha)                   # Define constraint
 }
 for (i in 1:nrow(crtsSchedule)) {                           # Initialize for-loop
   costMinTemp <- solnp(
@@ -100,7 +100,7 @@ for (i in 1:nrow(crtsSchedule)) {                           # Initialize for-loo
     ineqfun = crts,
     ineqLB = crtsSchedule$Quantity[i],                      # Set ineqLB to Q[i]
     ineqUB = Inf,
-    LB = c(0, 0),                                           # Nonnegativity constraint
+    LB = c(0, 0),                                           # Nonnegative constraint
     UB = c(Inf, Inf), 
     control = list(trace = 0)
   )
@@ -123,10 +123,10 @@ crtsSchedule <-
     Average_Cost = NA
   )
 tc <- function(x) {
-  w * x[1] + r * x[2]                                   # Define objective 
+  w * x[1] + r * x[2]                                       # Define objective 
 }
 crts <- function(x) {
-  100 * x[1] ^ alpha * x[2] ^ (1 - alpha)               # Define constraint
+  100 * x[1] ^ alpha * x[2] ^ (1 - alpha)                   # Define constraint
 }
 for (i in 1:nrow(crtsSchedule)) {                           # Initialize for-loop
   costMinTemp <- solnp(
@@ -135,7 +135,7 @@ for (i in 1:nrow(crtsSchedule)) {                           # Initialize for-loo
     ineqfun = crts,
     ineqLB = crtsSchedule$Quantity[i],                      # Set ineqLB to Q[i]
     ineqUB = Inf,
-    LB = c(0, 0),                                           # Nonnegativity constraint
+    LB = c(0, 0),                                           # Nonnegative constraint
     UB = c(Inf, Inf), 
     control = list(trace = 0)
   )
@@ -158,8 +158,46 @@ grade_code()
 
 Plot total costs as functions of quantity. 
 
-```{r tcGraph, exercise = TRUE, exercise.reveal_solution = TRUE}
+```{r tcGraph, exercise = TRUE, exercise.lines = 8}
 
+```
+
+```{r tcGraph-setup}
+library(Rsolnp)     # Don't forget to load libraries!
+alpha = 1 / 3
+w = 10
+r = 20
+crtsSchedule <-
+  data.frame(
+    Quantity = seq(from = 0, to = 5000, by = 100),          # Initialize 51 Q's 
+    Labor = NA,
+    Capital = NA,
+    Total_Cost = NA,
+    Average_Cost = NA
+  )
+tc <- function(x) {
+  w * x[1] + r * x[2]                                       # Define objective 
+}
+crts <- function(x) {
+  100 * x[1] ^ alpha * x[2] ^ (1 - alpha)                   # Define constraint
+}
+for (i in 1:nrow(crtsSchedule)) {                           # Initialize for-loop
+  costMinTemp <- solnp(
+    pars = c(1, 1),                                         # Set initial pars
+    fun = tc,
+    ineqfun = crts,
+    ineqLB = crtsSchedule$Quantity[i],                      # Set ineqLB to Q[i]
+    ineqUB = Inf,
+    LB = c(0, 0),                                           # Nonnegative constraint
+    UB = c(Inf, Inf), 
+    control = list(trace = 0)
+  )
+  crtsSchedule$Labor[i] <- costMinTemp$pars[1]              # Optimal labor input
+  crtsSchedule$Capital[i] <- costMinTemp$pars[2]            # Optimal capital input
+  crtsSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1) # Calculate total cost
+}
+crtsSchedule$Average_Cost <-
+  crtsSchedule$Total_Cost / crtsSchedule$Quantity           # Calculate ATC
 ```
 
 ```{r tcGraph-solution}
@@ -179,8 +217,46 @@ grade_code()
 
 Plot average costs as functions of quantity. 
 
-```{r atcGraph, exercise = TRUE, exercise.reveal_solution = TRUE}
+```{r atcGraph, exercise = TRUE}
 
+```
+
+```{r atcGraph-setup}
+library(Rsolnp)     # Don't forget to load libraries!
+alpha = 1 / 3
+w = 10
+r = 20
+crtsSchedule <-
+  data.frame(
+    Quantity = seq(from = 0, to = 5000, by = 100),          # Initialize 51 Q's 
+    Labor = NA,
+    Capital = NA,
+    Total_Cost = NA,
+    Average_Cost = NA
+  )
+tc <- function(x) {
+  w * x[1] + r * x[2]                                       # Define objective 
+}
+crts <- function(x) {
+  100 * x[1] ^ alpha * x[2] ^ (1 - alpha)                   # Define constraint
+}
+for (i in 1:nrow(crtsSchedule)) {                           # Initialize for-loop
+  costMinTemp <- solnp(
+    pars = c(1, 1),                                         # Set initial pars
+    fun = tc,
+    ineqfun = crts,
+    ineqLB = crtsSchedule$Quantity[i],                      # Set ineqLB to Q[i]
+    ineqUB = Inf,
+    LB = c(0, 0),                                           # Nonnegative constraint
+    UB = c(Inf, Inf), 
+    control = list(trace = 0)
+  )
+  crtsSchedule$Labor[i] <- costMinTemp$pars[1]              # Optimal labor input
+  crtsSchedule$Capital[i] <- costMinTemp$pars[2]            # Optimal capital input
+  crtsSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1) # Calculate total cost
+}
+crtsSchedule$Average_Cost <-
+  crtsSchedule$Total_Cost / crtsSchedule$Quantity           # Calculate ATC
 ```
 
 ```{r atcGraph-solution}
@@ -203,7 +279,45 @@ grade_code("Notice that we confirm that the Cobb-Douglas production function has
 
 You can display the plots on the same plot area using `par(mfrow = c(nrow, ncol))`. I demonstrate this below: 
 
-```{r costsSideBySide, echo = TRUE}
+```{r costsSideBySideSetup}
+library(Rsolnp)     # Don't forget to load libraries!
+alpha = 1 / 3
+w = 10
+r = 20
+crtsSchedule <-
+  data.frame(
+    Quantity = seq(from = 0, to = 5000, by = 100),          # Initialize 51 Q's 
+    Labor = NA,
+    Capital = NA,
+    Total_Cost = NA,
+    Average_Cost = NA
+  )
+tc <- function(x) {
+  w * x[1] + r * x[2]                                       # Define objective 
+}
+crts <- function(x) {
+  100 * x[1] ^ alpha * x[2] ^ (1 - alpha)                   # Define constraint
+}
+for (i in 1:nrow(crtsSchedule)) {                           # Initialize for-loop
+  costMinTemp <- solnp(
+    pars = c(1, 1),                                         # Set initial pars
+    fun = tc,
+    ineqfun = crts,
+    ineqLB = crtsSchedule$Quantity[i],                      # Set ineqLB to Q[i]
+    ineqUB = Inf,
+    LB = c(0, 0),                                           # Nonnegative constraint
+    UB = c(Inf, Inf), 
+    control = list(trace = 0)
+  )
+  crtsSchedule$Labor[i] <- costMinTemp$pars[1]              # Optimal labor input
+  crtsSchedule$Capital[i] <- costMinTemp$pars[2]            # Optimal capital input
+  crtsSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1) # Calculate total cost
+}
+crtsSchedule$Average_Cost <-
+  crtsSchedule$Total_Cost / crtsSchedule$Quantity           # Calculate ATC
+```
+
+```{r costsSideBySide, echo = TRUE, fig.width = 8}
 par(mfrow = c(1, 2))
 plot(
   crtsSchedule$Quantity,
@@ -230,7 +344,7 @@ $$Q = f(L, K) = 100 L^{1/3} K^{1/3}$$
 
 Run the following code to illustrate increasing costs. 
 
-```{r drtsGraph, exercise = TRUE, exercise.setup = "costSchedule-solution"}
+```{r drtsGraph, exercise = TRUE}
 drtsSchedule <-
   data.frame(
     Quantity = seq(from = 0, to = 5000, by = 100),          # Initialize 51 Q's 
@@ -250,7 +364,7 @@ for (i in 1:nrow(drtsSchedule)) {                           # Initialize for-loo
     ineqfun = drts,
     ineqLB = drtsSchedule$Quantity[i],                      # Set ineqLB to Q[i]
     ineqUB = Inf,
-    LB = c(0, 0),                                           # Nonnegativity constraint
+    LB = c(0, 0),                                           # Nonnegative constraint
     UB = c(Inf, Inf), 
     control = list(trace = 0)
   )
@@ -280,6 +394,43 @@ plot(
 head(drtsSchedule)
 ```
 
+```{r drtsGraph-setup}
+library(Rsolnp)     # Don't forget to load libraries!
+alpha = 1 / 3
+w = 10
+r = 20
+crtsSchedule <-
+  data.frame(
+    Quantity = seq(from = 0, to = 5000, by = 100),          # Initialize 51 Q's 
+    Labor = NA,
+    Capital = NA,
+    Total_Cost = NA,
+    Average_Cost = NA
+  )
+tc <- function(x) {
+  w * x[1] + r * x[2]                                       # Define objective 
+}
+crts <- function(x) {
+  100 * x[1] ^ alpha * x[2] ^ (1 - alpha)                   # Define constraint
+}
+for (i in 1:nrow(crtsSchedule)) {                           # Initialize for-loop
+  costMinTemp <- solnp(
+    pars = c(1, 1),                                         # Set initial pars
+    fun = tc,
+    ineqfun = crts,
+    ineqLB = crtsSchedule$Quantity[i],                      # Set ineqLB to Q[i]
+    ineqUB = Inf,
+    LB = c(0, 0),                                           # Nonnegative constraint
+    UB = c(Inf, Inf), 
+    control = list(trace = 0)
+  )
+  crtsSchedule$Labor[i] <- costMinTemp$pars[1]              # Optimal labor input
+  crtsSchedule$Capital[i] <- costMinTemp$pars[2]            # Optimal capital input
+  crtsSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1) # Calculate total cost
+}
+crtsSchedule$Average_Cost <-
+  crtsSchedule$Total_Cost / crtsSchedule$Quantity           # Calculate ATC
+```
 
 ```{r drtsGraph-solution}
 drtsSchedule <-
@@ -301,7 +452,7 @@ for (i in 1:nrow(drtsSchedule)) {                           # Initialize for-loo
     ineqfun = drts,
     ineqLB = drtsSchedule$Quantity[i],                      # Set ineqLB to Q[i]
     ineqUB = Inf,
-    LB = c(0, 0),                                           # Nonnegativity constraint
+    LB = c(0, 0),                                           # Nonnegative constraint
     UB = c(Inf, Inf), 
     control = list(trace = 0)
   )
@@ -338,7 +489,7 @@ $$Q = f(L, K) = 100 L^{2/3} K^{2/3}$$
 
 Run the following code to simulate decreasing costs.  
 
-```{r irtsGraph, exercise = TRUE, exercise.setup = "drtsGraph-solution"}
+```{r irtsGraph, exercise = TRUE}
 irtsSchedule <-
   data.frame(
     Quantity = seq(from = 0, to = 5000, by = 100),          # Initialize 51 Q's 
@@ -358,7 +509,7 @@ for (i in 1:nrow(irtsSchedule)) {                           # Initialize for-loo
     ineqfun = irts,
     ineqLB = irtsSchedule$Quantity[i],                      # Set ineqLB to Q[i]
     ineqUB = Inf,
-    LB = c(0, 0),                                           # Nonnegativity constraint
+    LB = c(0, 0),                                           # Nonnegative constraint
     UB = c(Inf, Inf), 
     control = list(trace = 0)
   )
@@ -386,6 +537,44 @@ plot(
   ylab = "Average Cost"
 )
 head(irtsSchedule)
+```
+
+```{r irtsGraph-setup}
+library(Rsolnp)     # Don't forget to load libraries!
+alpha = 1 / 3
+w = 10
+r = 20
+crtsSchedule <-
+  data.frame(
+    Quantity = seq(from = 0, to = 5000, by = 100),          # Initialize 51 Q's 
+    Labor = NA,
+    Capital = NA,
+    Total_Cost = NA,
+    Average_Cost = NA
+  )
+tc <- function(x) {
+  w * x[1] + r * x[2]                                   # Define objective 
+}
+crts <- function(x) {
+  100 * x[1] ^ alpha * x[2] ^ (1 - alpha)               # Define constraint
+}
+for (i in 1:nrow(crtsSchedule)) {                           # Initialize for-loop
+  costMinTemp <- solnp(
+    pars = c(1, 1),                                         # Set initial pars
+    fun = tc,
+    ineqfun = crts,
+    ineqLB = crtsSchedule$Quantity[i],                      # Set ineqLB to Q[i]
+    ineqUB = Inf,
+    LB = c(0, 0),                                           # Nonnegativity constraint
+    UB = c(Inf, Inf), 
+    control = list(trace = 0)
+  )
+  crtsSchedule$Labor[i] <- costMinTemp$pars[1]              # Optimal labor input
+  crtsSchedule$Capital[i] <- costMinTemp$pars[2]            # Optimal capital input
+  crtsSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1) # Calculate total cost
+}
+crtsSchedule$Average_Cost <-
+  crtsSchedule$Total_Cost / crtsSchedule$Quantity           # Calculate ATC
 ```
 
 ```{r irtsGraph-solution}
@@ -450,7 +639,7 @@ With a fixed input (in the short run), a constant returns *to scale* technology 
 
 Run the following code to simulate and graph the short run total and average cost curves for our example. 
 
-```{r srTotalCost, exercise = TRUE, exercise.reveal_solution = TRUE, exercise.setup = "costSchedule"}
+```{r srTotalCost, exercise = TRUE, exercise.reveal_solution = TRUE}
 srCrtsSchedule <-
   data.frame(
     Quantity = seq(from = 0, to = 5000, by = 100),
@@ -499,6 +688,44 @@ plot(
   ylab = "Average Total Cost"
 )
 head(srCrtsSchedule)
+```
+
+```{r srTotalCost-setup}
+library(Rsolnp)     # Don't forget to load libraries!
+alpha = 1 / 3
+w = 10
+r = 20
+crtsSchedule <-
+  data.frame(
+    Quantity = seq(from = 0, to = 5000, by = 100),          # Initialize 51 Q's 
+    Labor = NA,
+    Capital = NA,
+    Total_Cost = NA,
+    Average_Cost = NA
+  )
+tc <- function(x) {
+  w * x[1] + r * x[2]                                       # Define objective 
+}
+crts <- function(x) {
+  100 * x[1] ^ alpha * x[2] ^ (1 - alpha)                   # Define constraint
+}
+for (i in 1:nrow(crtsSchedule)) {                           # Initialize for-loop
+  costMinTemp <- solnp(
+    pars = c(1, 1),                                         # Set initial pars
+    fun = tc,
+    ineqfun = crts,
+    ineqLB = crtsSchedule$Quantity[i],                      # Set ineqLB to Q[i]
+    ineqUB = Inf,
+    LB = c(0, 0),                                           # Nonnegative constraint
+    UB = c(Inf, Inf), 
+    control = list(trace = 0)
+  )
+  crtsSchedule$Labor[i] <- costMinTemp$pars[1]              # Optimal labor input
+  crtsSchedule$Capital[i] <- costMinTemp$pars[2]            # Optimal capital input
+  crtsSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1) # Calculate total cost
+}
+crtsSchedule$Average_Cost <-
+  crtsSchedule$Total_Cost / crtsSchedule$Quantity           # Calculate ATC
 ```
 
 ```{r srTotalCost-solution}
@@ -558,7 +785,7 @@ Variable costs are costs associated with variable inputs (in our example labor).
 
 Run the following code to simulate and graph total and average variable costs for our example. 
 
-```{r variableCost, exercise=TRUE, exercise.reveal_solution=TRUE, exercise.setup = "srTotalCost-solution"}
+```{r variableCost, exercise=TRUE, exercise.reveal_solution=TRUE}
 srCrtsSchedule$Variable_Cost <- w * srCrtsSchedule$Labor
 srCrtsSchedule$Average_Variable_Cost <-
     srCrtsSchedule$Variable_Cost / srCrtsSchedule$Quantity
@@ -588,6 +815,43 @@ lines(
   srCrtsSchedule$Average_Variable_Cost,
   col = 'purple'
 )
+```
+
+```{r variableCost-setup}
+library(Rsolnp)     # Don't forget to load libraries!
+alpha = 1 / 3
+w = 10
+r = 20
+srCrtsSchedule <-
+  data.frame(
+    Quantity = seq(from = 0, to = 5000, by = 100),
+    Labor = NA,
+    Capital = 25,
+    Total_Cost = NA,
+    Average_Cost = NA
+  )
+srCrts <- function(x) {
+  100 * x ^ (alpha) * 25 ^ (1 - alpha)
+}
+srtc <- function(x) {
+  w * x + r * 25
+}
+for (i in 1:nrow(srCrtsSchedule)) {
+  costMinTemp <- solnp(
+    pars = 1,
+    fun = srtc,
+    ineqfun = srCrts,
+    ineqLB = srCrtsSchedule$Quantity[i],
+    ineqUB = Inf,
+    LB = 0,
+    UB = Inf,
+    control = list(trace = 0)
+  )
+  srCrtsSchedule$Labor[i] <- costMinTemp$pars[1]
+  srCrtsSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
+}
+srCrtsSchedule$Average_Cost <-
+  srCrtsSchedule$Total_Cost / srCrtsSchedule$Quantity
 ```
 
 ```{r variableCost-solution}
@@ -631,24 +895,11 @@ By definition, the *derivative* of the cost function  takes a similar approach, 
 
 Run the following code to add marginal cost to the cost schedule and to the graphs. 
 
-```{r marginalCost, exercise=TRUE, exercise.reveal_solution=TRUE, exercise.setup = "variableCost-solution"}
+```{r marginalCost, exercise=TRUE, exercise.reveal_solution=TRUE}
+par(mfrow = c(1, 1))
 # Find TC(Q_{i+1}) - TC(Q_{i-1}) / (2 * dQ)
 srCrtsSchedule$Marginal_Cost <- 
   c(NA,diff(srCrtsSchedule$Total_Cost, lag = 2)/200, NA)
-plot(
-  srCrtsSchedule$Quantity,
-  srCrtsSchedule$Total_Cost,
-  type = 'l',
-  ylim = c(0, 2500),
-  xlab = "Quantity",
-  ylab = "Total Cost"
-)
-lines(
-  srCrtsSchedule$Quantity,
-  srCrtsSchedule$Variable_Cost,
-  type = 'l',
-  col = 'purple'
-)
 plot(
   srCrtsSchedule$Quantity,
   srCrtsSchedule$Average_Cost,
@@ -665,23 +916,49 @@ lines(srCrtsSchedule$Quantity,
       col = 'red')
 ```
 
+```{r marginalCost-setup}
+library(Rsolnp)     # Don't forget to load libraries!
+alpha = 1 / 3
+w = 10
+r = 20
+srCrtsSchedule <-
+  data.frame(
+    Quantity = seq(from = 0, to = 5000, by = 100),
+    Labor = NA,
+    Capital = 25,
+    Total_Cost = NA,
+    Average_Cost = NA
+  )
+srCrts <- function(x) {
+  100 * x ^ (alpha) * 25 ^ (1 - alpha)
+}
+srtc <- function(x) {
+  w * x + r * 25
+}
+for (i in 1:nrow(srCrtsSchedule)) {
+  costMinTemp <- solnp(
+    pars = 1,
+    fun = srtc,
+    ineqfun = srCrts,
+    ineqLB = srCrtsSchedule$Quantity[i],
+    ineqUB = Inf,
+    LB = 0,
+    UB = Inf,
+    control = list(trace = 0)
+  )
+  srCrtsSchedule$Labor[i] <- costMinTemp$pars[1]
+  srCrtsSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
+}
+srCrtsSchedule$Average_Cost <-
+  srCrtsSchedule$Total_Cost / srCrtsSchedule$Quantity
+srCrtsSchedule$Variable_Cost <- w * srCrtsSchedule$Labor
+srCrtsSchedule$Average_Variable_Cost <-
+  srCrtsSchedule$Variable_Cost / srCrtsSchedule$Quantity
+```
+
 ```{r marginalCost-solution}
 srCrtsSchedule$Marginal_Cost <- 
   c(NA,diff(srCrtsSchedule$Total_Cost, lag = 2)/200, NA)
-plot(
-  srCrtsSchedule$Quantity,
-  srCrtsSchedule$Total_Cost,
-  type = 'l',
-  ylim = c(0, 2500),
-  xlab = "Quantity",
-  ylab = "Total Cost"
-)
-lines(
-  srCrtsSchedule$Quantity,
-  srCrtsSchedule$Variable_Cost,
-  type = 'l',
-  col = 'purple'
-)
 plot(
   srCrtsSchedule$Quantity,
   srCrtsSchedule$Average_Cost,

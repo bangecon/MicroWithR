@@ -27,7 +27,7 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
-gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
+gradethis_setup(exercise.reveal_solution = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
 
@@ -71,6 +71,7 @@ Solve for the market equilibrium price and quantity.
 ```
 
 ```{r market-solution}
+library(nleqslv) 
 market <- function(x) {
     supply <- 10000000*x[1] - x[2]
     demand <- 6000000 - 2000000*x[1] - x[2]
@@ -127,7 +128,7 @@ library(Ryacas)
 pi <- ysym('0.5*Q - 500 - Q^3 / 62500000') # Define the profit function as a yac_symbol
 dpi   <- deriv(pi, 'Q') |>                 # Take the derivative (and simplify)
   simplify()
-qStar <- solve(dpi, 0, 'Q')[1] |>          # Solve for Q (take the first [>0] value)
+qStar <- solve(dpi, 'Q')[1] |>          # Solve for Q (take the first [>0] value)
   y_rmvars()                               # Isolate the solution.
 ```
 
@@ -161,7 +162,7 @@ This is the condition that sets $MR = MC$.
 
 The profit-maximizing quantity is: 
 
-$$Q^* = `r tex(qStar) \approx `r round(as_r(qStar), 3)` $$
+$$Q^* = `r tex(qStar)` \approx `r round(as_r(qStar), 3)`$$
 
 ### Graphical Approach
 
@@ -193,6 +194,15 @@ lines(x = c(0, 5000), y = c(0.5, 0.5), col = 'blue') # Price/marginal revenue cu
 curve(0.5 - (3*x^2 / 62500000),                      # Marginal profit curve
   from = 0, to = 5000, ylim = c(-0.6, 0.6), xlab = "Q", ylab = expression(DeltaProfit))
 lines(x = c(0, 5000), y = c(0, 0), lty = 'dashed')   # dProfit = 0 reference line
+```
+
+```{r profitmaxGraph-setup}
+library(Ryacas)
+pi <- ysym('0.5*Q - 500 - Q^3 / 62500000') # 
+dpi   <- deriv(pi, 'Q') |>
+  simplify()
+qStar <- solve(dpi, 'Q')[1] |>
+  y_rmvars() 
 ```
 
 ```{r profitmaxGraph-solution}

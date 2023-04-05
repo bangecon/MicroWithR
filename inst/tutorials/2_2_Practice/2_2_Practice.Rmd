@@ -44,15 +44,15 @@ Computationally solve the cost-minimizing input levels in each location to produ
 alpha = 1/4
 y0 = 1000000
 w_US = 30
-r_US = 10
+r_US = 5
 costMin_US <- solnp(pars = c(1, 1), fun = function(x) w_US*x[1] + r_US*x[2],
-                 ineqfun = function(x) x[1]^alpha*x[2]^(1-alpha)-y0,
-                 ineqLB = 0, ineqUB = Inf, LB = c(0, 0))
+                 ineqfun = function(x) x[1]^alpha*x[2]^(1-alpha),
+                 ineqLB = 1000000, ineqUB = Inf, LB = c(0, 0))
 w_China = 5
-r_China = 15
+r_China = 25
 costMin_China <- solnp(pars = c(1, 1), fun = function(x) w_China*x[1] + r_China*x[2],
-                 ineqfun = function(x) x[1]^alpha*x[2]^(1-alpha)-y0,
-                 ineqLB = 0, ineqUB = Inf, LB = c(0, 0))
+                 ineqfun = function(x) x[1]^alpha*x[2]^(1-alpha),
+                 ineqLB = 1000000, ineqUB = Inf, LB = c(0, 0))
 ```
 
 ```{r}

@@ -32,7 +32,7 @@ knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 
 ### Review: The Firm's Three Problems:
 
-<span style="color: red;">text1. Cost-Minimizing Combination of Inputs: For a *given* level of (expected) output (firm demand) choose the *combination* of inputs that minimizes the cost of producing that amount to derive the cost function.</span>
+1. <span style="color: red;">Cost-Minimizing Combination of Inputs: For a *given* level of (expected) output (firm demand) choose the *combination* of inputs that minimizes the cost of producing that amount to derive the cost function.</span>
 2. Profit-Maximizing Level of Output: Choose the *level* of output that maximizes profits by adjusting quantity and/or price of the output. 
 3. Long-Run Readjustment: Adjust the level of capital to minimize costs at the given price and quantity in the market. This might happen at the firm level (adjusting firm capacity) or at the industry level (entry/exit of firms).
 
@@ -194,7 +194,7 @@ Recall the five key steps for constrained optimization problems:
 
 The Lagrangean for the firm with parameters defined from our example is: 
 
-$$\mathcal{L} = L + 2K + \lambda(2500 - 100L^{1/3}K^{2/3})$$
+$$\mathcal{L} = 10L + 20K + \lambda(2500 - 100L^{1/3}K^{2/3})$$
 
 Run the code chunk below to obtain the first-order conditions for the cost minimization problem. 
 
@@ -400,7 +400,7 @@ xTilde <- solnp(
 
 ### Cost Minimization 
 
-Find the cost-minimizing level of labor and capital at a wage of 1 and rental price of capital of 2 for a firm using a Cobb-Douglass production technology with a labor share of one-third that expects to sell 2500 units.  
+Find the cost-minimizing level of labor and capital at a wage of 10 and rental price of capital of 20 for a firm using a Cobb-Douglass production technology with a labor share of one-third that expects to sell 2500 units.  
 
 ```{r costMin, exercise = TRUE}
 

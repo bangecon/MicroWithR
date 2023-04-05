@@ -51,7 +51,8 @@ $$\matrix{ \matrix{\text{1. Many, many buyers} \\ \text{2. Homogeneous inputs} \
 Let's set up the initial equilibrium with the initial values of the market price (P) and quantity (Q_m); planned levels of  output (Q_0), labor (L_0), and capital (K_0); actual short-run labor (L), capital (K), and output (Q), and profit (Pi)
 
 ```{r initialEqSetup, echo = TRUE}
-library(Rsolnp)                                 
+library(Rsolnp)
+library(nleqslv)
 A = 100
 a = 1 / 3
 w = 10
@@ -84,7 +85,7 @@ cbind(P, Qm, Q0)
 
 The firm expected to produce 2,500 units and planned its capacity likewise. This meant building 25 units of capital and planning to hire 25 units of labor. 
 
-```{r initialEqK}
+```{r initialEqK, echo = TRUE}
 cost <- function(x)
   w * x[1] + r * x[2]
 output <- function(x)
@@ -105,7 +106,7 @@ cbind(L0, K)
 
 Based on this short run guess and the market price of $\$0.50$, the firm chose its output (and, hence its short run variable input) to maximize profits. 
 
-```{r initialEqQ}
+```{r initialEqQ, echo = TRUE}
 labor <- function(x)
   x ^ 3 / (K[1] ^ 2 * A ^ 3)
 loss <- function(x)
@@ -113,7 +114,7 @@ loss <- function(x)
 piMax <- solnp(pars = 1, fun = loss, LB = 0)
 Q[1] = piMax$pars
 L[1] = labor(piMax$pars)
-Pi[1] = -tail(piMax$values, 1)
+Pi[1] = -loss(piMax$pars)
 cbind(Q, L, Pi)
 ```
 
@@ -136,31 +137,36 @@ The firm(s) will iteratively readjust levels of capital, readjust quantities (wh
 3. Long-Run Readjustment
 4. Repeat until Zero Profit ($P = ATC$)
 
-### Market Adjustment
-
-The problem with this inflow of capital, is that it happens industry-wide. The firm could sit by and not do this, but it would just mean other firms (new or existing) will do it instead, so failing to do so leaves \$\$ on the table. 
-
-```{r}
-supply <-
-  function(x)
-    (Q[1] / Q0[1]) * (10000000 * x[1]) - x[2]   # Scale up market supply
-demand <- function(x)
-  6000000 - 2000000 * x[1] - x[2]
-marketEq <- nleqslv(c(2, 2), function(x)
-  c(supply(x), demand(x)))
-P[2] = marketEq$x[1]
-Qm[2] = marketEq$x[2]
-cbind(P, Qm)
-```
-
 ### Cost (Re-)Minimization
 
 Given this new market reality, firms will want to adjust their capital input to (conditionally) minimize costs. 
 
 Solve for the cost-minimizing level of capital for the previous short-run level of output. 
 
-```{r updateK, exercise = TRUE, exercise.setup = "initialEquilibrium"}
+```{r updateK, exercise = TRUE}
 
+```
+
+```{r updateK-setup, message = FALSE}
+library(Rsolnp); library(nleqslv)
+A = 100; a = 1 / 3; w = 10; r = 20
+P = NULL; Qm = NULL; Q0 = NULL; L0 = NULL; K = NULL; Q = NULL; L = NULL; Pi = NULL
+control = list(trace = 0)
+supply <- function(x) 10000000 * x[1] - x[2]
+demand <- function(x) 6000000 - 2000000 * x[1] - x[2]
+marketEq <- nleqslv(c(2, 2), function(x) c(supply(x), demand(x)))
+P[1] = marketEq$x[1]; Qm[1] = marketEq$x[2]; Q0[1] = 2500
+cost <- function(x) w * x[1] + r * x[2]
+output <- function(x) A * x[1] ^ a * x[2] ^ (1 - a)
+costMin <- solnp(pars = c(1, 1), fun = cost, ineqfun = output, ineqLB = Q0[1],
+  ineqUB = Inf, LB = c(0, 0), control = control)
+L0[1] = costMin$pars[1]; K[1] = costMin$pars[2]
+labor <- function(x) x ^ 3 / (K[1] ^ 2 * A ^ 3)
+loss <- function(x) - (P[1] * x - (w * labor(x) + r * K[1]))
+piMax <- solnp(pars = 1, fun = loss, LB = 0, control = control)
+Q[1] = piMax$pars
+L[1] = labor(piMax$pars)
+Pi[1] = -loss(piMax$pars)
 ```
 
 ```{r updateK-solution}
@@ -183,10 +189,55 @@ cbind(Q0, L0, K)
 grade_code()
 ```
 
+### Market Adjustment
+
+The problem with this inflow of capital, is that it happens industry-wide. The firm could sit by and not do this, but it would just mean other firms (new or existing) will do it instead, so failing to do so leaves \$\$ on the table. 
+
+```{r, echo = TRUE}
+supply <-
+  function(x)
+    (Q[1] / Q0[1]) * (10000000 * x[1]) - x[2]   # Scale up market supply
+demand <- function(x)
+  6000000 - 2000000 * x[1] - x[2]
+marketEq <- nleqslv(c(2, 2), function(x)
+  c(supply(x), demand(x)))
+P[2] = marketEq$x[1]
+Qm[2] = marketEq$x[2]
+cbind(P, Qm)
+```
+
 ### Profit (Re-)Maximization
 
-```{r profitRemax, exercise = TRUE, exercise.setup = "updateK-solution"}
+```{r profitRemax, exercise = TRUE}
 
+```
+
+```{r profitRemax-setup}
+library(Rsolnp); library(nleqslv)
+A = 100; a = 1 / 3; w = 10; r = 20
+P = NULL; Qm = NULL; Q0 = NULL; L0 = NULL; K = NULL; Q = NULL; L = NULL; Pi = NULL
+control = list(trace = 0)
+supply <- function(x) 10000000 * x[1] - x[2]
+demand <- function(x) 6000000 - 2000000 * x[1] - x[2]
+marketEq <- nleqslv(c(2, 2), function(x) c(supply(x), demand(x)))
+P[1] = marketEq$x[1]; Qm[1] = marketEq$x[2]; Q0[1] = 2500
+cost <- function(x) w * x[1] + r * x[2]
+output <- function(x) A * x[1] ^ a * x[2] ^ (1 - a)
+costMin <- solnp(pars = c(1, 1), fun = cost, ineqfun = output, ineqLB = Q0[1],
+  ineqUB = Inf, LB = c(0, 0), control = control)
+L0[1] = costMin$pars[1]; K[1] = costMin$pars[2]
+labor <- function(x) x ^ 3 / (K[1] ^ 2 * A ^ 3)
+loss <- function(x) - (P[1] * x - (w * labor(x) + r * K[1]))
+piMax <- solnp(pars = 1, fun = loss, LB = 0, control = control)
+Q[1] = piMax$pars; L[1] = labor(piMax$pars); Pi[1] = -loss(piMax$pars); 
+Q0[2] = Q[1]
+costMin <- solnp(pars = c(1, 1), fun = cost, ineqfun = output, ineqLB = Q0[2],
+  ineqUB = Inf, LB = c(0, 0), control = control)
+L0[2] = costMin$pars[1]; K[2] = costMin$pars[2]
+supply <- function(x) (Q[1] / Q0[1]) * (10000000 * x[1]) - x[2] 
+demand <- function(x) 6000000 - 2000000 * x[1] - x[2] 
+marketEq <- nleqslv(c(2, 2), function(x) c(supply(x), demand(x)))
+P[2] = marketEq$x[1]; Qm[2] = marketEq$x[2]
 ```
 
 ```{r profitRemax-solution}
@@ -217,7 +268,7 @@ cbind(Q, L, Pi)
   # (3) the lower bound for Q, "x" (unnecessary with an interior solution). 
 ```
 
-```{r profitmaxNumerical-check}
+```{r profitRemax-check}
 grade_this(
   if(round(.result$pars, 1) != 3227.5) {
     fail("The solution should be about 3227.5.")} 
@@ -231,7 +282,7 @@ The representative firm in our market increased its output from 3227.5 to 4166.7
 
 Step 4 tells us makes this problem ideal for the computer to solve using a "for" or "while" loop! I've done this for you, but with come careful *thinking* (not coding) we can set it up to calculate the full convergence to the long run equilibrium!
 
-```{r}
+```{r, echo=TRUE}
 tol = 1e-5
 i = 2
 while (Pi[i - 1] > tol) {

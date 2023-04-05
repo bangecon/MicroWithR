@@ -15,7 +15,7 @@
 <meta name="allow-skip" content="false" />
 <meta name="learnr-version-prerender" content="0.11.3" />
 
-<title>2.5 Competitive Firm/Industry Long-Run Readjustment</title>
+<title>2.3 Cost Curves</title>
 
 <!-- header-includes START -->
 <!-- HEAD_CONTENT -->
@@ -111,324 +111,46 @@ if (window.hljs) {
 <article class="topics" id="learnr-tutorial-content">
 
 <style type="text/css">
-h1{font-size: 24pt}
-h2{font-size: 20pt}
-h3{font-size: 18pt}
-h4,h5,h6{font-size: 16pt}
-body{font-size: 16pt}
 #doc-metadata {
   margin-bottom: 10px;
-  font-size: 0.66em;
+  font-size: 0.8em;
 }
 </style>
-<div id="section-review-the-firms-three-problems"
-class="section level2">
-<h2>Review: The Firm’s Three Problems:</h2>
+<div id="section-constant-marginal-productivity" class="section level2">
+<h2>Constant Marginal Productivity</h2>
 <ol style="list-style-type: decimal">
-<li><del>Input cost minimization</del></li>
-<li><del>Output profit maximization</del></li>
-<li><span style="color: red;">Long-Run Readjustment</span></li>
+<li>Compute the values of the cost-minimizing combinations of labor and
+capital to produce at least ten different quantities of output using a
+production function where <span class="math inline">\(MP_L = MP_K =
+100\)</span> for all levels of the inputs <span
+class="math inline">\(L\)</span> and <span
+class="math inline">\(K\)</span> where <span class="math inline">\(w =
+1\)</span> and <span class="math inline">\(r = 2\)</span>.</li>
 </ol>
-<div id="section-perfectly-competitive-input-markets"
-class="section level3">
-<h3>Perfectly Competitive Input Markets</h3>
-<p><span class="math display">\[\matrix{ \matrix{\text{1. Many, many
-buyers} \\ \text{2. Homogeneous inputs} \\ \text{3. Perfect
-information}} \Biggr\} \\ \text{4. Free entry/exit} \\ \text{  }}
-\matrix{\text{ } \\ \implies \\ \text{ } \\ \implies \\ \text{ }
-}  \matrix{\Biggl\{ \matrix{\text{Firms are} \\ \text{price} \\
-\text{takers}} \\ \text{Profits/losses} \\ \text{are
-temporary}}\]</span></p>
-</div>
-<div id="section-the-producers-input-hiring-problem"
-class="section level3">
-<h3>The Producer’s Input-Hiring Problem</h3>
-<ol style="list-style-type: decimal">
-<li>Objective:</li>
-<li>Endogenous (choice) variable(s):</li>
-<li>Exogenous variable(s):</li>
-</ol>
-</div>
-<div id="section-initial-equilibrium-short-run" class="section level3">
-<h3>Initial Equilibrium (Short Run)</h3>
-<p>Let’s set up the initial equilibrium with the initial values of the
-market price (P) and quantity (Q_m); planned levels of output (Q_0),
-labor (L_0), and capital (K_0); actual short-run labor (L), capital (K),
-and output (Q), and profit (Pi)</p>
-<pre class="r"><code>library(Rsolnp)
-library(nleqslv)
-A = 100
-a = 1 / 3
-w = 10
-r = 20
-P = NULL
-Qm = NULL
-Q0 = NULL
-L0 = NULL
-K = NULL
-Q = NULL
-L = NULL
-Pi = NULL
-control = list(trace = 0)</code></pre>
-<p>When we last left our representative competitive firm, they operated
-in a market where <span class="math inline">\(P = 0.5\)</span> and
-maximized profit at <span class="math inline">\(Q_i^* =
-\sqrt{\frac{31,250,000}{3}} \approx 3,227.5\)</span> earning a total
-profit of <span class="math inline">\(\$575.8\)</span> (whew, whoever
-wrote this example could have come up with friendlier numbers!). Let’s
-remind ourselves of how to solve the market equilibrium and set the
-first element of each market variable (<code>X[1]</code>) to the initial
-equilibrium.</p>
-<pre class="r"><code>supply &lt;- function(x)
-  10000000 * x[1] - x[2]
-demand &lt;- function(x)
-  6000000 - 2000000 * x[1] - x[2]
-marketEq &lt;- nleqslv(c(2, 2), function(x)
-  c(supply(x), demand(x)))
-P[1] = marketEq$x[1]
-Qm[1] = marketEq$x[2]
-Q0[1] = 2500
-cbind(P, Qm, Q0)</code></pre>
-<pre><code>##        P    Qm   Q0
-## [1,] 0.5 5e+06 2500</code></pre>
-<p>The firm expected to produce 2,500 units and planned its capacity
-likewise. This meant building 25 units of capital and planning to hire
-25 units of labor.</p>
-<pre class="r"><code>cost &lt;- function(x)
-  w * x[1] + r * x[2]
-output &lt;- function(x)
-  A * x[1] ^ a * x[2] ^ (1 - a)
-costMin &lt;- solnp(
-  pars = c(1, 1),
-  fun = cost,
-  ineqfun = output,
-  ineqLB = Q0[1],
-  ineqUB = Inf,
-  LB = c(0, 0),
-  control = control
-)
-L0[1] = costMin$pars[1]
-K[1] = costMin$pars[2]
-cbind(L0, K)</code></pre>
-<pre><code>##      L0  K
-## [1,] 25 25</code></pre>
-<p>Based on this short run guess and the market price of <span
-class="math inline">\(\$0.50\)</span>, the firm chose its output (and,
-hence its short run variable input) to maximize profits.</p>
-<pre class="r"><code>labor &lt;- function(x)
-  x ^ 3 / (K[1] ^ 2 * A ^ 3)
-loss &lt;- function(x)
-  - (P[1] * x - (w * labor(x) + r * K[1]))
-piMax &lt;- solnp(pars = 1, fun = loss, LB = 0)</code></pre>
-<pre><code>## 
-## Iter: 1 fn: -575.8287     Pars:  3227.49095
-## Iter: 2 fn: -575.8287     Pars:  3227.49095
-## solnp--&gt; Completed in 2 iterations</code></pre>
-<pre class="r"><code>Q[1] = piMax$pars
-L[1] = labor(piMax$pars)
-Pi[1] = -loss(piMax$pars)
-cbind(Q, L, Pi)</code></pre>
-<pre><code>##             Q        L       Pi
-## [1,] 3227.491 53.79168 575.8287</code></pre>
-<p>From this outcome, the firm could lower its costs (and slightly
-increase profits) in the long run by increasing its capacity (choosing a
-level of capital that optimizes for 3,227.5 instead of 2,500 as
-initially expected).</p>
-<p>Maybe this happens because independent startups enter a profit-making
-industry (exit a loss-making industry) or maybe this happens as capital
-pours into existing firms from investors looking for above-market
-returns - who knows!</p>
-<p>Either way, let’s solve it!</p>
-<p><img src="images/woohoo.jpg" width="126" style="display: block; margin: auto;" /></p>
-</div>
-</div>
-<div id="section-long-run-convergence" class="section level2">
-<h2>Long Run Convergence</h2>
-<p>The firm(s) will iteratively readjust levels of capital, readjust
-quantities (which shifts market supply), and adjust to changes in the
-market (shift in supply changes price) until industry profits equal
-zero.</p>
-<ol style="list-style-type: decimal">
-<li>Input cost minimization</li>
-<li>Output profit maximization</li>
-<li>Long-Run Readjustment</li>
-<li>Repeat until Zero Profit (<span class="math inline">\(P =
-ATC\)</span>)</li>
-</ol>
-<div id="section-cost-re-minimization" class="section level3">
-<h3>Cost (Re-)Minimization</h3>
-<p>Given this new market reality, firms will want to adjust their
-capital input to (conditionally) minimize costs.</p>
-<p>Solve for the cost-minimizing level of capital for the previous
-short-run level of output.</p>
-<div class="tutorial-exercise" data-label="updateK" data-completion="1"
-data-diagnostics="1" data-startover="1" data-lines="0">
-<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
-</div>
-<div class="tutorial-exercise-support" data-label="updateK-solution"
-data-completion="1" data-diagnostics="1" data-startover="1"
-data-lines="0">
-<pre class="text"><code>Q0[2] = Q[1]
-costMin &lt;- solnp(
-  pars = c(1, 1),
-  fun = cost,
-  ineqfun = output,
-  ineqLB = Q0[2],
-  ineqUB = Inf,
-  LB = c(0, 0),
-  control = control
-)
-L0[2] = costMin$pars[1]
-K[2] = costMin$pars[2]
-cbind(Q0, L0, K)</code></pre>
-</div>
-</div>
-<div id="section-market-adjustment" class="section level3">
-<h3>Market Adjustment</h3>
-<p>The problem with this inflow of capital, is that it happens
-industry-wide. The firm could sit by and not do this, but it would just
-mean other firms (new or existing) will do it instead, so failing to do
-so leaves $$ on the table.</p>
-<pre class="r"><code>supply &lt;-
-  function(x)
-    (Q[1] / Q0[1]) * (10000000 * x[1]) - x[2]   # Scale up market supply
-demand &lt;- function(x)
-  6000000 - 2000000 * x[1] - x[2]
-marketEq &lt;- nleqslv(c(2, 2), function(x)
-  c(supply(x), demand(x)))
-P[2] = marketEq$x[1]
-Qm[2] = marketEq$x[2]
-cbind(P, Qm)</code></pre>
-<pre><code>##              P      Qm
-## [1,] 0.5000000 5000000
-## [2,] 0.4024155 5195169</code></pre>
-</div>
-<div id="section-profit-re-maximization" class="section level3">
-<h3>Profit (Re-)Maximization</h3>
-<div class="tutorial-exercise" data-label="profitRemax"
+<p>Plot the long-run total and long-run average cost curves.</p>
+<div class="tutorial-exercise" data-label="constantMPLs"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0">
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
-<div class="tutorial-exercise-support" data-label="profitRemax-solution"
+<ol start="2" style="list-style-type: decimal">
+<li>Fix <span class="math inline">\(K = 10\)</span> in the previous
+question. Compute the short-run cost-minimizing input combinations for
+at least 10 different quantities of output.</li>
+</ol>
+<p>Plot the total and total variable cost curves on one graph and the
+marginal, average, and average variable cost curves on another.</p>
+<div class="tutorial-exercise" data-label="SRconstantMPLs"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0">
-<pre class="text"><code>labor &lt;-
-  function(x)
-    x ^ 3 / (K[2] ^ 2 * A ^ 3)           # Note the change in index!
-loss &lt;-
-  function(x)
-    - (P[2] * x - (w * labor(x) + r * K[2])) # New index here, too!
-piMax &lt;- solnp(
-  pars = 1,
-  fun = loss,
-  LB = 0,
-  control = control
-)
-Q[2] = piMax$pars
-L[2] = labor(piMax$pars)
-Pi[2] = -tail(piMax$values, 1)
-cbind(Q, L, Pi)</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
-<div class="tutorial-exercise-support" data-label="profitRemax-hint"
-data-completion="1" data-diagnostics="1" data-startover="1"
-data-lines="0">
-<pre class="text"><code># Don&#39;t forget to load your libraries!
-# Define losses (minus-profits) as the function(x) because &#39;solnp()&#39; finds a min 
-# Since there&#39;s no constraint, we only need three arguments: 
-  # (1) a starting value of Q; 
-  # (2) the objective function; 
-  # (3) the lower bound for Q, &quot;x&quot; (unnecessary with an interior solution). </code></pre>
-</div>
-<p>The representative firm in our market increased its output from
-3227.5 to 4166.7, or about 29%</p>
-</div>
-<div id="section-iterating-the-solution" class="section level3">
-<h3>Iterating the solution</h3>
-<p>Step 4 tells us makes this problem ideal for the computer to solve
-using a “for” or “while” loop! I’ve done this for you, but with come
-careful <em>thinking</em> (not coding) we can set it up to calculate the
-full convergence to the long run equilibrium!</p>
-<pre class="r"><code>tol = 1e-5
-i = 2
-while (Pi[i - 1] &gt; tol) {
-  supply &lt;- function(x)
-    (Q[i - 1] / Q0[1]) * (10000000 * x[1]) - x[2]
-  demand &lt;- function(x)
-    6000000 - 2000000 * x[1] - x[2]
-  marketEq &lt;- nleqslv(c(2, 2), function(x)
-    c(supply(x), demand(x)))
-  P[i] = marketEq$x[1]
-  Qm[i] = marketEq$x[2]
-  Q0[i] = Q[i - 1]
-  costMin &lt;-
-    solnp(
-      pars = c(1, 1),
-      fun = cost,
-      ineqfun = output,
-      ineqLB = Q0[i],
-      ineqUB = Inf,
-      LB = c(0, 0),
-      control = control
-    )
-  L0[i] = costMin$pars[1]
-  K[i] = costMin$pars[2]
-  labor &lt;- function(x)
-    x ^ 3 / (K[i] ^ 2 * A ^ 3)
-  loss &lt;- function(x)
-    - (P[i] * x - (w * labor(x) + r * K[i]))
-  piMax &lt;- solnp(
-    pars = 1,
-    fun = loss,
-    LB = 0,
-    control = control
-  )
-  Q[i] = piMax$pars
-  L[i] = labor(piMax$pars)
-  Pi[i] = -tail(piMax$values, 1)
-  i = i + 1 # `while()` requires us to reset i each time if you want to store them.
-}
-result &lt;-
-  data.frame(
-    Time = c(1:length(P)),
-    Price = P,
-    Q.Market = Qm,
-    Q.Planned = Q0,
-    L.Planned = L0,
-    K = K,
-    Q = Q,
-    L = L,
-    Profit = Pi
-  )
-attach(result)      # This attaches the &quot;result&quot; data frame to reference its names.
-plot(
-  Time,
-  rep(0.3, nrow(result)),
-  ylim = c(0, 1),
-  type = &#39;l&#39;,
-  ylab = &#39;Cost/Profit/Price/Ratio&#39;
-)
-lines(Time, K / L, col = &#39;blue&#39;)
-lines(Time, Profit / Q, col = &#39;red&#39;)
-lines(Time, Price, col = &#39;green&#39;)
-legend(
-  &#39;right&#39;,
-  legend = c(
-    &#39;Long-Run Average Cost&#39;,
-    &#39;Per-Unit Profit&#39;,
-    &#39;Price&#39;,
-    &#39;Capital-Labor Ratio&#39;
-  ),
-  lty = 1,
-  col = c(&#39;black&#39;, &#39;red&#39;, &#39;green&#39;, &#39;blue&#39;)
-)</code></pre>
-<p><img src="2_5_files/figure-html/unnamed-chunk-3-1.png" width="576" style="display: block; margin: auto;" />
-
+<p>
 <script type="application/shiny-prerendered" data-context="server-start">
 library(learnr)
 library(gradethis)
-gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
-knitr::opts_chunk$set(echo = FALSE, fig.align = 'center', fig.height = 6, fig.width = 6)
+gradethis_setup(exercise.reveal_solution = FALSE, exercise.eval = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
@@ -452,36 +174,42 @@ session$onSessionEnded(function() {
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
-`tutorial-exercise-updateK-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-updateK-code-editor`)), session)
-output$`tutorial-exercise-updateK-output` <- renderUI({
-  `tutorial-exercise-updateK-result`()
+`tutorial-exercise-constantMPLs-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-constantMPLs-code-editor`)), session)
+output$`tutorial-exercise-constantMPLs-output` <- renderUI({
+  `tutorial-exercise-constantMPLs-result`()
 })
 </script>
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "updateK", global_setup = structure(c("library(learnr)", 
-"library(gradethis)", "gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)", 
-"knitr::opts_chunk$set(echo = FALSE, fig.align = 'center', fig.height = 6, fig.width = 6)"
-), chunk_opts = list(label = "setup", include = FALSE)), setup = "library(Rsolnp); library(nleqslv)\nA = 100; a = 1 / 3; w = 10; r = 20\nP = NULL; Qm = NULL; Q0 = NULL; L0 = NULL; K = NULL; Q = NULL; L = NULL; Pi = NULL\ncontrol = list(trace = 0)\nsupply <- function(x) 10000000 * x[1] - x[2]\ndemand <- function(x) 6000000 - 2000000 * x[1] - x[2]\nmarketEq <- nleqslv(c(2, 2), function(x) c(supply(x), demand(x)))\nP[1] = marketEq$x[1]; Qm[1] = marketEq$x[2]; Q0[1] = 2500\ncost <- function(x) w * x[1] + r * x[2]\noutput <- function(x) A * x[1] ^ a * x[2] ^ (1 - a)\ncostMin <- solnp(pars = c(1, 1), fun = cost, ineqfun = output, ineqLB = Q0[1],\n  ineqUB = Inf, LB = c(0, 0), control = control)\nL0[1] = costMin$pars[1]; K[1] = costMin$pars[2]\nlabor <- function(x) x ^ 3 / (K[1] ^ 2 * A ^ 3)\nloss <- function(x) - (P[1] * x - (w * labor(x) + r * K[1]))\npiMax <- solnp(pars = 1, fun = loss, LB = 0, control = control)\nQ[1] = piMax$pars\nL[1] = labor(piMax$pars)\nPi[1] = -loss(piMax$pars)", 
-    chunks = list(list(label = "updateK-setup", code = "library(Rsolnp); library(nleqslv)\nA = 100; a = 1 / 3; w = 10; r = 20\nP = NULL; Qm = NULL; Q0 = NULL; L0 = NULL; K = NULL; Q = NULL; L = NULL; Pi = NULL\ncontrol = list(trace = 0)\nsupply <- function(x) 10000000 * x[1] - x[2]\ndemand <- function(x) 6000000 - 2000000 * x[1] - x[2]\nmarketEq <- nleqslv(c(2, 2), function(x) c(supply(x), demand(x)))\nP[1] = marketEq$x[1]; Qm[1] = marketEq$x[2]; Q0[1] = 2500\ncost <- function(x) w * x[1] + r * x[2]\noutput <- function(x) A * x[1] ^ a * x[2] ^ (1 - a)\ncostMin <- solnp(pars = c(1, 1), fun = cost, ineqfun = output, ineqLB = Q0[1],\n  ineqUB = Inf, LB = c(0, 0), control = control)\nL0[1] = costMin$pars[1]; K[1] = costMin$pars[2]\nlabor <- function(x) x ^ 3 / (K[1] ^ 2 * A ^ 3)\nloss <- function(x) - (P[1] * x - (w * labor(x) + r * K[1]))\npiMax <- solnp(pars = 1, fun = loss, LB = 0, control = control)\nQ[1] = piMax$pars\nL[1] = labor(piMax$pars)\nPi[1] = -loss(piMax$pars)", 
-        opts = list(label = "\"updateK-setup\"", message = "FALSE"), 
-        engine = "r"), list(label = "updateK", code = "", opts = list(
-        label = "\"updateK\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "constantMPLs", global_setup = structure(c("library(learnr)", 
+"library(gradethis)", "gradethis_setup(exercise.reveal_solution = FALSE, exercise.eval = TRUE)", 
+"knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "constantMPLs", code = "", opts = list(
+        label = "\"constantMPLs\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = structure("grade_code()", chunk_opts = list(
-        label = "updateK-check")), solution = structure(c("Q0[2] = Q[1]", 
-    "costMin <- solnp(", "  pars = c(1, 1),", "  fun = cost,", 
-    "  ineqfun = output,", "  ineqLB = Q0[2],", "  ineqUB = Inf,", 
-    "  LB = c(0, 0),", "  control = control", ")", "L0[2] = costMin$pars[1]", 
-    "K[2] = costMin$pars[2]", "cbind(Q0, L0, K)"), chunk_opts = list(
-        label = "updateK-solution")), tests = NULL, options = list(
-        eval = TRUE, echo = TRUE, results = "markup", tidy = FALSE, 
-        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
-        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
-        strip.white = TRUE, cache = 0, cache.path = "2_5_cache/html/", 
-        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
-        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
-        fig.show = "asis", fig.align = "center", fig.path = "2_5_files/figure-html/", 
+        label = "constantMPLs-check")), solution = structure(c("library(Ryacas)", 
+    "library(Deriv)", "library(Rsolnp)", "w = 1; r = 2", "costSchedule <-", 
+    "  data.frame(", "    Quantity = seq(from = 0, to = 5000, by = 100),", 
+    "    Labor = NA,", "    Capital = NA,", "    Total_Cost = NA,", 
+    "    Average_Cost = NA", "  )", "for (i in 1:nrow(costSchedule)) {", 
+    "  costMinTemp <- solnp(", "    pars = c(1, 1), ", "    fun = function(x) w*x[1] + r*x[2],", 
+    "    ineqfun = function(x) 100*(x[1] + x[2]),", "    ineqLB = costSchedule$Quantity[i], ", 
+    "    ineqUB = Inf, ", "    LB = c(0, 0))", "  costSchedule$Labor[i] <- costMinTemp$pars[1]", 
+    "  costSchedule$Capital[i] <- costMinTemp$pars[2]", "  costSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)", 
+    "}", "costSchedule$Average_Cost <- costSchedule$Total_Cost / costSchedule$Quantity", 
+    "par(mfrow = c(1, 2))", "plot(costSchedule$Quantity, costSchedule$Total_Cost, type = 'l', ylim = c(0,50), xlab = \"Quantity\", ylab = \"Total Cost\")", 
+    "plot(costSchedule$Quantity, costSchedule$Average_Cost, type = 'l', ylim = c(0,0.02), xlab = \"Quantity\", ylab = \"Average Cost\")"
+    ), chunk_opts = list(label = "constantMPLs-solution")), tests = NULL, 
+    options = list(eval = TRUE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "2_3_Practice_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "2_3_Practice_files/figure-html/", 
         dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
         fig.width = 6, fig.height = 6, fig.env = "figure", fig.cap = NULL, 
         fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
@@ -492,47 +220,56 @@ learnr:::store_exercise_cache(structure(list(label = "updateK", global_setup = s
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
         max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (label = NULL, solution_code = NULL, user_code = NULL, \n    check_code = NULL, envir_result = NULL, evaluate_result = NULL, \n    envir_prep = NULL, last_value = NULL, stage = NULL, ..., \n    solution_eval_fn = NULL) \n{\n    (utils::getFromNamespace(\"check_exercise\", \"gradethis\"))(label = label, \n        solution_code = solution_code, user_code = user_code, \n        check_code = check_code, envir_result = envir_result, \n        evaluate_result = evaluate_result, envir_prep = envir_prep, \n        last_value = last_value, stage = stage, ...)\n}", 
         exercise.error.check.code = "gradethis_error_checker()", 
-        exercise.eval = TRUE, exercise.reveal_solution = TRUE, 
-        label = "updateK", exercise = TRUE, code = "", out.width.px = 576, 
-        out.height.px = 576, params.src = "updateK, exercise = TRUE", 
+        exercise.eval = TRUE, exercise.reveal_solution = FALSE, 
+        label = "constantMPLs", exercise = TRUE, code = "", out.width.px = 576, 
+        out.height.px = 576, params.src = "constantMPLs, exercise = TRUE", 
         fig.alt = NULL, fig.num = 0L, exercise.df_print = "paged"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
-`tutorial-exercise-profitRemax-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-profitRemax-code-editor`)), session)
-output$`tutorial-exercise-profitRemax-output` <- renderUI({
-  `tutorial-exercise-profitRemax-result`()
+`tutorial-exercise-SRconstantMPLs-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-SRconstantMPLs-code-editor`)), session)
+output$`tutorial-exercise-SRconstantMPLs-output` <- renderUI({
+  `tutorial-exercise-SRconstantMPLs-result`()
 })
 </script>
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "profitRemax", global_setup = structure(c("library(learnr)", 
-"library(gradethis)", "gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)", 
-"knitr::opts_chunk$set(echo = FALSE, fig.align = 'center', fig.height = 6, fig.width = 6)"
-), chunk_opts = list(label = "setup", include = FALSE)), setup = "library(Rsolnp); library(nleqslv)\nA = 100; a = 1 / 3; w = 10; r = 20\nP = NULL; Qm = NULL; Q0 = NULL; L0 = NULL; K = NULL; Q = NULL; L = NULL; Pi = NULL\ncontrol = list(trace = 0)\nsupply <- function(x) 10000000 * x[1] - x[2]\ndemand <- function(x) 6000000 - 2000000 * x[1] - x[2]\nmarketEq <- nleqslv(c(2, 2), function(x) c(supply(x), demand(x)))\nP[1] = marketEq$x[1]; Qm[1] = marketEq$x[2]; Q0[1] = 2500\ncost <- function(x) w * x[1] + r * x[2]\noutput <- function(x) A * x[1] ^ a * x[2] ^ (1 - a)\ncostMin <- solnp(pars = c(1, 1), fun = cost, ineqfun = output, ineqLB = Q0[1],\n  ineqUB = Inf, LB = c(0, 0), control = control)\nL0[1] = costMin$pars[1]; K[1] = costMin$pars[2]\nlabor <- function(x) x ^ 3 / (K[1] ^ 2 * A ^ 3)\nloss <- function(x) - (P[1] * x - (w * labor(x) + r * K[1]))\npiMax <- solnp(pars = 1, fun = loss, LB = 0, control = control)\nQ[1] = piMax$pars; L[1] = labor(piMax$pars); Pi[1] = -loss(piMax$pars); \nQ0[2] = Q[1]\ncostMin <- solnp(pars = c(1, 1), fun = cost, ineqfun = output, ineqLB = Q0[2],\n  ineqUB = Inf, LB = c(0, 0), control = control)\nL0[2] = costMin$pars[1]; K[2] = costMin$pars[2]\nsupply <- function(x) (Q[1] / Q0[1]) * (10000000 * x[1]) - x[2] \ndemand <- function(x) 6000000 - 2000000 * x[1] - x[2] \nmarketEq <- nleqslv(c(2, 2), function(x) c(supply(x), demand(x)))\nP[2] = marketEq$x[1]; Qm[2] = marketEq$x[2]", 
-    chunks = list(list(label = "profitRemax-setup", code = "library(Rsolnp); library(nleqslv)\nA = 100; a = 1 / 3; w = 10; r = 20\nP = NULL; Qm = NULL; Q0 = NULL; L0 = NULL; K = NULL; Q = NULL; L = NULL; Pi = NULL\ncontrol = list(trace = 0)\nsupply <- function(x) 10000000 * x[1] - x[2]\ndemand <- function(x) 6000000 - 2000000 * x[1] - x[2]\nmarketEq <- nleqslv(c(2, 2), function(x) c(supply(x), demand(x)))\nP[1] = marketEq$x[1]; Qm[1] = marketEq$x[2]; Q0[1] = 2500\ncost <- function(x) w * x[1] + r * x[2]\noutput <- function(x) A * x[1] ^ a * x[2] ^ (1 - a)\ncostMin <- solnp(pars = c(1, 1), fun = cost, ineqfun = output, ineqLB = Q0[1],\n  ineqUB = Inf, LB = c(0, 0), control = control)\nL0[1] = costMin$pars[1]; K[1] = costMin$pars[2]\nlabor <- function(x) x ^ 3 / (K[1] ^ 2 * A ^ 3)\nloss <- function(x) - (P[1] * x - (w * labor(x) + r * K[1]))\npiMax <- solnp(pars = 1, fun = loss, LB = 0, control = control)\nQ[1] = piMax$pars; L[1] = labor(piMax$pars); Pi[1] = -loss(piMax$pars); \nQ0[2] = Q[1]\ncostMin <- solnp(pars = c(1, 1), fun = cost, ineqfun = output, ineqLB = Q0[2],\n  ineqUB = Inf, LB = c(0, 0), control = control)\nL0[2] = costMin$pars[1]; K[2] = costMin$pars[2]\nsupply <- function(x) (Q[1] / Q0[1]) * (10000000 * x[1]) - x[2] \ndemand <- function(x) 6000000 - 2000000 * x[1] - x[2] \nmarketEq <- nleqslv(c(2, 2), function(x) c(supply(x), demand(x)))\nP[2] = marketEq$x[1]; Qm[2] = marketEq$x[2]", 
-        opts = list(label = "\"profitRemax-setup\""), engine = "r"), 
-        list(label = "profitRemax", code = "", opts = list(label = "\"profitRemax\"", 
-            exercise = "TRUE"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = structure(c("grade_this(", "  if(round(.result$pars, 1) != 3227.5) {", 
-    "    fail(\"The solution should be about 3227.5.\")} ", "  pass(\"Same as we got from the analytical approach\")", 
-    ")"), chunk_opts = list(label = "profitRemax-check")), solution = structure(c("labor <-", 
-    "  function(x)", "    x ^ 3 / (K[2] ^ 2 * A ^ 3)           # Note the change in index!", 
-    "loss <-", "  function(x)", "    - (P[2] * x - (w * labor(x) + r * K[2])) # New index here, too!", 
-    "piMax <- solnp(", "  pars = 1,", "  fun = loss,", "  LB = 0,", 
-    "  control = control", ")", "Q[2] = piMax$pars", "L[2] = labor(piMax$pars)", 
-    "Pi[2] = -tail(piMax$values, 1)", "cbind(Q, L, Pi)"), chunk_opts = list(
-        label = "profitRemax-solution")), tests = NULL, options = list(
-        eval = TRUE, echo = TRUE, results = "markup", tidy = FALSE, 
-        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
-        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
-        strip.white = TRUE, cache = 0, cache.path = "2_5_cache/html/", 
-        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
-        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
-        fig.show = "asis", fig.align = "center", fig.path = "2_5_files/figure-html/", 
+learnr:::store_exercise_cache(structure(list(label = "SRconstantMPLs", global_setup = structure(c("library(learnr)", 
+"library(gradethis)", "gradethis_setup(exercise.reveal_solution = FALSE, exercise.eval = TRUE)", 
+"knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "SRconstantMPLs", code = "", opts = list(
+        label = "\"SRconstantMPLs\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = structure("grade_code()", chunk_opts = list(
+        label = "SRconstantMPLs-check")), solution = structure(c("SRcostSchedule <-", 
+    "  data.frame(", "    Quantity = seq(from = 0, to = 5000, by = 20),", 
+    "    Labor = NA,", "    Capital = 10,", "    Total_Cost = NA,", 
+    "    Average_Cost = NA", "  )", "for (i in 1:nrow(SRcostSchedule)) {", 
+    "  costMinTemp <- solnp(", "    pars = 1, ", "    fun = function(x) w*x + r*10,", 
+    "    ineqfun = function(x) 100*(x + 10),", "    ineqLB = SRcostSchedule$Quantity[i], ", 
+    "    ineqUB = Inf, ", "    LB = 0)", "  SRcostSchedule$Labor[i] <- costMinTemp$pars[1]", 
+    "  SRcostSchedule$Variable_Cost[i] <- w*SRcostSchedule$Labor[i]", 
+    "  SRcostSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)", 
+    "}", "SRcostSchedule$Average_Cost <- SRcostSchedule$Total_Cost / SRcostSchedule$Quantity", 
+    "SRcostSchedule$Average_Variable_Cost <- ", "  SRcostSchedule$Variable_Cost / SRcostSchedule$Quantity", 
+    "SRcostSchedule$Marginal_Cost <- ", "  c(NA,diff(SRcostSchedule$Total_Cost, lag = 2)/40, NA)", 
+    "par(mfrow = c(1, 2))", "plot(SRcostSchedule$Quantity, SRcostSchedule$Total_Cost, type = 'l', ylim = c(0,50), xlab = \"Quantity\", ylab = \"Total Cost\")", 
+    "lines(SRcostSchedule$Quantity, SRcostSchedule$Variable_Cost, col = 'darkorange')", 
+    "plot(SRcostSchedule$Quantity, SRcostSchedule$Average_Cost, type = 'l', ylim = c(0,0.05), xlab = \"Quantity\", ylab = \"Average Cost\")", 
+    "lines(SRcostSchedule$Quantity, SRcostSchedule$Average_Variable_Cost, col = 'darkorange')", 
+    "lines(SRcostSchedule$Quantity, SRcostSchedule$Marginal_Cost, col = 'red')"
+    ), chunk_opts = list(label = "SRconstantMPLs-solution")), 
+    tests = NULL, options = list(eval = TRUE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "2_3_Practice_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "2_3_Practice_files/figure-html/", 
         dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
         fig.width = 6, fig.height = 6, fig.env = "figure", fig.cap = NULL, 
         fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
@@ -543,9 +280,9 @@ learnr:::store_exercise_cache(structure(list(label = "profitRemax", global_setup
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
         max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (label = NULL, solution_code = NULL, user_code = NULL, \n    check_code = NULL, envir_result = NULL, evaluate_result = NULL, \n    envir_prep = NULL, last_value = NULL, stage = NULL, ..., \n    solution_eval_fn = NULL) \n{\n    (utils::getFromNamespace(\"check_exercise\", \"gradethis\"))(label = label, \n        solution_code = solution_code, user_code = user_code, \n        check_code = check_code, envir_result = envir_result, \n        evaluate_result = evaluate_result, envir_prep = envir_prep, \n        last_value = last_value, stage = stage, ...)\n}", 
         exercise.error.check.code = "gradethis_error_checker()", 
-        exercise.eval = TRUE, exercise.reveal_solution = TRUE, 
-        label = "profitRemax", exercise = TRUE, code = "", out.width.px = 576, 
-        out.height.px = 576, params.src = "profitRemax, exercise = TRUE", 
+        exercise.eval = TRUE, exercise.reveal_solution = FALSE, 
+        label = "SRconstantMPLs", exercise = TRUE, code = "", 
+        out.width.px = 576, out.height.px = 576, params.src = "SRconstantMPLs, exercise = TRUE", 
         fig.alt = NULL, fig.num = 0L, exercise.df_print = "paged"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
@@ -558,10 +295,9 @@ learnr:::store_exercise_cache(structure(list(label = "profitRemax", global_setup
 <!--/html_preserve-->
 <!--html_preserve-->
 <script type="application/shiny-prerendered" data-context="execution_dependencies">
-{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51]}},"value":[{"type":"character","attributes":{},"value":["backports","base","bslib","cachem","checkmate","cli","compiler","curl","datasets","digest","ellipsis","evaluate","fastmap","fontawesome","gradethis","graphics","grDevices","highr","htmltools","htmlwidgets","httpuv","jpeg","jquerylib","jsonlite","knitr","later","learnr","lifecycle","magrittr","methods","mime","nleqslv","parallel","promises","R6","Rcpp","rlang","rmarkdown","rprojroot","Rsolnp","rstudioapi","sass","shiny","stats","tools","truncnorm","utils","withr","xfun","xtable","yaml"]},{"type":"character","attributes":{},"value":["1.4.1","4.2.3","0.4.2","1.0.7","2.1.0","3.6.1","4.2.3","5.0.0","4.2.3","0.6.31","0.3.2","0.20","1.1.1","0.5.0","0.2.10.9000","4.2.3","4.2.3","0.10","0.5.5","1.6.2","1.6.9","0.1-10","0.1.4","1.8.4","1.42","1.3.0","0.11.3","1.0.3","2.0.3","4.2.3","0.12","3.3.4","4.2.3","1.2.0.1","2.5.1","1.0.10","1.1.0","2.21","2.0.3","1.16","0.14","0.4.5","1.7.4","4.2.3","4.2.3","1.0-9","4.2.3","2.5.0","0.38","1.8-4","2.3.7"]}]}]}
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45]}},"value":[{"type":"character","attributes":{},"value":["backports","base","bslib","cachem","checkmate","cli","compiler","curl","datasets","digest","ellipsis","evaluate","fastmap","fontawesome","gradethis","graphics","grDevices","htmltools","htmlwidgets","httpuv","jquerylib","jsonlite","knitr","later","learnr","lifecycle","magrittr","methods","mime","promises","R6","Rcpp","rlang","rmarkdown","rprojroot","rstudioapi","sass","shiny","stats","tools","utils","withr","xfun","xtable","yaml"]},{"type":"character","attributes":{},"value":["1.4.1","4.2.3","0.4.2","1.0.7","2.1.0","3.6.1","4.2.3","5.0.0","4.2.3","0.6.31","0.3.2","0.20","1.1.1","0.5.0","0.2.10.9000","4.2.3","4.2.3","0.5.5","1.6.2","1.6.9","0.1.4","1.8.4","1.42","1.3.0","0.11.3","1.0.3","2.0.3","4.2.3","0.12","1.2.0.1","2.5.1","1.0.10","1.1.0","2.21","2.0.3","0.14","0.4.5","1.7.4","4.2.3","4.2.3","4.2.3","2.5.0","0.38","1.8-4","2.3.7"]}]}]}
 </script>
 <!--/html_preserve-->
-</div>
 </div>
 
 </article> <!-- topics -->
@@ -573,8 +309,7 @@ learnr:::store_exercise_cache(structure(list(label = "profitRemax", global_setup
 
 <!-- begin doc-metadata -->
 <div id="doc-metadata">
-<h1 class="title toc-ignore" style="display:none;">2.5 Competitive
-Firm/Industry Long-Run Readjustment</h1>
+<h1 class="title toc-ignore" style="display:none;">2.3 Cost Curves</h1>
 <h4 class="author"><em>Created by <a
 href="http://www.github.com/bangecon">Jim Bang</a></em></h4>
 <address class="author_afil">
