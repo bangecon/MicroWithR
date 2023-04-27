@@ -1,0 +1,136 @@
+---
+title: "3.6 General Equilibrium"
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+---
+
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.66em;
+}
+</style>
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(Ryacas)
+library(Deriv)
+gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+```
+
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+</style>
+
+## The Firm's Three Problems
+
+1. Input cost minimization
+2. Output profit maximization
+3. Input profit maximization
+
+### Competitive Input Markets
+
+$$\matrix{ \matrix{\text{1. Many, many buyers} \\ \text{2. Homogeneous inputs} \\ \text{3. Perfect information}} \Biggr\} \\ \text{4. Free entry/exit} \\ \text{  }} \matrix{\text{ } \\ \implies \\ \text{ } \\ \implies \\ \text{ } }  \matrix{\Biggl\{ \matrix{\text{Firms are} \\ \text{price} \\ \text{takers}} \\ \text{Profits/losses} \\ \text{are temporary}}$$
+
+### The Producer's Input-Hiring Problem
+
+1. Objective: 
+2. Endogenous (choice) variable(s): 
+3. Exogenous variable(s): 
+
+### Short Run
+
+For simplicity we will solve the model using a Cobb-Douglas production function with input shares 1/3 and 2/3, and TFP parameter 100: 
+
+$$f(L,K) = 100L^{1/3}K^{2/3}$$.
+
+The firm's goal is to choose inputs optimally to maximize profits. 
+
+$$\max_{L,K} \{ \pi(L,K) = P \cdot f(L,K) - (wL + rK) \} $$
+
+From the firm's perspective, markets determine input and output prices *exogenously*. Set $P = 10$, $w = 1$, $r = 2$
+
+In the short run, firms' previous choice of capital firms constrain their choices. Set $K = \bar{K} = 25$
+
+Inserting all of these substitutions and simplifying, we have:
+
+$$\max_{L} \{ 5000 \cdot (5L)^{1/3} - (L + 100) \}$$.
+
+## Analytical Approach
+
+```{r}
+
+```
+
+```{r}
+w = 1
+r = 2
+pi  <- ysym('10*100*L^(1/3)*K^(2/3) - (w*L + r*K)')
+dpi <- deriv(pi, c('L', 'K')) 
+MPL <- solve(dpi[1], 'w') |>
+  y_rmvars()
+MPK <- solve(dpi[2], 'r') |>
+  y_rmvars()
+MRTS <- MPL/MPK 
+MRTS <- yac_str(MRTS) |>
+  Simplify() |> 
+  ysym()
+Kstar <- solve(MRTS, w/r, 'K') |>
+  y_rmvars()
+MPL <- with_value(MPL, 'K', Kstar) 
+solution <- solve(MPL, w, 'L')
+```
+
+```{r}
+
+```
+
+## Graphical Approach
+
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+## Numerical Approach
+
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

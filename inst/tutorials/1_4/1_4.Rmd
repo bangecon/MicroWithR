@@ -88,6 +88,7 @@ $$p_1x_1 + p_2x_2 = m$$
 </details>
 
 ```{r, fig.width=6, fig.height=8, fig.align='center', out.width = '75%'}
+library(Rsolnp)
 a = 0.25; p1 = 1.5; p2 = 1; m = 100
 ux <- function(x) -x[1] ^ (a) * x[2] ^ (1 - a)
 bc <- function(x) p1 * x[1] + p2 * x[2]

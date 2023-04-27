@@ -2,9 +2,6 @@
 ##'
 ##' This function clears previous recordings of a tutorial.
 ##'
-##' @param data is the universe of all variables considered, which may include
-##' both controls and excluded variables (e.g. variables eliminated by a model
-##' selection algorithm).
 ##' @param module is a numerical value corresponding to the module.
 ##'     0 = Introduction
 ##'     1 = Consumer Equilibrium

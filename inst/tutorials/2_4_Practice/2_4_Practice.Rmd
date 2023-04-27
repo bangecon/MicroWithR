@@ -41,11 +41,12 @@ $$Q_s = 2000P$$
 ```{r market-solution}
 library(nleqslv)
 market <- function(x) {
-  demand <- 6000 - 100*x[1] - x[2]
-  supply <- 200*x[1] - x[2]
+  demand <- 6000 - 1000*x[1] - x[2]
+  supply <- 2000*x[1] - x[2]
   return(c(demand, supply))
 }
 equilibrium <- nleqslv(c(1,1), market)
+equilibrium
 ```
 
 
@@ -69,9 +70,10 @@ $$C(Q) = Q^3 - 8Q^2 + 30Q + 5$$
 ```{r firm-solution}
 library(Rsolnp)
 loss <- function(x) {
-  - 20*x + (x^3 - 8*x^2 +30*x + 5) # Express as a loss function to match min
+  - 2*x + (x^3 - 8*x^2 +30*x + 5) # Express as a loss function to match min
 }
-solution <- rsolnp(par = c(1,1), fun = loss, LB = 0)
+solution <- solnp(par = 1, fun = loss, LB = 0)
+solution
 ```
 
 ```{r firm-check}
@@ -96,6 +98,7 @@ avc <- function(x) x ^ 2 - 8 * x + 30
 curve(mc, from = 0, to = 8, ylim = c(0, 40), col = 'red' )
 curve(atc, add = TRUE, col = 'brown')
 curve(avc, add = TRUE, col = 'brown', lty = 'dashed')
+curve(2, add = TRUE)
 lines(x = c(0, 8), y = c(20, 20), col = 'blue')
 ```
 

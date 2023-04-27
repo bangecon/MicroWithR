@@ -200,42 +200,19 @@ In section 1.5, we derived the individual consumer demand in two ways: (1) analy
 Since this involves a `for()` loop, I've coded the computational method for you here: 
 
 ```{r individualDemand, exercise = TRUE}
-p1 <- seq(0.25, 2.5, 0.05)
-bc <- function(x) p1[i]*x[1] + p2*x[2] # p1 is now a vector
-c1 <- NULL
-for (i in 1:length(p1)) {
-  if(i == 1) {
-    pars <- c(1,1)
-  } else {
-    pars <- c
-  }
-  c <- solnp(
-    pars = pars,
-    ux,
-    ineqfun = bc,
-    ineqLB = 0,
-    ineqUB = m,
-    LB = c(0, 0),
-    UB = c(Inf, Inf), 
-    control = list(trace = 0)
-  )$pars
-  c1[i] <- c[1]
-}
-plot(c1,
-     p1,
-     type = 'l',
-     xlim = c(0, 50),
-     ylim = c(0, 2.5),
-     xlab = 'Quantity of Good 1',
-     ylab = 'Price of Good 1')
+
 ```
 
 ```{r individualDemand-setup}
-library(Rsolnp); a = 0.25; p2 = 1; m = 100
+library(Rsolnp)
+a = 0.25
+p2 = 1
+m = 100
 ux <- function(x) - x[1] ^ a * x[2] ^ (1 - a) 
 ```
 
 ```{r individualDemand-solution}
+library(Rsolnp)
 p1 <- seq(0.25, 2.5, 0.05)
 bc <- function(x) p1[i]*x[1] + p2*x[2] # p1 is a vector to loop through the different prices.
 c1 <- NULL
@@ -350,11 +327,12 @@ legend(
 library(Rsolnp); a = 0.25; p2 = 1; m = 100; p1 <- seq(0.25, 2.5, 0.05)
 ux <- function(x) - x[1] ^ a * x[2] ^ (1 - a) 
 bc <- function(x) p1[i]*x[1] + p2*x[2] 
+c1 <- NULL
 for (i in 1:length(p1)) {
   if(i == 1) {pars <- c(1,1) } 
   else {pars <- c1[i-1]}
   c1[i] <- solnp(pars = pars, ux, ineqfun = bc, ineqLB = 0, ineqUB = m, LB = c(0, 0),
-    UB = c(Inf, Inf), control = list(trace = 0))$pars[1]
+    UB = c(Inf, Inf), control = list(trace = 0))$pars
 }
 ```
 
@@ -544,7 +522,7 @@ lines(c1[, 9],  p1, col = 'gray')
 lines(c1[, 10], p1, col = 'gold2')
 ```
 
-```{r differentConsumersEquilibrium-setup, exercise = TRUE}
+```{r differentConsumersPlots-setup, exercise = TRUE}
 library(Rsolnp)
 set.seed(8675309); m <- rlnorm(200, meanlog = log(100), sdlog = 0.25) 
 p1 <- seq(0.25, 2.5, 0.05); p2 = 1; a <- runif(200, min = 0.1, max = 0.9)

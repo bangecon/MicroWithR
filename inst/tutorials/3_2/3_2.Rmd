@@ -1,5 +1,5 @@
 ---
-title: "3.2 Competitive Firms' Output Choices in the Short Run"
+title: "3.2 Monopolistic Firms' Output Choices"
 output: 
   learnr::tutorial: 
     progressive: true
@@ -26,19 +26,9 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
-library(Ryacas)
-library(Deriv)
 gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
-
-<style type="text/css">
-h1{font-size: 24pt}
-h2{font-size: 20pt}
-h3{font-size: 18pt}
-h4,h5,h6{font-size: 16pt}
-body{font-size: 16pt}
-</style>
 
 ## The Firm's Three Problems
 
@@ -46,9 +36,9 @@ body{font-size: 16pt}
 2. Output profit maximization
 3. Input profit maximization
 
-### Competitive Input Markets
+### Monopolistic Output Markets
 
-$$\matrix{ \matrix{\text{1. Many, many buyers} \\ \text{2. Homogeneous inputs} \\ \text{3. Perfect information}} \Biggr\} \\ \text{4. Free entry/exit} \\ \text{  }} \matrix{\text{ } \\ \implies \\ \text{ } \\ \implies \\ \text{ } }  \matrix{\Biggl\{ \matrix{\text{Firms are} \\ \text{price} \\ \text{takers}} \\ \text{Profits/losses} \\ \text{are temporary}}$$
+$$\matrix{ \matrix{\text{1. Single Seller} \\ \text{2. No Close Substitutes} } \Biggr\} \\ \text{3. Barred Entry} \\ \text{  }} \matrix{\text{ } \\ \implies \\ \text{ } \\ \implies \\ \text{ } }  \matrix{\Biggl\{ \matrix{\text{Firms are} \\ \text{price takers}} \\ \text{Profits/losses may} \\ \text{be permanent}}$$
 
 ### The Producer's Input-Hiring Problem
 
@@ -56,81 +46,262 @@ $$\matrix{ \matrix{\text{1. Many, many buyers} \\ \text{2. Homogeneous inputs} \
 2. Endogenous (choice) variable(s): 
 3. Exogenous variable(s): 
 
-### Short Run
+## Monopolist Demand, Total Revenue, and Marginal Revenue
 
-For simplicity we will solve the model using a Cobb-Douglas production function with input shares 1/3 and 2/3, and TFP parameter 100: 
+The monopolist responds to the demand curve for the entire market, *not* a separate, perfectly (or more) elastic demand curve from the market-level equilibrium. 
 
-$$f(L,K) = 100L^{1/3}K^{2/3}$$.
+THE MONOPOLIST ***IS*** THE MARKET!!!
 
-The firm's goal is to choose inputs optimally to maximize profits. 
+### Monopolist Demand
 
-$$\max_{L,K} \{ \pi(L,K) = P \cdot f(L,K) - (wL + rK) \} $$
+Recall that the demand curve for the example we have followed was: 
 
-From the firm's perspective, markets determine input and output prices *exogenously*. Set $P = 10$, $w = 1$, $r = 2$
+$$Q_d(P) = D(P) = 6,000,000 - 2,000,000P,$$
+for which the *inverse* demand curve:
 
-In the short run, firms' previous choice of capital firms constrain their choices. Set $K = \bar{K} = 25$
+$$P(Q) = D^{-1}(Q) = 3 - \frac{Q}{2,000,000}$$
 
-Inserting all of these substitutions and simplifying, we have:
+### Monopolist Total Revenue
 
-$$\max_{L} \{ 5000 \cdot (5L)^{1/3} - (L + 100) \}$$.
+This makes the *total* revenue curve: 
 
-## Analytical Approach
+$$TR(Q) = P(Q)\cdot Q = 3Q - \frac{Q^2}{2,000,000},$$ 
+
+Plot the total revenue function. 
 
 ```{r}
+curve(3 - x/2000000, from = 0, to = 6000000, col = 'blue')
+curve(3 - x/1000000, add = TRUE, col = 'blue', lty = 'dashed')
+```
 
+
+### Monopolist Marginal Revenue
+
+The *marginal* revenue function:
+
+$$MR(Q) = 3 - \frac{Q}{1,000,000}$$
+
+[Note: For any linear demand function, the marginal revenue function will also be linear, will have the same vertical (price) intercept, and its slope will be twice as steep.]
+
+If the demand function is not linear, we might need to figure out the marginal revenue function analytically (either by hand or using the `deriv()` function. 
+
+```{r mr, echo = TRUE}
+library(Ryacas)
+tr.ysym <- ysym('3*x - x^2/2000000')
+mr.ysym <- deriv(tr.ysym, 'x') 
+```
+
+$$MR = `r tex(y_rmvars(mr.ysym))`$$ 
+
+Plot demand and marginal revenue. 
+
+## Costs
+
+In our example, the firm's production function was: 
+
+$$f(K,L) = 100L^{1/3}K^{2/3} $$
+
+### Short-Run Total Cost 
+If one firm were to efficiently satisfy the entire market's demand, it would minimize costs for a quantity where the demand curve intersects the long-run average cost curve, which involves solving $P(Q) = 3 - Q/2,000,000 = 0.3$. This happens at $Q = 5,400,000$, which corresponds to labor and capital inputs of 54,000 each. 
+
+For $K^* = 54,000$, our firm's short run costs as a function of quantity of output are: 
+
+$$ C(Q) = \frac{10Q^3}{54,000^2} + 20\cdot54,000 = \frac{Q^3}{291,600,000} + 1,080,000$$
+
+### Marginal Cost 
+
+For this cost function, marginal cost will be: 
+
+$$\frac{3Q^2}{291,600,000}$$ 
+
+### Average Cost
+
+Average costs will be: 
+
+$$\frac{Q^2}{291,600,000} + \frac{1,080,000}{Q}$$
+
+### Average Variable Cost
+
+Average variable costs will be: 
+
+$$\frac{Q^2}{291,600,000}$$
+
+Add marginal cost, average cost, and average variable cost for this monopolist to the demand/marginal revenue graph.
+
+```{r}
+curve(3 - x/2e6, from = 0, to = 6e6, col = 'darkblue', xlab = 'Q', ylab = 'P')
+curve(3 - x/1e6, add = TRUE, col = 'blue')
+curve((3*x^2)/2916e11, add = TRUE, col = 'red')
+curve((x^2)/2916e11 + 108e4/x, add = TRUE, col = 'firebrick')
+curve((x^2)/2916e11, add = TRUE, col = 'pink2')
+legend(
+  'topright', 
+  legend = c('Demand', 'MR', 'SRATC', 'AVC', 'MC'), 
+  lty = 1, col = c('darkblue', 'blue', 'firebrick', 'pink2', 'red'))
+```
+
+## Solving for $Q^*$
+
+Solve for the profit-maximizing quantity and find the monopolist's price at that quantity.
+
+```{r sr, echo = FALSE}
+library(Rsolnp)
+w = 10
+r = 20
+output <- function(x) {
+  100*x[1]^(1/3) * x[2]^(2/3)
+}
+d.Inv <- function(x) {
+  3 - output(x)/2000000
+}
+revenue <- function(x) {
+  output(x) * d.Inv(x)
+}
+profit <- function(x) {
+  revenue(x) - w*x[1] - r*x[2]
+}
+eq0 <- solnp(
+  par = c(1,1), 
+  fun = function(x) -1*profit(x), 
+  eqfun = function(x) x[2],
+  eqB = 54000,
+  LB = c(0,0), 
+  control = list(trace = 0)
+  )
+eq0$pars
+output(eq0$pars)
+d.Inv(eq0$pars)
+profit(eq0$pars)
+```
+
+## Efficiency
+
+* **Productive Efficiency:** We can immediately see that the monopolist does not reach the minimum of ATC: minimum ATC occurs where MC = ATC. Since MC < ATC at the monopoly equilibrium, the monopolist utilizes *excess capacity*.  
+We can further see this from the fact that the *optimal* capital-labor ratio for our example is $1:1$, but in the monopoly equilibrium this ratio is about $6.4:1$. We can also see that the monopolist produces at an average cost of about 0.4 while the competitive market produces at an average cost of 0.3.
+* **Allocative Efficiency:** Allocative efficiency we can see from the fact that $MC \approx 0.09 < P \approx 1.54$, which means that since $MU = P$ from the consumer problem (since we implicitly assume consumers are price-takers), $MC \ne MU$. Even if the market otherwise satisfies the usual efficiency conditions, the fact that a monopolist exists spoils allocative efficiency. 
+
+Let's calculate the consumer and producer surplus under each market structure to see just how much total surplus the monopolist destroys by restricting output. 
+
+### Calculating Surplus
+
+#### Competitive Equlibrium
+
+Graphically, the total surplus in the competitive equilibrium is shown below as the sum of the consumer surplus in light blue (sum of marginal utilities enjoyed above the price paid) and the producer surplus in pink (sum of revenues received above the marginal costs incurred). 
+
+```{r, echo = TRUE}
+q = c(seq(0, 5.4e6, 100), 0)
+curve(3 - x/2e6, from = 0, to = 6e6, col = 'darkblue', xlab = 'Q', ylab = 'P')
+curve((3*x^2)/2916e11, add = TRUE, col = 'red')
+curve(0.3*x^0, add = TRUE, col = 'black')
+polygon(x = c(0,5.4e6,0), y = c(3, 0.3, 0.3), col = 'lightblue')
+polygon(x = q, y = c(3*q[1:54001]^2/2916e11,0.3), col = 'pink2')
+legend(
+  'topright', 
+  legend = c('Demand', 'SRATC', 'MC', 'P'), 
+  lty = 1, col = c('darkblue', 'red', 'black'))
+```
+
+We calculate the surplus by finding the area of these shaded regions. We could do the total surplus all at once, but doing it separately helps see how the monopolist *transfers* surplus from the consumer to itself as well as destroying some of the total surplus. 
+
+For linear functions areas below and between curves is easy: we only need to calculate areas of triangles and/or rectangles; for curves, we calculate the areas below by taking the *integral* (gasp!) of the diferrence between the curves. 
+
+Calculate the consumer surplus using the fact that we know that the demand function is linear with intercept of 3, the equilibrium quantity is 5,400,000, and the equilibrium price is 0.3.
+
+```{r}
+cs <- 0.5*(3 - 0.3)*5.4e6
+cs
+```
+
+Next, calculate the producer surplus using the `integrate()` function over the function $0.3 - MC(Q)$ 
+
+```{r}
+ps <- integrate(function(x) 0.3 - (3*x^2)/2916e11, lower = 0, upper = 5.4e6)[1] |>
+  unlist()
+ps
+```
+
+### Monopoly Equilibrium
+
+Graphically we can visualize the two sets of surpluses in a single plot space by setting our plot region parameters for 1 row and 2 columns
+
+```{r, echo = TRUE, fig.width=9}
+par(mfrow = c(1,2))
+q1 = c(seq(0, 5.4e6, 100), 0)
+curve(3 - x/2e6, from = 0, to = 6e6, col = 'darkblue', xlab = 'Q', ylab = 'P')
+curve((3*x^2)/2916e11, add = TRUE, col = 'red')
+curve(0.3*x^0, add = TRUE, col = 'black')
+polygon(x = c(0,5.4e6,0), y = c(3, 0.3, 0.3), col = 'lightblue')
+polygon(x = q, y = c(3*q[1:54001]^2/2916e11,0.3), col = 'pink2')
+legend(
+  'topright', 
+  legend = c('Demand', 'SRATC', 'MC', 'P'), 
+  lty = 1, col = c('darkblue', 'red', 'black'))
+q2 = c(seq(0, 2912650, 50), 0)
+curve(3 - x/2e6, from = 0, to = 6e6, col = 'darkblue', xlab = 'Q', ylab = 'P')
+curve((3*x^2)/2916e11, add = TRUE, col = 'red')
+curve(0.3*x^0, add = TRUE, col = 'black')
+polygon(x = c(0,2912679,0), y = c(3, 1.543661, 1.543661), col = 'lightblue')
+polygon(x = q2, y = c(3*q2[1:(length(q2)-2)]^2/2916e11,1.543661, 1.543661), 
+        col = 'pink2')
+legend(
+  'topright', 
+  legend = c('Demand', 'SRATC', 'MC', 'P'), 
+  lty = 1, col = c('darkblue', 'red', 'black'))
+```
+
+Calculate the consumer surplus under this monopolist. 
+
+```{r}
+cs.m <- 0.5*(3 - 1.543661)*2912679
+cs.m
+```
+
+Calculate the producer surplus under this monopolist. 
+
+```{r}
+ps.m <- integrate(function(x) 1.543661 - (3*x^2)/2916e11, 
+                  lower = 0, upper = 2912679)[1] |>
+  unlist()
+ps.m
 ```
 
 ```{r}
-w = 1
-r = 2
-pi  <- ysym('10*100*L^(1/3)*K^(2/3) - (w*L + r*K)')
-dpi <- deriv(pi, c('L', 'K')) 
-MPL <- solve(dpi[1], 'w') |>
-  y_rmvars()
-MPK <- solve(dpi[2], 'r') |>
-  y_rmvars()
-MRTS <- MPL/MPK 
-MRTS <- yac_str(MRTS) |>
-  Simplify() |> 
-  ysym()
-Kstar <- solve(MRTS, w/r, 'K') |>
-  y_rmvars()
-MPL <- with_value(MPL, 'K', Kstar) 
-solution <- solve(MPL, w, 'L')
+surplusTable <- data.frame(
+  Monopolist = c(cs.m, ps.m, cs.m + ps.m),
+  Competition = c(cs, ps, cs + ps), 
+  Change = c(cs.m - cs, ps.m - ps, (cs.m + ps.m) - (cs + ps)), 
+  row.names = c("Consumer Surplus", "Producer Surplus", "Total Surplus")
+)
+surplusTable
 ```
 
 ```{r}
-
+# curve(3 - x/2e6, from = 0, to = 6e6, col = 'darkblue')
+# curve(3 - x/1e6, add = TRUE, col = 'blue')
+# curve((3*x^2)/2916e11, add = TRUE, col = 'red')
+# curve((x^2)/2916e11 + 108e4/x, add = TRUE, col = 'firebrick')
+# 
+# curve(0.3*x^0, add = TRUE, col = 'black')
+# curve((3*x^2)/729e11, add = TRUE, col = 'red', lty = 2)
+# curve((x^2)/729e11 + 54e4/x, add = TRUE, col = 'firebrick', lty = 2)
+# 
+# legend(
+#   'topright',
+#   lty = c(1, 1, 1, 1, 1, 2, 2), 
+#   legend = c('Demand', 'MR', expression(SRATC[1]), expression(MC[1]), 
+#              'LRAC', expression(SRATC[2]), expression(MC[2])), 
+#   col = c('darkblue', 'blue', 'firebrick', 'red', 'black', 'red', 'firebrick'))
 ```
 
-## Graphical Approach
-
-
-
-```{r}
-
+```{r lr, echo = FALSE}
+# eq1 <- solnp(
+#   par = c(1,1), 
+#   fun = function(x) -1*profit(x), 
+#   LB = c(0,0)
+#   )
+# eq1$pars
+# output(eq1$pars)
+# d.Inv(eq1$pars)
+# profit(eq1$pars)
 ```
 
-```{r}
-
-```
-
-```{r}
-
-```
-
-## Numerical Approach
-
-
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```

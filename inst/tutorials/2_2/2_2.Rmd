@@ -364,7 +364,7 @@ What does $\lambda$ *represent*?
 
 ## Computational Approach
 
-### Expenditure Minimization
+### Expenditure Minimization Redux
 
 Suppose that we wanted to find the expenditure minimizing way to achieve 2500 "utils" of utility for a consumer whose preferences follow a Cobb-Douglas utility function and prices of $x_1$ and $x_2$ equal to 20 and 10, respectively 
 
@@ -400,7 +400,7 @@ xTilde <- solnp(
 
 ### Cost Minimization 
 
-Find the cost-minimizing level of labor and capital at a wage of 10 and rental price of capital of 20 for a firm using a Cobb-Douglass production technology with a labor share of one-third that expects to sell 2500 units.  
+Find the cost-minimizing level of labor and capital at a wage of 10 and rental price of capital of 20 for a firm using a Cobb-Douglass production technology with a total factor productivity of 100 and a labor share of one-third that expects to sell 2500 units.  
 
 ```{r costMin, exercise = TRUE}
 
