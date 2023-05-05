@@ -1,5 +1,5 @@
 ---
-title: "3.3 Monopoly"
+title: "3.3 Oligopoly"
 output: 
   learnr::tutorial: 
     progressive: true
@@ -26,111 +26,391 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
-library(Ryacas)
-library(Deriv)
 gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
-knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6, message = FALSE)
 ```
 
-<style type="text/css">
-h1{font-size: 24pt}
-h2{font-size: 20pt}
-h3{font-size: 18pt}
-h4,h5,h6{font-size: 16pt}
-body{font-size: 16pt}
-</style>
+## Oligopoly
 
-## The Firm's Three Problems
+### Characteristics of Oligopoly
 
-1. Input cost minimization
-2. Output profit maximization
-3. Input profit maximization
+1.  Few Large Producers (often one dominant firm)
+2.  Products may be homogeneous or differentiated
+3.  Mutual Interdependence (Some Control over Price)
+4.  Barriers to Entry
 
-### Competitive Input Markets
+### Basic Types of Oligopoly
 
-$$\matrix{ \matrix{\text{1. Many, many buyers} \\ \text{2. Homogeneous inputs} \\ \text{3. Perfect information}} \Biggr\} \\ \text{4. Free entry/exit} \\ \text{  }} \matrix{\text{ } \\ \implies \\ \text{ } \\ \implies \\ \text{ } }  \matrix{\Biggl\{ \matrix{\text{Firms are} \\ \text{price} \\ \text{takers}} \\ \text{Profits/losses} \\ \text{are temporary}}$$
+|             | Sweezy    | Bertrand     | Cournot      | Stackelberg |
+|-------------|-----------|--------------|--------------|-------------|
+| Firms       | Few       | Few          | Few?         | 2           |
+| Strategy    | Quantity  | Price        | Quantity     | Price       |
+| Products    | Different | Same         | Same         | Same        |
+| Timing      | Unclear   | Simultaneous | Simultaneous | Sequential  |
+| Information | Unclear   | Perfect      | Perfect      | Perfect     |
+| Rationality | Unclear   | Full         | Full         | Full        |
 
-### The Producer's Input-Hiring Problem
+### Review: Monopoly
 
-1. Objective: 
-2. Endogenous (choice) variable(s): 
-3. Exogenous variable(s): 
+Market (inverse) demand:
 
-### Short Run
+$$P = 10 - Q$$
 
-For simplicity we will solve the model using a Cobb-Douglas production function with input shares 1/3 and 2/3, and TFP parameter 100: 
+Firm Costs: 
 
-$$f(L,K) = 100L^{1/3}K^{2/3}$$.
+$$TC = 6Q$$
 
-The firm's goal is to choose inputs optimally to maximize profits. 
+Solve for the monopoly equilibrium price and quantity. 
 
-$$\max_{L,K} \{ \pi(L,K) = P \cdot f(L,K) - (wL + rK) \} $$
+Suppose that the firms entered a trust that enabled them to collude. What would the quantity of each individual firm be? 
 
-From the firm's perspective, markets determine input and output prices *exogenously*. Set $P = 10$, $w = 1$, $r = 2$
+### Solution
 
-In the short run, firms' previous choice of capital firms constrain their choices. Set $K = \bar{K} = 25$
+If you chose to try doing this using R (which you might not need to since everything is linear), the code might look a little like this:
 
-Inserting all of these substitutions and simplifying, we have:
+```{r, echo=TRUE}
+library(Rsolnp)
+Dinv = function(x) {
+  10 - x
+}
+loss <- function(x) {
+  -(Dinv(x)*x - 6*x)
+}
+eq0 <- solnp(
+  pars = 1, 
+  fun = loss, 
+  LB = 0, 
+  control = list(trace = 0)
+) 
+p0 = Dinv(eq0$pars)
+qi = eq0$pars/2
+```
 
-$$\max_{L} \{ 5000 \cdot (5L)^{1/3} - (L + 100) \}$$.
+$$(Q,P) = (`r eq0$pars`, `r p0`)$$
 
-## Analytical Approach
+$$(Q_1, Q_2) = (`r eq0$pars/2`, `r eq0$pars/2`)$$ 
+
+## Bertrand Duopoly
+
+A Bertrand oligopoly is a "winner take all" market in which the firm that charges the lowest price "wins" the opportunity to supply the entire market. If there is a tie, then firms charging the lowest price split the quantity equally. 
+
+$$Q_1 = D(P_1,P_2) = \Biggl\{ \matrix{0 \text{ if } P_1 > P_2 \\ Q/2 \text{ if } P_1 = P_2 \\ Q \text{ if } P_1 < P_2}$$
+
+$$Q_2 = D(P_1,P_2) = \Biggl\{ \matrix{0 \text{ if } P_2 > P_1 \\ Q/2 \text{ if } P_2 = P_1 \\ Q \text{ if } P_2 < P_1}$$
+
+### "Analytical" Solution
+
+Four Non-Cases: 
+
+1. $p_1 \ne p_2$ and $min\{p_1, p_2\} < MC$
+2. $p_1 = p_2$ and $min\{p_1, p_2\} < MC$
+3. $p_1 \ne p_2$ and $min\{p_1, p_2\} > MC$
+4. $p_1 = p_2$ and $min\{p_1, p_2\} > MC$
+
+Suppose two identical firms choose their price to maximize profits subject to a "winner take all" market structure. What will the profit-maximizing price of the winning firm(s) be? 
+
+### Simulation of Bertrand Duopoly
+
+Use the following link to choose your strategy under the demand and cost conditions for the example. 
+
+[Bertrand Duopoloy Activity](https://forms.gle/kRFtVWAQgcCTZbDp6)
+
+<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe8Z5TTc29MeRST2_zhCmpVedXVmNQnoItNg8Mn38jKvzzoWA/viewform?embedded=true" width="640" height="1123" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+
+## Cournot Duopoly
+
+In a Cournot Duopoly, firms choose *quantity* instead of price. The market (inverse) demand function determines the price based on the total combined output. 
+
+$$\begin{split} P &= D^{-1}(Q) &= 10 - Q \\ 
+&= D^{-1}(Q_1 + Q_2) &= 10 - (Q_1 + Q_2) \end{split}$$
+
+The maximization problem for firm 1 is: 
+
+$$max_{Q_1}\{[10 - (Q_1 + Q_2)]Q_1 - 6Q_1\},$$
+
+or: 
+
+$$max_{Q_1}\{10Q_1 - Q_1Q_2 - Q_1^2 - 6Q_1\}.$$
+
+### Best-Response Functions
+
+The first-order conditions for each firm give us that firm's best-response function, or reaction function depending on what it expects the other firm to produce. 
+
+```{r, echo = TRUE}
+library(Ryacas, warn.conflicts = FALSE)
+pi1 <- ysym('4*Q1 - Q1*Q2 - Q1^2') 
+pi2 <- ysym('4*Q2 - Q1*Q2 - Q2^2')
+br1 <- deriv(pi1, 'Q1') |>
+  solve(0, 'Q1') 
+br2 <- deriv(pi2, 'Q2') |>
+  solve(0, 'Q2') 
+```
+
+$$`r tex(br1)`$$
+$$`r tex(br2)`$$
+
+### Nash Equilibrium: Graphical Solution
+
+**Nash Equilibrium**: an outcome where, given the strategy choices of the other players, no individual player can obtain a higher payoff by altering their strategy choice ([Emerson, 2020](https://open.oregonstate.education/intermediatemicroeconomics/chapter/module-17/#section17-1)).
+
+The market reaches a Nash Equilibrium when the quantities each firm chooses demonstrate *consistent conjectures*. In other words, each firm plays its best response to the other firm's best response (and vice-versa and so on...).
+
+This occurs at the solution of the best response functions. Plot both best-response functions, with $Q_1$ on the x-axis and $Q_2$ on the y-axis.  
+
+```{r brPlot, exercise = TRUE}
+ 
+```
+
+```{r brPlot-solution}
+curve((4 - x)/2, 
+      from = 0, to = 4, 
+      ylim = c(0,4), col = 'darkblue', 
+      xlab = expression(Q[1]), 
+      ylab = expression(Q[2]))
+curve(4-2*x, from = 0, to = 2, add = TRUE, col = 'darkorange')
+legend('topright', 
+       c('BR of Firm 1', 'BR of Firm 2'), 
+       lty = 1, col = c('darkorange', 'darkblue'))
+```
+
+```{r brPlot-check}
+grade_code()
+```
+
+### Graphical Solution with Firm One Isoprofit Curves
 
 ```{r}
+library(Rsolnp)
+loss <- function(x) {
+  x1 <- x[1]
+  x2 <- x[2]
+  -(4*x1 - x1*x2 - x1^2)
+}
+br2c <- function(x) {
+  x1 <- x[1]
+  x2 <- x[2]
+  eval(D(quote(4*x2 - x1*x2 - x2^2), 'x2'))
+}
+cournot <- solnp(
+    c(1,1), 
+    loss, 
+    ineqfun = br2c,                   # Solution must be on (or outside) firm 2 BR
+    ineqLB = -Inf,
+    ineqUB = 0,
+    eqfun = function(x) x[1] - x[2], # Solution must be symmetric 
+    eqB = 0,
+    LB = c(0,0), 
+    control = list(trace = 0)
+)
+curve((4 - x)/2,                          # Firm 2 BR
+      from = 0, to = 4, 
+      ylim = c(0,4), col = 'darkblue', 
+      xlab = expression(Q[1]), 
+      ylab = expression(Q[2]))
+curve(4-2*x, from = 0, to = 2, 
+      add = TRUE, col = 'darkorange')     # Firm 1 BR
+curve(4 - x - 16/(9*x), add = TRUE)       # Firm 1 Cournot Profit
+curve(4 - x - 1/x, add = TRUE, lty = 2)   # Firm 1 Profit = 1
+curve(4 - x - 2/x, add = TRUE, lty = 3) # Firm 1 Profit = 2.5
+points(x = c(cournot$pars[1], 2, 1), y = c(cournot$pars[2], 0, 1))
+text(x = cournot$pars[1], y = cournot$pars[2], "Cournot", adj = c(0.5,0))
+text(x = 2, y = 0, "Firm 1 Monopoly", adj = c(0.5,0))
+text(x = 1, y = 1, "Collusion", adj = c(0.5,0))
+legend('topright', 
+       c('Firm 1 BR', 'Firm 2 BR', 'Firm 1 Profit = 1', 
+         'Equilibrium Profit', 'Firm 1 Profit = 2'), 
+       lty = c(1, 1, 2, 1, 3), 
+       col = c('darkorange', 'darkblue', 'black', 'black', 'black'))
+```
 
+### Nash Equilibrium: Analytical Solution
+
+Once we have the best-response functions, solving the equilibrium
+
+```{r, echo = TRUE}
+eq1 <- solve(c(br1, br2), c(0,0), c('Q1', 'Q2')) |> 
+  y_rmvars() 
+p1 <- 10 - eq1[1] - eq1[2]
+```
+
+$$\pmatrix{Q_1 \\ Q_2 \\ P} = \pmatrix{ `r tex(eq1[1])` \\ `r tex(eq1[2])` \\ `r tex(p1)`}$$
+
+### Nash Equilibrium: Computational Solution
+
+Nash equilibrium is really tricky without doing at least one of the profit-function derivatives. The code below does it for our simple example using only the `Rsolnp::` package with the help of the derivative (`D()`) function in the basic `stats::` package. (0/10 - do not recommend: extracting the derivative expression is a PITA.)
+
+```{r, echo = TRUE}
+library(Rsolnp)
+loss <- function(x) {
+  x1 <- x[1]
+  x2 <- x[2]
+  -(4*x1 - x1*x2 - x1^2)
+}
+br2 <- function(x) {
+  x1 <- x[1]
+  x2 <- x[2]
+  eval(D(quote(4*x2 - x1*x2 - x2^2), 'x2'))
+}
+cournot <- solnp(
+    c(1,1), 
+    loss, 
+    ineqfun = br2,                   # Solution must be on (or outside) firm 2 BR
+    ineqLB = -Inf,
+    ineqUB = 0,
+    eqfun = function(x) x[1] - x[2], # Solution must be symmetric 
+    eqB = 0,
+    LB = c(0,0), 
+    control = list(trace = 0)
+)
+```
+
+$$(Q_1, Q_2) = `r cournot$pars[1]`, `r cournot$pars[2]`$$
+
+### Simulation of Cournot Duopoly
+
+Use the following link to choose your strategy under the demand and cost conditions for the example. 
+
+[Cournot Duopoloy Activity](https://forms.gle/JthsPp2CrbdqCB9dA)
+
+<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdAFg3fm31Nr73ggV03uXCw5nV8IfyS0yEhYY26zkxNnI0gOQ/viewform?embedded=true" width="640" height="1151" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+
+Final note: as the number of firms in a Cournot duopoly increases, price and quantity approach the perfectly competitive equilibrium. 
+
+```{r, echo = TRUE}
+cournotLim <- data.frame(
+  N = seq(1,100, by = 1)
+)
+cournotLim$Q_i = 4/(cournotLim$N+1)
+cournotLim$Price = 10 - (4*cournotLim$N/(cournotLim$N+1))
+cournotLim$Profit = cournotLim$Price*cournotLim$Q_i - 6*cournotLim$Q_i
+cournotLim$Q_m = cournotLim$N*4/(cournotLim$N+1)
+par(mar = c(5, 4, 4, 4) + 0.3)              # Additional space for second y-axis
+plot(cournotLim$N, cournotLim$Q_m, type = 'l', 
+     ylim = c(2,8), col = 'blue3', 
+     xlab = "Number of Firms", ylab = "Market Price or Quantity")
+lines(cournotLim$N, cournotLim$Price, col = 'lightblue3')
+lines(cournotLim$N, rep(4, nrow(cournotLim)), lty = 2)
+lines(cournotLim$N, rep(6, nrow(cournotLim)), lty = 3)
+par(new = TRUE)                             # Add new plot
+plot(cournotLim$N, cournotLim$Profit, type = 'l', col = 'green', 
+     axes = FALSE, ylim = c(0,2), xlab = "", ylab = "")
+axis(side = 4, at = pretty(range(cournotLim$Profit)))
+legend('topright', legend = c("Market Quantity", "Market Price", "Firm Profit", "Competitive Q", "Competitive P"), col = c('blue3', 'lightblue3', 'green', 'black', 'black'), lty = c(1, 1, 1, 2, 3))
+```
+
+## Stackelberg (Leader-Follower) Duopoly
+
+The Stackelberg Model assumes one firm is the "leader" and chooses *first* (here, assume firm 1 is the leader), and the other firm (firm 2) is the "follower" and chooses *after* observing the leader's choice of output. 
+
+At first we might think that the *follower* has the upper hand: they get to see the leader's decision before choosing. But remember: firm 1 *knows* what firm 2's best response will be, and lead with the quantity that maximizes firm 1's profit, subject to the firm 2's best response function as a constraint. 
+
+The decision tree becomes: 
+
+```{r}
+gameTree(players = c("Firm 1", "Firm 2"), strategies = c("BR(Q)", "Low Q"), payoffs1 = c(2, 2, 1, 2), payoffs2 = c(1, 1, 2, 2))
+```
+
+### Backwards Induction and Subgame Perfect Nash Equilibrium (SPNE)
+
+A common method for solving the equilibrium for a sequential games is *backward induction*, which leads to a *subgame perfect Nash equilibrium* (SPNE). Backward induction starts with the last move (or "subgame") in the game, solves the best response of the player(s) at that stage, and assumes that the player(s) in the preceding round(s) perfectly anticipate the response. 
+
+Solving the second and final stage of our game, we have firm 2's best response as the solution to:
+
+$$max_{Q_2}\{4Q_2 - Q_1Q_2 - Q_2^2\},$$
+
+which we solved in the cournot problem to be: 
+
+$$Q_2 = \frac{4 - Q_1}{2}$$
+
+Firm one exploits the fact that it anticipates firm 2's response *and* the fact that the game is no longer symmetric, and solves: 
+
+$$max_{Q_1}\{4Q_1 - Q_1Q_2 - Q_1^2\}$$
+subject to: 
+
+$$Q_2 = \frac{4 - Q_1}{2}$$
+
+Solve the choice of $Q_1$ by firm 1. 
+
+```{r stackelberg, exercise = TRUE}
+
+```
+
+```{r stackelberg-solution}
+solution <- solnp(
+    c(1,1), 
+    loss, 
+    eqfun = br2, # Solution need only satisfy firm 2 best response
+    eqB = 0, 
+    LB = c(0,0), # No symmetry constraint
+    control = list(trace = 0)
+)
+```
+
+```{r stackelberg-check}
+grade_code()
+```
+
+### Graph of the Solution
+
+The solution for the leader puts the production on an isoprofit curve as close to firm 1's monopoly outcome as possible, while maintaining a point of tangency with firm 2's best response function. 
+
+The following code demonstrates this property of the equilibrium, with firm 1's best response function added as a reference. 
+
+```{r, echo = TRUE}
+curve((4 - x)/2, 
+      from = 0, to = 4, 
+      ylim = c(0, 4), col = 'darkblue', 
+      xlab = expression(Q[1]), 
+      ylab = expression(Q[2]))
+curve(4-2*x, from = 0, to = 2, add = TRUE, col = 'darkorange')
+curve(4 - x - 2/x, add = TRUE)
+legend('topright', 
+       c('BR of Firm 1', 'BR of Firm 2', 'Leader Max Profit'), 
+       lty = c('solid', 'solid', 'solid'), 
+       col = c('darkorange', 'darkblue', 'black'))
+points(x = c(1, 2, 2), y = c(1, 1, 0))
+text(x = 1, y = 1, "Collusion", adj = c(0.5,0))
+text(x = 2, y = 1, "Stackelberg", adj = c(0.5,1))
+text(x = 2, y = 0, "Firm 1 Monopoly", adj = c(0.5,0))
+```
+
+It's somewhat worth noting that in this example the leader ends up with the same profits as they would have earned with collusion! 
+
+## Comparison of Equilibria
+
+```{r, echo = TRUE}
+compare <- data.frame(
+  Price = c(8, 6, 22/3, 7), 
+  Quantity1 = c(1, 2, 4/3, 2),
+  Quantity2 = c(1, 2, 4/3, 1),
+  Profit1 = c(2, 0, 16/9, 2), 
+  Profit2 = c(2, 0, 16/9, 1), 
+  row.names = c("Collusion", "Bertrand", "Cournot", "Stackelberg")
+)
+print(compare, digits = 3)
 ```
 
 ```{r}
-w = 1
-r = 2
-pi  <- ysym('10*100*L^(1/3)*K^(2/3) - (w*L + r*K)')
-dpi <- deriv(pi, c('L', 'K')) 
-MPL <- solve(dpi[1], 'w') |>
-  y_rmvars()
-MPK <- solve(dpi[2], 'r') |>
-  y_rmvars()
-MRTS <- MPL/MPK 
-MRTS <- yac_str(MRTS) |>
-  Simplify() |> 
-  ysym()
-Kstar <- solve(MRTS, w/r, 'K') |>
-  y_rmvars()
-MPL <- with_value(MPL, 'K', Kstar) 
-solution <- solve(MPL, w, 'L')
+curve((4 - x)/2,                          # Firm 2 BR
+      from = 0, to = 4, 
+      ylim = c(0,4), col = 'darkblue', 
+      xlab = expression(Q[1]), 
+      ylab = expression(Q[2]))
+curve(4-2*x, from = 0, to = 2, 
+      add = TRUE, col = 'darkorange')     # Firm 1 BR
+curve(4 - x - 16/(9*x), add = TRUE)       # Firm 1 Cournot Profit
+curve(4 - x - 0/x, add = TRUE, lty = 2)   # Firm 1 Bertrand Profit
+curve(4 - x - 2/x, add = TRUE, lty = 3) # Firm 1 Stackelberg Profit
+points(x = c(cournot$pars[1], 2, 2, 2, 1), y = c(cournot$pars[2], 1, 2, 0, 1))
+text(x = cournot$pars[1], y = cournot$pars[2], "Cournot", adj = c(0.5,0))
+text(x = 2, y = 2, "Bertrand", adj = c(0.5,0))
+text(x = 2, y = 1, "Stackelberg", adj = c(0.5,1))
+text(x = 1, y = 1, "Collusion", adj = c(0.5,1))
+text(x = 2, y = 0, "Firm 1 Monopoly", adj = c(0.5,0))
+legend('topright', 
+       c('Firm 1 BR', 'Firm 2 BR', 'Bertrand Profit 1', 
+         'Cournot Profit 1', 'Stackelberg Profit 1'), 
+       lty = c(1, 1, 2, 1, 3), 
+       col = c('darkorange', 'darkblue', 'black', 'black', 'black'))
 ```
 
-```{r}
-
-```
-
-## Graphical Approach
-
-
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-## Numerical Approach
-
-
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
