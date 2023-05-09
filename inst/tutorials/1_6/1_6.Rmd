@@ -112,6 +112,7 @@ Place beer on the x-axis (labeled "Beer") and donuts on the y-axis (labeled "Don
 ```
 
 ```{r taxGraph-setup}
+library(Rsolnp)
 a = 0.5; m = 20; pb = 2; pd = 1; t = 0.5; control = list(trace = 0)
 bc <- function(x) pb * x[1] + pd * x[2]
 ux <- function(x) - x[1] ^ (a) * x[2] ^ (1 - a)
@@ -258,6 +259,14 @@ grade_code()
 Graph the equilibrium (indifference curve and budget line) before and after the transfer. Place beer on the x-axis (labeled "Beer") and donuts on the y-axis (labeled "Donuts). 
 
 ```{r inKindGraph, exercise = TRUE}
+library(Rsolnp); a = 0.9; m = 20; pb = 2; pd = 1; t = 0.5; sd = 5
+ux <- function(x) - x[1] ^ (a) * x[2] ^ (1 - a)
+bcT <- function(x) (pb + t) * x[1] + pd * x[2]
+bc <- function(x) pb * x[1] + pd * x[2]
+eqBarney0 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, 
+                   ineqUB = m, LB = c(0, 0), UB = c(Inf, Inf))
+eqBarney1 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, 
+                   ineqUB = m + sd*pd, LB = c(0, 0), UB = c(m/pb, Inf))
 curve((-ux(eqBarney0$pars)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
   from = 0, to = (m + sd * pd) / pb, ylim = c(0, (m + sd * pd) / pd),
   xlab = 'Beer', ylab = 'Donuts', col = 'darkgreen')
@@ -268,19 +277,15 @@ curve(sd + m / pd - pb*x / pd, from = 0, to = m / pb, add = TRUE, col = 'red')
 segments(x0 = m / pb, x1 = m / pb, y0 = 0, y1 = sd,  col = 'red')
 ```
 
-```{r inKindGraph-setup}
-a = 0.9; m = 20; pb = 2; pd = 1; t = 0.5; control = list(trace = 0)
-bcT <- function(x) (pb + t) * x[1] + pd * x[2]
-ux <- function(x) - x[1] ^ (a) * x[2] ^ (1 - a)
-bc <- function(x) pb * x[1] + pd * x[2]
-eqBarney0 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m,
-    LB = c(0, 0), UB = c(Inf, Inf))
-sd = 5
-eqBarney1 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m + sd*pd,
-  LB = c(0, 0), UB = c(m/pb, Inf))
-```
-
 ```{r inKindGraph-solution}
+library(Rsolnp); a = 0.9; m = 20; pb = 2; pd = 1; t = 0.5; sd = 5
+ux <- function(x) - x[1] ^ (a) * x[2] ^ (1 - a)
+bcT <- function(x) (pb + t) * x[1] + pd * x[2]
+bc <- function(x) pb * x[1] + pd * x[2]
+eqBarney0 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, 
+                   ineqUB = m, LB = c(0, 0), UB = c(Inf, Inf))
+eqBarney1 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, 
+                   ineqUB = m + sd*pd, LB = c(0, 0), UB = c(m/pb, Inf))
 curve((-ux(eqBarney0$pars)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
   from = 0, to = (m + sd * pd) / pb, ylim = c(0, (m + sd * pd) / pd),
   xlab = 'Beer', ylab = 'Donuts', col = 'darkgreen')
@@ -386,6 +391,7 @@ grade_code()
 ```
 
 ```{r intertemporalGraph-solution}
+lnU <- function(x) -(log(x[1]) + d * log(x[2]))
 curve(exp(((-lnU(eqTime$pars)) - log(x)) / d), from = 0, to = m2 + (1 + r) * m1, 
   ylim = c(0, m2 + (1 + r) * m1), xlab = expression(x[1]), ylab = expression(x[2]))
 curve(m2 + (1 + r) * (m1 - x), add = T) 
@@ -401,8 +407,8 @@ One thing we can see is how much the allocation changes in response to a change 
 
 ```{r intertemporalRateHike, exercise = TRUE}
 r = 2
-eqRateHike <- solnp(c(1, 1), lnU, ineqfun = bc, ineqLB = 0,
-    ineqUB = (1+r) * m1 + m2, LB = c(0,0), UB = c(Inf, Inf))
+
+
 ```
 
 ```{r intertemporalRateHike-setup}

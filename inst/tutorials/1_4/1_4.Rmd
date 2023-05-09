@@ -199,14 +199,14 @@ Derive the $MRS$ of the example with the following steps:
 ```{r MRS, exercise = TRUE, exercise.reveal_solution = TRUE, exercise.lines = 12}
 MU <- deriv(u, c('x1', 'x2'))  # Derive the marginal utilities (could get from L)
 MRS <- yac_str(MU[1]/MU[2]) |> # Calculate, simplify, and format the MRS = MU1/MU2 
-  Simplify() |> 
+  Deriv::Simplify() |> 
   ysym()
 ```
 
 ```{r MRS-solution}
 MU <- deriv(u, c('x1', 'x2'))
 MRS <- yac_str(MU[1]/MU[2]) |> 
-  Simplify() |> 
+  Deriv::Simplify() |> 
   ysym()
 ```
 
@@ -222,7 +222,7 @@ grade_this({if (!inherits(.result, c("yac_symbol"))) {
 ```{r, eval=TRUE}
 MU <- deriv(u, c('x1', 'x2'))
 MRS <- yac_str(MU[1]/MU[2]) |> 
-  Simplify() |> 
+  Deriv::Simplify() |> 
   ysym()
 ```
 
