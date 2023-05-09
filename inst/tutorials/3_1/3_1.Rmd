@@ -327,12 +327,13 @@ legend(
 library(Rsolnp); a = 0.25; p2 = 1; m = 100; p1 <- seq(0.25, 2.5, 0.05)
 ux <- function(x) - x[1] ^ a * x[2] ^ (1 - a) 
 bc <- function(x) p1[i]*x[1] + p2*x[2] 
-c1 <- NULL
+c1 <- matrix(nrow = length(p1), ncol = 2)
 for (i in 1:length(p1)) {
   if(i == 1) {pars <- c(1,1) } 
-  else {pars <- c1[i-1]}
-  c1[i] <- solnp(pars = pars, ux, ineqfun = bc, ineqLB = 0, ineqUB = m, LB = c(0, 0),
-    UB = c(Inf, Inf), control = list(trace = 0))$pars
+  else {pars <- c1[i-1,]}
+  temp <- solnp(pars = pars, ux, ineqfun = bc, ineqLB = 0, ineqUB = m, LB = c(0, 0), UB = c(Inf, Inf), control = list(trace = 0))
+  c1[i,1] <- temp$pars[1]
+  c1[i,2] <- temp$pars[2]
 }
 ```
 
@@ -506,7 +507,7 @@ plot(
   x = c1[, 1],
   y = p1,
   type = 'l',
-  xlim = c(0, max(c1[, 1:10])),
+  xlim = c(0, 400),
   ylim = c(0, 2.5), 
   xlab = expression(Quantity~of~x[1]), 
   ylab = 'Price'

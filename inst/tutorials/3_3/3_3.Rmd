@@ -177,9 +177,9 @@ legend('topright',
 grade_code()
 ```
 
-### Graphical Solution with Firm One Isoprofit Curves
+### Graphical Solution with Isoprofit Curves
 
-```{r}
+```{r, echo = TRUE}
 library(Rsolnp)
 loss <- function(x) {
   x1 <- x[1]
@@ -209,9 +209,16 @@ curve((4 - x)/2,                          # Firm 2 BR
       ylab = expression(Q[2]))
 curve(4-2*x, from = 0, to = 2, 
       add = TRUE, col = 'darkorange')     # Firm 1 BR
-curve(4 - x - 16/(9*x), add = TRUE)       # Firm 1 Cournot Profit
-curve(4 - x - 1/x, add = TRUE, lty = 2)   # Firm 1 Profit = 1
-curve(4 - x - 2/x, add = TRUE, lty = 3) # Firm 1 Profit = 2.5
+curve(4 - x - 16/(9*x), 
+      add = TRUE, col = 'darkorange')       # Firm 1 Cournot Profit
+curve(4 - x - 1/x, 
+      add = TRUE, col = 'darkorange', lty = 2)   # Firm 1 Profit = 1
+curve(4 - x - 2/x, 
+      add = TRUE, col = 'darkorange', lty = 3) # Firm 1 Profit = 2.5
+curve(((-9)*x+sqrt(((-9)*x+36)^2-576)+36)/18, from = 0, to = 4/3, 
+      add = T, col = 'darkblue')  # Top half of Firm 2 isoprofit
+curve(-(sqrt(((-9)*x+36)^2-576)-((-9)*x+36))/18, from = 0, to = 4/3, 
+      add = T, col = 'darkblue') # Bottom half of Firm 2 isoprofit
 points(x = c(cournot$pars[1], 2, 1), y = c(cournot$pars[2], 0, 1))
 text(x = cournot$pars[1], y = cournot$pars[2], "Cournot", adj = c(0.5,0))
 text(x = 2, y = 0, "Firm 1 Monopoly", adj = c(0.5,0))
@@ -220,8 +227,16 @@ legend('topright',
        c('Firm 1 BR', 'Firm 2 BR', 'Firm 1 Profit = 1', 
          'Equilibrium Profit', 'Firm 1 Profit = 2'), 
        lty = c(1, 1, 2, 1, 3), 
-       col = c('darkorange', 'darkblue', 'black', 'black', 'black'))
+       col = c('darkorange', 'darkblue', 'darkorange', 'darkorange', 'darkorange'))
 ```
+
+Note: I took an assist from `Ryacas` to find the top and bottom functions for the firm 2 isoprofit function. Here is the code that helped me: 
+
+```{r}
+pi2star <- solve(ysym('4 - x - x2 - 16/(9*x2)'), 0, 'x2')
+```
+
+Notice that the top and bottom of the curve have separate expressions because of the presence of squares and square-root functions with respect to $x_2$. I could not have done this easily by hand!
 
 ### Nash Equilibrium: Analytical Solution
 
@@ -307,7 +322,9 @@ At first we might think that the *follower* has the upper hand: they get to see 
 The decision tree becomes: 
 
 ```{r}
-gameTree(players = c("Firm 1", "Firm 2"), strategies = c("BR(Q)", "Low Q"), payoffs1 = c(2, 2, 1, 2), payoffs2 = c(1, 1, 2, 2))
+# library(ggplot2)
+# source('../../../R/gameTree.R')
+# gameTree(players = c("Firm 1", "Firm 2"), strategies = c("BR(Q)", "Low Q"), payoffs1 = c(2, 2, 1, 2), payoffs2 = c(1, 1, 2, 2))
 ```
 
 ### Backwards Induction and Subgame Perfect Nash Equilibrium (SPNE)
@@ -363,16 +380,23 @@ curve((4 - x)/2,
       xlab = expression(Q[1]), 
       ylab = expression(Q[2]))
 curve(4-2*x, from = 0, to = 2, add = TRUE, col = 'darkorange')
-curve(4 - x - 2/x, add = TRUE)
+curve(4 - x - 2/x, add = TRUE, col = 'darkorange')
+curve(-(x+sqrt((4-x)^2-4)-4)/2, add = TRUE, col = 'darkblue')
+curve(-(x-4-sqrt((4-x)^2-4))/2, add = TRUE, col = 'darkblue')
 legend('topright', 
-       c('BR of Firm 1', 'BR of Firm 2', 'Leader Max Profit'), 
-       lty = c('solid', 'solid', 'solid'), 
-       col = c('darkorange', 'darkblue', 'black'))
+       c('BR of Firm 1', 'BR of Firm 2', 'Leader Profit', 'Follower Profit'), 
+       lty = c('solid', 'solid', 'solid', 'solid'), 
+       col = c('darkorange', 'darkblue', 'darkorange', 'darkblue'))
 points(x = c(1, 2, 2), y = c(1, 1, 0))
 text(x = 1, y = 1, "Collusion", adj = c(0.5,0))
 text(x = 2, y = 1, "Stackelberg", adj = c(0.5,1))
 text(x = 2, y = 0, "Firm 1 Monopoly", adj = c(0.5,0))
 ```
+
+```{r}
+pi2star <- solve(ysym('4 - x - x2 - 1/x2'), 0, 'x2') 
+```
+
 
 It's somewhat worth noting that in this example the leader ends up with the same profits as they would have earned with collusion! 
 
@@ -400,7 +424,7 @@ curve(4-2*x, from = 0, to = 2,
       add = TRUE, col = 'darkorange')     # Firm 1 BR
 curve(4 - x - 16/(9*x), add = TRUE)       # Firm 1 Cournot Profit
 curve(4 - x - 0/x, add = TRUE, lty = 2)   # Firm 1 Bertrand Profit
-curve(4 - x - 2/x, add = TRUE, lty = 3) # Firm 1 Stackelberg Profit
+curve(4 - x - 2/x, add = TRUE, lty = 3)   # Firm 1 Stackelberg Profit
 points(x = c(cournot$pars[1], 2, 2, 2, 1), y = c(cournot$pars[2], 1, 2, 0, 1))
 text(x = cournot$pars[1], y = cournot$pars[2], "Cournot", adj = c(0.5,0))
 text(x = 2, y = 2, "Bertrand", adj = c(0.5,0))

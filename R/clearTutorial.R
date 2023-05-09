@@ -11,7 +11,7 @@
 ##' @param practice is a logical value indicating whether to clear the main tutorial or practice.
 ##' @export
 
-runTutorial <- function(module, lesson, practice = FALSE, ...) {
+clearTutorial <- function(module, lesson, practice = FALSE, ...) {
   if(practice == TRUE) {
     tutorial <- paste0("tutorials/", module, "_", lesson, "_Practice")
     appDir <- system.file(tutorial, package = "MicroWithR")
