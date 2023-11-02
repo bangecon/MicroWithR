@@ -27,11 +27,9 @@ solnp2 <-
            control = list(),
            ...) {
     if (max == TRUE) {
-      fun2 <- function(x) {
-        -1*fun(x)
-        }
+      fun2 <- function(x) -1*fun(x)
       } else {
-      fun2 <- fun
+      fun2 <- function(x) fun(x)
       }
     out <-
       Rsolnp::solnp(
