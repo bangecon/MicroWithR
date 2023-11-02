@@ -9,7 +9,7 @@ runRandomPresenterApp <- function() {
   appDir <-
     system.file("shiny-examples", "randomPresenterApp", package = "MicroWithR")
   if (appDir == "") {
-    stop("Could not find example directory. Try re-installing `econGame`.",
+    stop("Could not find example directory. Try re-installing `MicroWithR`.",
          call. = FALSE)
   }
 
