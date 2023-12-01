@@ -17,10 +17,10 @@ Depends:
   learnr,
   gradethis, 
   ggcheck,
+  Rsolnp, 
   shinytest
 Imports: 
   ggplot2, 
-  Rsolnp, 
   nleqslv, 
   Ryacas, 
   Deriv, 
