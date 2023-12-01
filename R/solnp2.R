@@ -23,6 +23,8 @@ solnp2 <-
            ineqfun = NULL,
            ineqLB = NULL,
            ineqUB = NULL,
+           LB = NULL,
+           UB = NULL,
            max = FALSE,
            control = list(),
            ...) {
@@ -40,6 +42,8 @@ solnp2 <-
         ineqfun = ineqfun,
         ineqLB = ineqLB,
         ineqUB = ineqUB,
+        LB = LB,
+        UB = UB,
         control = control
       )
     if (max == TRUE) {
