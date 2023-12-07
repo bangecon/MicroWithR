@@ -28,7 +28,10 @@ library(learnr)
 library(gradethis)
 gradethis_setup()
 tutorial_options(exercise.reveal_solution = TRUE, exercise.eval = FALSE, exercise.checker = gradethis_exercise_checker)
-options(tutorial.event_recorder = learnr:::debug_event_recorder)
+new_recorder <- function(tutorial_id, tutorial_version, user_id, event, data) {
+    cat(tutorial_id, " (", tutorial_version, "): ", user_id, ", ", event, ", ", data$label, ", ", data$answers, ", ", data$correct, "\n", sep = "")
+}
+options(tutorial.event_recorder = new_recorder)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6.5, fig.width = 8.5)
 ```
 
