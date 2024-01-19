@@ -1,0 +1,194 @@
+---
+title: "3.1 Market Demand in Competitive Markets"
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(ggcheck)
+gradethis_setup(exercise.reveal_solution = FALSE, exercise.eval = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+```
+
+## Deriving Market Demand
+
+The example from the tutorial used a Cobb-Douglas utility function with budget shares 0.25 and 0.75 on goods 1 and 2, respectively; prices 0.75 and 1.0; and income equal to 100. 
+
+$$\max_x \bigg\{ U(x_1, x_2) = x_1^{0.25}x_2^{0.75} \bigg\}$$
+
+$$\text{s.t.: }0.75x_1+x_2 \le 100$$
+
+### Individual Consumer Demand
+
+Replicate the approach I demonstrated in the tutorial to get the demand for *good 2* at prices from 0.25 to 2.0 in increments of 0.05. 
+
+```{r individualDemand, exercise = TRUE}
+
+```
+
+```{r individualDemand-setup, message=FALSE, warning=FALSE}
+
+```
+
+```{r individualDemand-solution, message=FALSE, warning=FALSE}
+library(MicroWithR)
+a = 0.25
+p1 = 1.5 
+p2 = seq(0.25, 2.0, 0.05)
+m = 30    
+ux <- function(x)
+  x[1] ^ a * x[2] ^ (1 - a)
+bc <- function(x)
+  p1 * x[1] + p2[i] * x[2] 
+c2 <- NULL
+for (i in 1:length(p2)) {
+  if(i == 1) {
+    pars <- c(1,1)
+  } else {
+    pars <- c
+  }
+  c <- solnp2(
+    pars = pars,
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    control = list(trace = 0), 
+    max = TRUE
+  )$pars
+  c2[i] <- c[2]
+}
+head(c2)
+```
+
+```{r individualDemand-check}
+grade_this({
+  pass_if(round(.result[2], 1) == 75) 
+  fail()
+})
+```
+
+Plot the graph of the consumer's demand for good 2 (stored as `c2` in the setup) for prices between 0.25 and 2.0. 
+
+```{r individualDemandCurve, exercise = TRUE}
+
+```
+
+```{r individualDemandCurve-setup, message=FALSE, warning=FALSE}
+library(MicroWithR)
+a = 0.25
+p1 = 1.5 
+p2 = seq(0.25, 2.0, 0.05)
+m = 30    
+ux <- function(x)
+  x[1] ^ a * x[2] ^ (1 - a)
+bc <- function(x)
+  p1 * x[1] + p2[i] * x[2] 
+c2 <- NULL
+for (i in 1:length(p2)) {
+  if(i == 1) {
+    pars <- c(1,1)
+  } else {
+    pars <- c
+  }
+  c <- solnp2(
+    pars = pars,
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    control = list(trace = 0), 
+    max = TRUE
+  )$pars
+  c2[i] <- c[2]
+}
+```
+
+```{r individualDemandCurve-hint}
+# In the computational solution we defined numerical vectors containing the values for the prices of good 2 ranging from 0.25 to 2 (`p2`) and the corresponding consumption levels of good 2 (`c2`). All you need to do is plot the connection of these points using `geom_line`. 
+```
+
+```{r individualDemandCurve-solution, message=FALSE, warning=FALSE}
+library(ggplot2)
+ggplot() + 
+  geom_line(aes(x = c2, y = p2, color = "D")) + 
+  lims(x = c(0, 75),y = c(0, 2.0)) + 
+  labs(x = "Quantity", y = "Price", color = "") + 
+  scale_color_manual(breaks = c("D"), values = c("blue"))
+```
+
+```{r individualDemandCurve-check}
+grade_this({
+  pass_if (ith_geom_is(.result, "line", 1)) 
+  fail(random_encouragement())
+})
+```
+
+The analytical solution for the demand curve was:
+
+<details><summary>
+Click here to see the code for deriving the demand function using `Ryacas` functions.
+</summary>
+```{r demand, echo = TRUE, message = FALSE, warning = FALSE}
+library(Ryacas)
+library(Deriv)
+u <- ysym('x1^(alpha) * x2^(1-alpha)')
+L <- u + ysym('lambda*(m - p1*x1 - p2*x2)')
+dL <- deriv(L, c('x1', 'x2', 'lambda'))
+MU <- deriv(u, c('x1', 'x2'))
+MRS <- yac_str(MU[1]/MU[2]) |> 
+  Simplify() |> 
+  ysym()
+D <- solve(c(MRS, dL[[3]]), c(ysym('p1/p2'), 0), c('x1', 'x2')) |> 
+  y_rmvars() |>
+  simplify()
+D[1] <- with_value(D[1], 'x2', D[2]) |> 
+  simplify()
+```
+</details>
+
+$$x_2(p_2, \alpha, m) = `r tex(D[2])`$$
+
+### Many (Identical) Consumers
+
+Plot the market demand curve for *good 2* for a market with 200,000 consumers who are all identical to the one for whom we solved the equilibrium in the previous exercises. 
+
+```{r marketDemand, exercise = TRUE}
+```
+
+```{r marketDemand-setup, message=FALSE, warning=FALSE}
+library(ggplot2)
+```
+
+```{r marketDemand-hint}
+# First you will need to add up the individual demands, but then you will need to invert the demand curve to get price as the "dependent" (y) variable.
+# Never mind the fact that price isn't really the dependent variable that the consumer chooses. Blame Marshall!
+```
+
+```{r marketDemand-solution, message=FALSE, warning=FALSE}
+ggplot() + 
+  geom_function(fun = function(x) 4.5e6/x, aes(color = "D")) + 
+  lims(x = c(0,9e6), y = c(0, 2)) +
+  labs(x = "Quantity", y = "Price", color = "") + 
+  scale_color_manual(breaks = c("D"), values = c("blue"))
+```
+
+```{r marketDemand-check}
+grade_this({
+  pass_if (ith_geom_is(.result, "function", 1))
+  fail(random_encouragement())
+})
+```

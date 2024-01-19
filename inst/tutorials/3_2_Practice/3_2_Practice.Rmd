@@ -1,0 +1,191 @@
+---
+title: "3.2 Market Supply and Equilibrium in Competitive Markets"
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(ggcheck)
+gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+```
+
+## Deriving Market Supply
+
+### Individual Firm Supply Curve (Marginal Cost Curve)
+
+Suppose that the cost function for good 2 in our running example is given by: 
+
+$$TC(Q) = \frac{Q^3}{240,000} - \frac{Q^2}{320} + Q + 500$$
+
+Using analytical methods, we can show that the firm's marginal cost function is: 
+
+$$MC(Q) = \frac{Q^2}{80,000} - \frac{Q}{160} + 1$$
+
+Plot the individual firm's average and marginal cost schedules. 
+
+```{r supply, exercise = TRUE}
+
+```
+
+```{r supply-hint}
+
+```
+
+```{r supply-solution, warning = FALSE, message=FALSE}
+library(ggplot2)
+ggplot() + 
+  geom_function(fun = function(x) x^2/80000 - x/160 + 1, aes(color = "MC"), xlim = c(375, 750)) + 
+  geom_function(fun = function(x) x^2/240000 - x/320 + 1, aes(color = "AVC")) +
+  geom_function(fun = function(x) x^2/240000 - x/320 + 1 + 500/x, aes(color = "ATC")) +
+  geom_function(fun = function(x) x^2/80000 - x/160 + 1, aes(color = "MC"), linetype = 'dashed') + 
+  lims(x = c(0, 750), y = c(0, 3)) + 
+  labs(x = "Quantity", y = "Cost", color = "") + 
+  scale_color_manual(breaks = c("MC", "AVC", "ATC"), values = c("red", "magenta", "purple"))
+```
+
+```{r supply-check}
+grade_this({
+  pass_if(ith_geom_is(.result, "function", i = 1) & 
+            ith_geom_is(.result, "function", i =4) )
+  fail(random_encouragement())
+})
+```
+
+Note that the firm's actual *supply* curve only begins at the minimum of average variable cost, which I show below. 
+
+```{r, echo = TRUE, message=FALSE, warning=FALSE}
+library(ggplot2)
+ggplot() + 
+  geom_function(fun = function(x) x^2/80000 - x/160 + 1, aes(color = "MC"), xlim = c(375, 750)) + 
+  geom_function(fun = function(x) x^2/240000 - x/320 + 1, aes(color = "AVC")) +
+  geom_function(fun = function(x) x^2/240000 - x/320 + 1 + 500/x, aes(color = "ATC")) +
+  geom_function(fun = function(x) x^2/80000 - x/160 + 1, aes(color = "MC"), linetype = 'dashed') + 
+  lims(x = c(0, 750), y = c(0, 3)) + 
+  labs(x = "Quantity", y = "Cost", color = "") + 
+  scale_color_manual(breaks = c("MC", "AVC", "ATC"), values = c("red", "magenta", "purple"))
+```
+
+The dashed portion of the marginal cost curve is *not* part of the supply curve because any price below the minimum of average cost triggers the short-run shut-down condition. 
+
+### Many Identical Firms
+
+Find and plot the market supply curve if the market has 9,000 identical firms. Plot the supply in the usual (Marshallian) way, with price on the vertical axis and quantity on the horizontal axis. 
+
+```{r marketSupplyPlot, exercise = TRUE}
+
+```
+
+```{r marketSupplyPlot-solution, message=FALSE, warning=FALSE}
+library(ggplot2)
+ggplot() + 
+  geom_function(
+    fun = function(x) x ^ 2 / 6.48e12 - x / 1.44e6 + 1, 
+    aes(color = "S"), xlim = c(3.375e6, 6.75e6)) + 
+  lims(x = c(0, 6.75e6), y = c(0, 2)) +
+  labs(x = "Quantity", y = "Price", color = "") + 
+  scale_color_manual(breaks = c("S"), values = c("red"))
+```
+
+```{r marketSupplyPlot-check}
+grade_this({
+  pass_if(ith_geom_is(.result, "function", i = 1)) 
+  fail(random_encouragement())
+  })
+```
+
+## Equilibrium 
+
+### Graphical Approach
+
+Recall that the analytical solution for the demand curve for good 2 was:
+
+```{r demand, echo = FALSE, message = FALSE, warning = FALSE}
+library(Ryacas)
+library(Deriv)
+u <- ysym('x1^(alpha) * x2^(1-alpha)')
+L <- u + ysym('lambda*(m - p1*x1 - p2*x2)')
+dL <- deriv(L, c('x1', 'x2', 'lambda'))
+MU <- deriv(u, c('x1', 'x2'))
+MRS <- yac_str(MU[1]/MU[2]) |> 
+  Simplify() |> 
+  ysym()
+D <- solve(c(MRS, dL[[3]]), c(ysym('p1/p2'), 0), c('x1', 'x2')) |> 
+  y_rmvars() |>
+  simplify()
+D[1] <- with_value(D[1], 'x2', D[2]) |> 
+  simplify()
+```
+
+$$x_2(p_2, \alpha, m) = `r tex(D[2])`$$
+
+```{r equilibrium, exercise = TRUE}
+
+```
+
+```{r equilibrium-setup, message=FALSE, warning=FALSE}
+library(ggplot2)
+```
+
+```{r equilibrium-solution, message=FALSE, warning=FALSE}
+library(ggplot2)
+ggplot() + 
+  geom_function(
+    fun = function(x) x ^ 2 / 6.48e12 - x / 1.44e6 + 1, 
+    aes(color = "S"), xlim = c(3.375e6, 6.75e6)) + 
+  geom_function(
+    fun = function(x) 4.5e6/x, aes(color = "D")) + 
+  lims(x = c(0, 9e6), y = c(0, 2)) +
+  labs(x = "Quantity", y = "Price", color = "") + 
+  scale_color_manual(breaks = c("D", "S"), values = c("blue", "red"))
+```
+
+```{r equilibrium-check}
+grade_this({
+  pass_if(ith_geom_is(.result, "function", i = 1) & 
+            ith_geom_is(.result, "function", i = 2)) 
+  fail(random_encouragement())
+  })
+```
+
+It looks like the equilibrium crosses at exactly 1. Let's check this by solving for the equilibrium computationally. 
+
+### Computational Approach
+
+The equations we're trying to solve here are a nonlinear mess! Luckily, as long as we choose starting values for the variables that are "close" to the equilibrium, R will have no trouble solving them. 
+
+```{r eqSolve, exercise = TRUE}
+
+```
+
+```{r eqSolve-setup, message=FALSE, warning=FALSE}
+
+```
+
+```{r eqSolve-solution, message=FALSE, warning=FALSE}
+library(nleqslv)
+srEq <- nleqslv(
+  c(1,4.5e6), 
+  function(x) c(
+    x[1]*x[2] - 4.5e6,
+    x[2] ^ 2 / 6.48e12 - x[2] / 1.44e6 + 1 - x[1]
+    )
+  )
+srEq$x
+```
+
+```{r eqSolve-check}
+grade_this({
+  pass_if(round(.result[1], 1) == 1) 
+  fail()
+})
+```

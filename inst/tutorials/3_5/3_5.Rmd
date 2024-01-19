@@ -1,5 +1,5 @@
 ---
-title: "3.5 Oligopoly"
+title: "3.5 Oligopoly: Sweezy and Bertrand Oligopoly"
 output: 
   learnr::tutorial: 
     progressive: true
@@ -26,111 +26,103 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
-library(Ryacas)
-library(Deriv)
 gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
-knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6, message = FALSE)
 ```
 
-<style type="text/css">
-h1{font-size: 24pt}
-h2{font-size: 20pt}
-h3{font-size: 18pt}
-h4,h5,h6{font-size: 16pt}
-body{font-size: 16pt}
-</style>
+## Oligopoly
 
-## The Firm's Three Problems
+### Characteristics of Oligopoly
 
-1. Input cost minimization
-2. Output profit maximization
-3. Input profit maximization
+1.  Few Large Producers (often one dominant firm)
+2.  Products may be homogeneous or differentiated
+3.  Mutual Interdependence (Some Control over Price)
+4.  Barriers to Entry
 
-### Competitive Input Markets
+### Basic Types of Oligopoly
 
-$$\matrix{ \matrix{\text{1. Many, many buyers} \\ \text{2. Homogeneous inputs} \\ \text{3. Perfect information}} \Biggr\} \\ \text{4. Free entry/exit} \\ \text{  }} \matrix{\text{ } \\ \implies \\ \text{ } \\ \implies \\ \text{ } }  \matrix{\Biggl\{ \matrix{\text{Firms are} \\ \text{price} \\ \text{takers}} \\ \text{Profits/losses} \\ \text{are temporary}}$$
+|             | Sweezy    | Bertrand     | Cournot      | Stackelberg |
+|-------------|-----------|--------------|--------------|-------------|
+| Firms       | Few       | Few          | Few?         | 2           |
+| Strategy    | Price?    | Price        | Quantity     | Price       |
+| Products    | Different | Same         | Same         | Same        |
+| Timing      | Unclear   | Simultaneous | Simultaneous | Sequential  |
+| Information | Unclear   | Perfect      | Perfect      | Perfect     |
+| Rationality | Unclear   | Full         | Full         | Full        |
 
-### The Producer's Input-Hiring Problem
+## Stackelberg (Kinked Demand Curve) Oligopoly
 
-1. Objective: 
-2. Endogenous (choice) variable(s): 
-3. Exogenous variable(s): 
 
-### Short Run
 
-For simplicity we will solve the model using a Cobb-Douglas production function with input shares 1/3 and 2/3, and TFP parameter 100: 
+## Review: A Simple Monopoly Example
 
-$$f(L,K) = 100L^{1/3}K^{2/3}$$.
+Market (inverse) demand:
 
-The firm's goal is to choose inputs optimally to maximize profits. 
+$$P = 10 - Q$$
 
-$$\max_{L,K} \{ \pi(L,K) = P \cdot f(L,K) - (wL + rK) \} $$
+Firm Costs: 
 
-From the firm's perspective, markets determine input and output prices *exogenously*. Set $P = 10$, $w = 1$, $r = 2$
+$$TC = 6Q$$
 
-In the short run, firms' previous choice of capital firms constrain their choices. Set $K = \bar{K} = 25$
+Solve for the monopoly equilibrium price and quantity. 
 
-Inserting all of these substitutions and simplifying, we have:
+Suppose that the firms entered a legally-binding trust that enabled them to collude. What would the quantity of each individual firm be? 
 
-$$\max_{L} \{ 5000 \cdot (5L)^{1/3} - (L + 100) \}$$.
+### Solution
 
-## Analytical Approach
+If you chose to try doing this using R (which you might not need to since demand, marginal revenue, and marginal cost are all linear), the code might look like this:
 
-```{r}
-
+```{r, echo=TRUE}
+library(MicroWithR)
+Dinv = function(x) {
+  10 - x
+}
+pi <- function(x) {
+  Dinv(x)*x - 6*x
+}
+eq0 <- solnp2(
+  pars = 1, 
+  fun = pi, 
+  LB = 0, 
+  control = list(trace = 0), 
+  max = TRUE
+) 
+p0 = Dinv(eq0$pars)
+qi = eq0$pars/2
 ```
 
-```{r}
-w = 1
-r = 2
-pi  <- ysym('10*100*L^(1/3)*K^(2/3) - (w*L + r*K)')
-dpi <- deriv(pi, c('L', 'K')) 
-MPL <- solve(dpi[1], 'w') |>
-  y_rmvars()
-MPK <- solve(dpi[2], 'r') |>
-  y_rmvars()
-MRTS <- MPL/MPK 
-MRTS <- yac_str(MRTS) |>
-  Simplify() |> 
-  ysym()
-Kstar <- solve(MRTS, w/r, 'K') |>
-  y_rmvars()
-MPL <- with_value(MPL, 'K', Kstar) 
-solution <- solve(MPL, w, 'L')
-```
+The total monopolist's quantity would be: 
 
-```{r}
+$$(Q,P) = (`r eq0$pars`, `r p0`)$$
 
-```
+This makes each of the two firms' share of the total quantity: 
 
-## Graphical Approach
+$$(Q_1, Q_2) = (`r eq0$pars/2`, `r eq0$pars/2`)$$ 
 
+## Bertrand Duopoly
 
+A Bertrand oligopoly is a "winner take all" market in which the firm that charges the lowest price "wins" the opportunity to supply the entire market. If there is a tie, then firms charging the lowest price split the quantity equally. 
 
-```{r}
+$$Q_1 = D(P_1,P_2) = \Biggl\{ \matrix{0 \text{ if } P_1 > P_2 \\ Q/2 \text{ if } P_1 = P_2 \\ Q \text{ if } P_1 < P_2}$$
 
-```
+$$Q_2 = D(P_1,P_2) = \Biggl\{ \matrix{0 \text{ if } P_2 > P_1 \\ Q/2 \text{ if } P_2 = P_1 \\ Q \text{ if } P_2 < P_1}$$
 
-```{r}
+### "Analytical" Solution
 
-```
+Four Non-Cases: 
 
-```{r}
+1. $p_1 \ne p_2$ and $min\{p_1, p_2\} < MC$
+2. $p_1 = p_2$ and $min\{p_1, p_2\} < MC$
+3. $p_1 \ne p_2$ and $min\{p_1, p_2\} > MC$
+4. $p_1 = p_2$ and $min\{p_1, p_2\} > MC$
 
-```
+Suppose two identical firms choose their price to maximize profits subject to a "winner take all" market structure. What will the profit-maximizing price of the winning firm(s) be? 
 
-## Numerical Approach
+### Simulation of Bertrand Duopoly
 
+Use the following link to choose your strategy under the demand and cost conditions for the example. 
 
+[Bertrand Duopoloy Activity](https://forms.gle/kRFtVWAQgcCTZbDp6)
 
-```{r}
+<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe8Z5TTc29MeRST2_zhCmpVedXVmNQnoItNg8Mn38jKvzzoWA/viewform?embedded=true" width="640" height="1123" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
 
-```
-
-```{r}
-
-```
-
-```{r}
-
-```

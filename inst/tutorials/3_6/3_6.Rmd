@@ -1,5 +1,5 @@
 ---
-title: "3.6 General Equilibrium"
+title: "4.6 Oligopoly: Cournot and Stackelberg Oligopoly"
 output: 
   learnr::tutorial: 
     progressive: true
@@ -40,97 +40,471 @@ h4,h5,h6{font-size: 16pt}
 body{font-size: 16pt}
 </style>
 
-## The Firm's Three Problems
+## Oligopoly
 
-1. Input cost minimization
-2. Output profit maximization
-3. Input profit maximization
+### Review: Characteristics of Oligopoly
 
-### Competitive Input Markets
+1.  Few Large Producers (often one dominant firm)
+2.  Products may be homogeneous or differentiated
+3.  Mutual Interdependence (Some Control over Price)
+4.  Barriers to Entry
 
-$$\matrix{ \matrix{\text{1. Many, many buyers} \\ \text{2. Homogeneous inputs} \\ \text{3. Perfect information}} \Biggr\} \\ \text{4. Free entry/exit} \\ \text{  }} \matrix{\text{ } \\ \implies \\ \text{ } \\ \implies \\ \text{ } }  \matrix{\Biggl\{ \matrix{\text{Firms are} \\ \text{price} \\ \text{takers}} \\ \text{Profits/losses} \\ \text{are temporary}}$$
+### Review: Basic Types of Oligopoly
 
-### The Producer's Input-Hiring Problem
+|             | Sweezy    | Bertrand     | Cournot      | Stackelberg |
+|-------------|-----------|--------------|--------------|-------------|
+| Firms       | Few       | Few          | Few?         | 2           |
+| Strategy    | Quantity  | Price        | Quantity     | Price       |
+| Products    | Different | Same         | Same         | Same        |
+| Timing      | Unclear   | Simultaneous | Simultaneous | Sequential  |
+| Information | Unclear   | Perfect      | Perfect      | Perfect     |
+| Rationality | Unclear   | Full         | Full         | Full        |
 
-1. Objective: 
-2. Endogenous (choice) variable(s): 
-3. Exogenous variable(s): 
+### Review: A Simple Monopoly Example
 
-### Short Run
+Recall the setup for our previous example. 
 
-For simplicity we will solve the model using a Cobb-Douglas production function with input shares 1/3 and 2/3, and TFP parameter 100: 
+Market (inverse) demand:
 
-$$f(L,K) = 100L^{1/3}K^{2/3}$$.
+$$P = 10 - Q$$
 
-The firm's goal is to choose inputs optimally to maximize profits. 
+Firm Costs: 
 
-$$\max_{L,K} \{ \pi(L,K) = P \cdot f(L,K) - (wL + rK) \} $$
+$$TC = 6Q$$
 
-From the firm's perspective, markets determine input and output prices *exogenously*. Set $P = 10$, $w = 1$, $r = 2$
+```{r, echo=FALSE}
+library(MicroWithR)
+Dinv = function(x) {
+  10 - x
+}
+pi <- function(x) {
+  Dinv(x)*x - 6*x
+}
+eq0 <- solnp2(
+  pars = 1, 
+  fun = pi, 
+  LB = 0, 
+  control = list(trace = 0), 
+  max = TRUE
+) 
+p0 = Dinv(eq0$pars)
+qi = eq0$pars/2
+```
 
-In the short run, firms' previous choice of capital firms constrain their choices. Set $K = \bar{K} = 25$
+The total monopolist's quantity was: 
 
-Inserting all of these substitutions and simplifying, we have:
+$$(Q,P) = (`r eq0$pars`, `r p0`)$$
 
-$$\max_{L} \{ 5000 \cdot (5L)^{1/3} - (L + 100) \}$$.
+This makes each of the two firms' share of the total quantity: 
 
-## Analytical Approach
+$$(Q_1, Q_2) = (`r eq0$pars/2`, `r eq0$pars/2`)$$ 
+
+## Cournot Duopoly
+
+In a Cournot Duopoly, firms choose *quantity* instead of price. The market (inverse) demand function determines the price based on the total combined output. 
+
+$$\begin{split} P &= D^{-1}(Q) &= 10 - Q \\ 
+&= D^{-1}(Q_1 + Q_2) &= 10 - (Q_1 + Q_2) \end{split}$$
+
+The maximization problem for firm 1 is: 
+
+$$max_{Q_1}\{[10 - (Q_1 + Q_2)]Q_1 - 6Q_1\},$$
+
+or: 
+
+$$max_{Q_1}\{10Q_1 - Q_1Q_2 - Q_1^2 - 6Q_1\}.$$
+
+Notice that since the costs of the two firms are the same, the maximization problem for firm 2 is a mirror image, replacing all of the $Q_1$'s with $Q_2$'s and vice-versa. 
+
+### Best-Response Functions
+
+The first-order conditions for each firm give us that firm's best-response function, or reaction function depending on what it expects the other firm to produce. 
+
+```{r, echo = TRUE}
+library(Ryacas, warn.conflicts = FALSE)
+pi1 <- ysym('4*Q1 - Q1*Q2 - Q1^2') 
+pi2 <- ysym('4*Q2 - Q1*Q2 - Q2^2')
+br1 <- deriv(pi1, 'Q1') |>
+  solve(0, 'Q1') 
+br2 <- deriv(pi2, 'Q2') |>
+  solve(0, 'Q2') 
+```
+
+$$`r tex(br1)`$$
+$$`r tex(br2)`$$
+
+### Nash Equilibrium: Graphical Solution
+
+**Nash Equilibrium**: an outcome where, given the strategy choices of the other players, no individual player can obtain a higher payoff by altering their strategy choice ([Emerson, 2020](https://open.oregonstate.education/intermediatemicroeconomics/chapter/module-17/#section17-1)).
+
+The market reaches a Nash Equilibrium when the quantities each firm chooses demonstrate *consistent conjectures*. In other words, each firm plays its best response to the other firm's best response (and vice-versa and so on...).
+
+This occurs at the solution of the best response functions. Plot both best-response functions, with $Q_1$ on the x-axis and $Q_2$ on the y-axis.  
+
+```{r brPlot, exercise = TRUE}
+ 
+```
+
+```{r brPlot-solution}
+library(ggplot2)
+ggplot() + 
+  geom_function(fun = function(x) 4-2*x, aes(col = "Firm 1")) + 
+  geom_function(fun = function(x) (4-x)/2, aes(col = "Firm 2")) + 
+  lims(x = c(0, 4), y = c(0, 4)) + 
+  labs(x = "Firm 1 Output", y = "Firm 2 Output", color = "") + 
+  scale_color_manual(breaks = c("Firm 1", "Firm 2"), values = c("darkorange", "blue"))
+```
+
+```{r brPlot-check}
+grade_code()
+```
+
+Careful! For each firm, profits increase as the outcome approaches the axis corresponding to that firm's output choice. In other words, the profit for firm 1 is the highest when it believes that firm 2 will produce nothing (making firm 1 a monopolist), and vice versa!
+
+```{r, echo = TRUE}
+library(ggplot2)
+ggplot() + 
+  geom_function(
+    arrow = arrow(length=unit(0.30,"cm")),  # Forward arrow towards firm 1 monopoly
+    fun = function(x) 4-2*x, aes(col = "Firm 1")) + 
+  geom_function(
+    arrow = arrow(length=unit(0.30,"cm"), ends = 'first'), # Back arrow to firm 2 monopoly
+    fun = function(x) (4-x)/2, aes(col = "Firm 2")) + 
+  lims(x = c(0, 4), y = c(0, 4)) + 
+  labs(x = "Firm 1 Output", y = "Firm 2 Output", color = "", 
+       caption = "Arrow indicates direction for higher profits") + 
+  scale_color_manual(breaks = c("Firm 1", "Firm 2"), values = c("darkorange", "blue"))
+```
+
+### Graphical Solution with Isoprofit Curves
+
+```{r, echo = TRUE}
+library(MicroWithR)
+pi <- function(x) {                  # 
+  4*x[1] - x[1]*x[2] - x[1]^2
+}
+br2c <- function(x) {                # Find the other firm's BR function to set
+  x1 = x[1]                          # as a constraint.
+  x2 = x[2]
+  eval(D(quote(4*x2 - x1*x2 - x2^2), 'x2')) # `base::D()` evaluates the derivative. 
+}
+cournot <- solnp2(
+    c(1,1), 
+    pi, 
+    ineqfun = br2c,                  # Solution must be on (or outside) firm 2 BR
+    ineqLB = -Inf,
+    ineqUB = 0,
+    eqfun = function(x) x[1] - x[2], # Solution must be symmetric 
+    eqB = 0,
+    LB = c(0,0), 
+    control = list(trace = 0), 
+    max = TRUE
+)
+ggplot() + 
+  # BR functions
+  geom_function(fun = function(x) 4-2*x, aes(col = "Firm 1")) + 
+  geom_function(fun = function(x) (4-x)/2, aes(col = "Firm 2")) + 
+  # Isoprofits for firm 1
+  geom_function(fun = function(x) 4 - x - 16/(9*x), color = 'darkorange', lty = 'dashed') +
+  geom_function(fun = function(x) 4 - x - 2/x, color = 'darkorange', lty = 'dashed') +
+  # Isoprofits for firm 2 (need to be piecewise because they're not "proper")
+  geom_function(fun = function(x) ((-9)*x+sqrt(((-9)*x+36)^2-576)+36)/18, 
+                color = 'darkblue', lty = 'dashed', xlim = c(0, 4/3)) +
+  geom_function(fun = function(x) -(sqrt(((-9)*x+36)^2-576)-((-9)*x+36))/18, 
+                color = 'darkblue', lty = 'dashed', xlim = c(0, 4/3)) +
+  geom_function(fun = function(x) -(x+sqrt((4-x)^2-8)-4)/2, 
+                color = 'darkblue', lty = 'dashed', xlim = c(0, 4 - 2*sqrt(2))) +
+  geom_function(fun = function(x) -(x-4-sqrt((4-x)^2-8))/2, 
+                color = 'darkblue', lty = 'dashed', xlim = c(0, 4 - 2*sqrt(2))) +
+  # Outcomes of interest with labels
+  geom_point(aes(x = c(cournot$pars[1], 2, 1), y = c(cournot$pars[2], 0, 1))) +
+  geom_text(aes(x = c(cournot$pars[1], 2, 1), y = c(cournot$pars[2], 0, 1)), 
+            label = c("Cournot", "Firm 1 Monopoly", "Collusion")) +
+  # Make things look pretty
+  lims(x = c(0, 4), y = c(0, 4)) + 
+  labs(x = "Firm 1 Output", y = "Firm 2 Output", color = "") + 
+  scale_color_manual(breaks = c("Firm 1", "Firm 2"), values = c("darkorange", "darkblue"))
+```
+
+Note: I took an assist from `Ryacas` to find the top and bottom functions for the firm 2 isoprofit function. Here is the code that helped me: 
+
+```{r, echo = TRUE}
+(pi2star <- solve(ysym('4 - x - x2 - 16/(9*x2)'), 0, 'x2'))
+```
+
+$$`r tex(pi2star)`$$
+
+Notice that the top and bottom of the curve have separate expressions because of the presence of squares and square-root functions with respect to $x_2$. I could not have done this easily by hand!
+
+### Nash Equilibrium: Analytical Solution
+
+Once we have the best-response functions, solving the equilibrium
+
+```{r, echo = TRUE}
+eq1 <- solve(c(br1, br2), c(0,0), c('Q1', 'Q2')) |> 
+  y_rmvars() 
+p1 <- 10 - eq1[1] - eq1[2]
+```
+
+$$\pmatrix{Q_1 \\ Q_2 \\ P} = \pmatrix{ `r tex(eq1[1])` \\ `r tex(eq1[2])` \\ `r tex(p1)`}$$
+
+### Nash Equilibrium: Computational Solution
+
+Nash equilibrium is really tricky without doing at least one of the profit-function derivatives. The code below does it for our simple example using only the `Rsolnp::` package with the help of the derivative (`D()`) function in the basic `stats::` package. (0/10 - do not recommend: extracting the derivative expression is a PITA.)
+
+```{r, echo = TRUE}
+library(MicroWithR)
+pi <- function(x) {
+  4*x[1] - x[1]*x[2] - x[1]^2
+}
+br2 <- function(x) {
+  x1 <- x[1]
+  x2 <- x[2]
+  eval(D(quote(4*x2 - x1*x2 - x2^2), 'x2'))
+}
+cournot <- solnp2(
+    c(1,1), 
+    pi, 
+    ineqfun = br2,
+    ineqLB = -Inf,
+    ineqUB = 0,
+    eqfun = function(x) x[1] - x[2], # Solution must be symmetric 
+    eqB = 0,
+    LB = c(0,0), 
+    control = list(trace = 0), 
+    max = TRUE
+)
+```
+
+$$(Q_1, Q_2) = `r cournot$pars[1]`, `r cournot$pars[2]`$$
+
+### Simulation of Cournot Duopoly
+
+Use the following link to choose your strategy under the demand and cost conditions for the example. 
+
+[Cournot Duopoloy Activity](https://forms.gle/JthsPp2CrbdqCB9dA)
+
+<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdAFg3fm31Nr73ggV03uXCw5nV8IfyS0yEhYY26zkxNnI0gOQ/viewform?embedded=true" width="640" height="1151" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+
+Final note: as the number of firms in a Cournot duopoly increases, price and quantity approach the perfectly competitive equilibrium. 
+
+```{r, echo = TRUE}
+cournotLim <- data.frame(N = seq(1,50, by = 1))
+cournotLim$Q_i = 4/(cournotLim$N+1)
+cournotLim$Price = 10 - (4*cournotLim$N/(cournotLim$N+1))
+cournotLim$Profit = cournotLim$Price*cournotLim$Q_i - 6*cournotLim$Q_i
+cournotLim$Q_m = cournotLim$N*4/(cournotLim$N+1)
+cournotLim$Q_c = 4
+cournotLim$P_c = 6
+ggplot(data = cournotLim) + 
+  geom_line(aes(x = N, y = Q_m, color = "Market Quantity")) + 
+  geom_line(aes(x = N, y = Price, color = "Market Price")) + 
+  geom_line(aes(x = N, y = Profit*4, color = "Firm Profits")) + 
+  geom_line(aes(x = N, y = Q_c, lty = "Competitive Quantity")) + 
+  geom_line(aes(x = N, y = P_c, lty = "Competitive Price")) + 
+  labs(x = "Number of Firms", color = "", linetype = "") + 
+  scale_y_continuous(
+    name = "Market Price or Quantity", limits = c(0,8),
+    sec.axis = sec_axis(~./4, name = "Profit")) + 
+  scale_color_manual(
+    breaks = c("Market Quantity", "Market Price", "Firm Profits"), 
+    values = c("darkblue", "firebrick", "darkgreen")) + 
+  scale_linetype_manual(
+    breaks = c("Competitive Quantity", "Competitive Price"), 
+    values = c("dashed", "solid"))
+```
+
+## Stackelberg (Leader-Follower) Duopoly
+
+The Stackelberg Model assumes one firm is the "leader" and chooses *first* (here, assume firm 1 is the leader), and the other firm (firm 2) is the "follower" and chooses *after* observing the leader's choice of output. 
+
+At first we might think that the *follower* has the upper hand: they get to see the leader's decision before choosing. But remember: firm 1 *knows* what firm 2's best response will be, and lead with the quantity that maximizes firm 1's profit, subject to the firm 2's best response function as a constraint. 
+
+The decision tree becomes: 
 
 ```{r}
+library(MicroWithR)
+gameTree(players = c("Firm 1", "Firm 2"), strategies = c("BR(Q)", "Low Q"), payoffs1 = c(2, 2, 1, 2), payoffs2 = c(1, 1, 2, 2))
+```
+
+### Backwards Induction and Subgame Perfect Nash Equilibrium (SPNE)
+
+A common method for solving the equilibrium for a sequential games is *backward induction*, which leads to a *subgame perfect Nash equilibrium* (SPNE). Backward induction starts with the last move (or "subgame") in the game, solves the best response of the player(s) at that stage, and assumes that the player(s) in the preceding round(s) perfectly anticipate the response. 
+
+Solving the second and final stage of our game, we have firm 2's best response as the solution to:
+
+$$max_{Q_2}\{4Q_2 - Q_1Q_2 - Q_2^2\},$$
+
+which we solved in the cournot problem to be: 
+
+$$Q_2 = \frac{4 - Q_1}{2}$$
+
+Firm one exploits the fact that it anticipates firm 2's response *and* the fact that the game is no longer symmetric, and solves: 
+
+$$max_{Q_1}\{4Q_1 - Q_1Q_2 - Q_1^2\}$$
+subject to: 
+
+$$Q_2 = \frac{4 - Q_1}{2}$$
+
+Solve the choice of $Q_1$ by firm 1. 
+
+```{r stackelberg, exercise = TRUE}
 
 ```
 
-```{r}
-w = 1
-r = 2
-pi  <- ysym('10*100*L^(1/3)*K^(2/3) - (w*L + r*K)')
-dpi <- deriv(pi, c('L', 'K')) 
-MPL <- solve(dpi[1], 'w') |>
-  y_rmvars()
-MPK <- solve(dpi[2], 'r') |>
-  y_rmvars()
-MRTS <- MPL/MPK 
-MRTS <- yac_str(MRTS) |>
-  Simplify() |> 
-  ysym()
-Kstar <- solve(MRTS, w/r, 'K') |>
-  y_rmvars()
-MPL <- with_value(MPL, 'K', Kstar) 
-solution <- solve(MPL, w, 'L')
+```{r stackelberg-setup}
+library(MicroWithR)
+pi <- function(x) {
+  4*x[1] - x[1]*x[2] - x[1]^2
+}
+br2 <- function(x) {
+  x1 <- x[1]
+  x2 <- x[2]
+  eval(D(quote(4*x2 - x1*x2 - x2^2), 'x2'))
+}
+cournot <- solnp2(
+    c(1,1), 
+    pi, 
+    ineqfun = br2,
+    ineqLB = -Inf,
+    ineqUB = 0,
+    eqfun = function(x) x[1] - x[2], # Solution must be symmetric 
+    eqB = 0,
+    LB = c(0,0), 
+    control = list(trace = 0), 
+    max = TRUE
+)
+```
+
+```{r stackelberg-solution}
+stackelberg <- solnp2(
+    c(1,1), 
+    pi, 
+    eqfun = br2, # Solution need only satisfy firm 2 best response
+    eqB = 0, 
+    LB = c(0,0), # No symmetry constraint
+    control = list(trace = 0), 
+    max = TRUE
+)
+```
+
+```{r stackelberg-check}
+grade_code()
+```
+
+### Graph of the Solution
+
+The solution for the leader puts the production on an isoprofit curve as close to firm 1's monopoly outcome as possible, while maintaining a point of tangency with firm 2's best response function. 
+
+The following code demonstrates this property of the equilibrium, with firm 1's best response function added as a reference. 
+
+```{r, echo = FALSE}
+library(MicroWithR)
+pi <- function(x) {                  # 
+  4*x[1] - x[1]*x[2] - x[1]^2
+}
+br2c <- function(x) {                # Find the other firm's BR function to set
+  x1 = x[1]                          # as a constraint.
+  x2 = x[2]
+  eval(D(quote(4*x2 - x1*x2 - x2^2), 'x2')) # `base::D()` evaluates the derivative. 
+}
+cournot <- solnp2(
+    c(1,1), 
+    pi, 
+    ineqfun = br2c,                  # Solution must be on (or outside) firm 2 BR
+    ineqLB = -Inf,
+    ineqUB = 0,
+    eqfun = function(x) x[1] - x[2], # Solution must be symmetric 
+    eqB = 0,
+    LB = c(0,0), 
+    control = list(trace = 0), 
+    max = TRUE
+)
+stackelberg <- solnp2(
+    c(1,1), 
+    pi, 
+    eqfun = br2, # Solution need only satisfy firm 2 best response
+    eqB = 0, 
+    LB = c(0,0), # No symmetry constraint
+    control = list(trace = 0), 
+    max = TRUE
+)
+```
+
+```{r, echo = TRUE}
+ggplot() + 
+  # BR functions
+  geom_function(fun = function(x) 4-2*x, aes(col = "Firm 1")) + 
+  geom_function(fun = function(x) (4-x)/2, aes(col = "Firm 2")) + 
+  # Stackelberg isoprofit for firm 1
+  geom_function(fun = function(x) 4 - x - 2/x, color = 'darkorange', lty = 'dashed') +
+  # Stackelberg isoprofits for firm 2
+  geom_function(fun = function(x) -(x+sqrt((4-x)^2-4)-4)/2, 
+                color = 'darkblue', lty = 'dashed', xlim = c(0, 2)) +
+  geom_function(fun = function(x) -(x-4-sqrt((4-x)^2-4))/2, 
+                color = 'darkblue', lty = 'dashed', xlim = c(0, 2)) +
+  # Outcomes of interest with labels
+  geom_point(aes(x = c(cournot$pars[1], 2, 1), y = c(cournot$pars[2], 0, 1))) +
+  geom_text(aes(x = c(cournot$pars[1], 2, 1, stackelberg$pars[1]), 
+                y = c(cournot$pars[2], 0, 1, stackelberg$pars[2])), 
+            label = c("Cournot", "Firm 1 Monopoly", "Collusion", "Stackelberg")) +
+  # Make things look pretty
+  lims(x = c(0, 4), y = c(0, 4)) + 
+  labs(x = "Firm 1 Output", y = "Firm 2 Output", color = "") + 
+  scale_color_manual(breaks = c("Firm 1", "Firm 2"), values = c("darkorange", "darkblue"))
 ```
 
 ```{r}
-
+pi2star <- solve(ysym('4 - x - x2 - 1/x2'), 0, 'x2') 
 ```
 
-## Graphical Approach
+It's worth noting that in this example the leader ends up with the same profits as they would have earned with collusion! 
 
+## Comparison of Equilibria
 
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-## Numerical Approach
-
-
-
-```{r}
-
+```{r, echo = TRUE}
+compare <- data.frame(
+  Price = c(8, 6, 22/3, 7), 
+  Quantity1 = c(1, 2, 4/3, 2),
+  Quantity2 = c(1, 2, 4/3, 1),
+  Profit1 = c(2, 0, 16/9, 2), 
+  Profit2 = c(2, 0, 16/9, 1), 
+  row.names = c("Collusion", "Bertrand", "Cournot", "Stackelberg")
+)
+print(compare, digits = 3)
 ```
 
 ```{r}
-
-```
-
-```{r}
-
+ggplot() + 
+  # BR functions
+  geom_function(fun = function(x) 4-2*x, aes(col = "Firm 1")) + 
+  geom_function(fun = function(x) (4-x)/2, aes(col = "Firm 2")) + 
+  # Isoprofits for firm 1
+  geom_function(fun = function(x) 4 - x - 16/(9*x), color = 'darkorange', lty = 'dashed') +
+  geom_function(fun = function(x) 4 - x - 2/x, color = 'darkorange', lty = 'dashed') +
+  geom_function(fun = function(x) 4 - x, color = 'darkorange') +
+  # Isoprofits for firm 2 (need to be piecewise because they're not "proper")
+  geom_function(fun = function(x) ((-9)*x+sqrt(((-9)*x+36)^2-576)+36)/18, 
+                color = 'darkblue', lty = 'dashed', xlim = c(0, 4/3)) +
+  geom_function(fun = function(x) -(sqrt(((-9)*x+36)^2-576)-((-9)*x+36))/18, 
+                color = 'darkblue', lty = 'dashed', xlim = c(0, 4/3)) +
+  geom_function(fun = function(x) -(x+sqrt((4-x)^2-8)-4)/2, 
+                color = 'darkblue', lty = 'dashed', xlim = c(0, 4 - 2*sqrt(2))) +
+  geom_function(fun = function(x) -(x-4-sqrt((4-x)^2-8))/2, 
+                color = 'darkblue', lty = 'dashed', xlim = c(0, 4 - 2*sqrt(2))) +
+  geom_function(fun = function(x) -(x+sqrt((4-x)^2-4)-4)/2, 
+                color = 'darkblue', lty = 'dashed', xlim = c(0, 2)) +
+  geom_function(fun = function(x) -(x-4-sqrt((4-x)^2-4))/2, 
+                color = 'darkblue', lty = 'dashed', xlim = c(0, 2)) +
+  geom_function(fun = function(x) 4 - x, color = 'darkblue', lty = 'dashed') +
+  # Outcomes of interest with labels
+  geom_point(aes(x = c(cournot$pars[1], 2, 1, stackelberg$pars[1], 2), 
+                 y = c(cournot$pars[2], 0, 1, stackelberg$pars[2], 2))) +
+  geom_text(aes(x = c(cournot$pars[1], 2, 1, stackelberg$pars[1], 2), 
+                y = c(cournot$pars[2], 0, 1, stackelberg$pars[2], 2)), 
+            label = c("Cournot", "Firm 1 Monopoly", "Collusion", "Stackelberg", "Bertrand")) +
+  # Make things look pretty
+  lims(x = c(0, 4), y = c(0, 4)) + 
+  labs(x = "Firm 1 Output", y = "Firm 2 Output", color = "") + 
+  scale_color_manual(breaks = c("Firm 1", "Firm 2"), values = c("darkorange", "darkblue"))
 ```

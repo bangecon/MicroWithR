@@ -1,0 +1,208 @@
+---
+title: "1.6 Comparative Statics II: Price Changes"
+editor_options: 
+  markdown: 
+    wrap: 72
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+---
+
+```{r setup, include = FALSE}
+library(learnr)
+library(gradethis)
+gradethis_setup()
+tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
+knitr::include_graphics
+```
+
+## Alcoholic Beverage (Excise) Tax
+
+### Initial Solution
+
+Recall the beer and donuts example from our budget constraint section.  
+Consider a consumer with the income ($m = 20$) and price ($p_b = 2$ and $p_d = 1$) parameters from that example along with preferences described by a Cobb-Douglas utility function with equal budget shares on each good. 
+
+$$\max_x \bigg\{ U(x_b,x_d) = x_b^{0.5}x_d^{0.5} \bigg\}$$
+$$\text{s.t. } 2x_b + x_d \le 20$$
+
+Calculate and graph the initial equilibrium 
+(with beer on the x-axis and donuts on the y-axis as before). 
+
+```{r taxInitialEquilibrium, exercise = TRUE}
+
+```
+
+```{r taxInitialEquilibrium-solution}
+library(MicroWithR)
+ux <- function(x)
+  x[1] ^ (a) * x[2] ^ (1 - a)
+bc <- function(x)
+  pb * x[1] + pd * x[2]
+a = 0.5
+m = 20
+pb = 2
+pd = 1
+control = list(trace = 0)
+eq <- solnp2(
+  c(1, 1),
+  ux,
+  ineqfun = bc,
+  ineqLB = 0,
+  ineqUB = m,
+  LB = c(0, 0),
+  UB = c(Inf, Inf),
+  max = TRUE
+)
+```
+
+```{r taxInitialEquilibrium-check}
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (.result$pars != c(5, 10)) { 
+    fail("The optimal amount of goods one and two should be 5 and 10") }
+  pass()
+})
+```
+
+### Alcoholic-Beverage Tax Solution
+
+Suppose the government levies a $0.50/unit tax on beer. 
+Calculate the new equilibrium.  
+
+```{r taxEquilibrium, exercise = TRUE}
+
+```
+
+```{r taxEquilibrium-setup}
+library(MicroWithR)
+a = 0.5
+m = 20
+pb = 2
+pd = 1
+t = 0.5
+control = list(trace = 0)
+ux <- function(x)
+  - x[1] ^ (a) * x[2] ^ (1 - a)
+bc <- function(x)
+  pb * x[1] + pd * x[2]
+```
+
+```{r taxEquilibrium-solution}
+t = 0.5
+bcT <- function(x)
+  (pb + t) * x[1] + pd * x[2]
+eqT <- solnp2(
+  c(1, 1),
+  ux,
+  ineqfun = bcT,
+  ineqLB = 0,
+  ineqUB = m,
+  LB = c(0, 0),
+  UB = c(Inf, Inf), 
+  max = TRUE
+)
+```
+
+```{r taxEquilibrium-check}
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (.result$pars != c(5, 10)) { 
+    fail("The optimal amount of goods one and two should be 4 and 10") }
+  pass()
+})
+```
+
+### Alcoholic-Beverage Tax Graph
+
+Graph the equilibrium (indifference curve and budget line) before and after the tax. 
+Include a point for the equilbrim labeled with the equilibrium values $(Q_beer, Q_Donuts)$. 
+Place beer on the x-axis (labeled "Beer") and donuts on the y-axis (labeled "Donuts). 
+
+```{r taxGraph, exercise = TRUE}
+
+```
+
+```{r taxGraph-setup}
+library(MicroWithR)
+a = 0.5
+m = 20
+pb = 2
+pd = 1
+t = 0.5
+control = list(trace = 0)
+bc <- function(x)
+  pb * x[1] + pd * x[2]
+ux <- function(x)
+  - x[1] ^ (a) * x[2] ^ (1 - a)
+eq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf),
+    max = TRUE
+  )
+bcT <- function(x)
+  (pb + t) * x[1] + pd * x[2]
+eqT <- solnp2(
+  c(1, 1),
+  ux,
+  ineqfun = bcT,
+  ineqLB = 0,
+  ineqUB = m,
+  LB = c(0, 0),
+  UB = c(Inf, Inf),
+  max = TRUE
+)
+```
+
+```{r taxGraph-solution}
+library(ggplot2)
+ggplot() + 
+  geom_function(
+    fun = function(x) ux(eq$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))), 
+    color = 'darkgreen') +
+  geom_function(fun = function(x) m / pd - pb * x / pd, color = 'red') +
+  geom_function(
+    fun = function(x) ux(eqT$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))), 
+    color = 'darkgreen', linetype = 'dashed') +
+  geom_function(
+    fun = function(x) m / pd - (pb + t) * x / pd, 
+    color = 'red', linetype = 'dashed') +
+  geom_point(aes(x = eq$pars[1], y = eq$pars[2]), color = "blue") +
+  geom_point(aes(x = eqT$pars[1], y = eqT$pars[2]), color = "blue") +
+  geom_text(
+    aes(x = eq$pars[1], y = eq$pars[2]), 
+    label = paste0('(', round(eq$pars[1], 2), ', ', round(eq$pars[2], 2), ')'),
+    hjust = 0, vjust = 0) + 
+  geom_text(
+    aes(x = eqT$pars[1], y = eqT$pars[2]), 
+    label = paste0('(', round(eqT$pars[1], 2), ', ', round(eqT$pars[2], 2), ')'), 
+    hjust = 0, vjust = 0) + 
+  lims(x = c(0, m/pb), y = c(0, m/pd)) + 
+  labs(x = "Quantity of Beer", y = "Quantity of Donuts")
+```
+
+```{r taxGraph-check}
+grade_this({
+  if (uses_geoms(.result, "function") & uses_geoms(.result, "point")) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
+
+Note that the tax reduces beer consumption and consumer utility. 
+However, since the budget share is constant, the tax does *not* affect donut consumption in this example. A consumer with different preferences would respond differently.
+

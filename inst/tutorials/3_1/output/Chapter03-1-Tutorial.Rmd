@@ -1,0 +1,223 @@
+---
+title: "Chapter03-1 StaticNotes"
+author: "Jim Bang"
+date: '2022-07-26'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(stargazer)
+library(xfun)
+library(htmltools)
+library(wooldridge)
+tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)
+gradethis::gradethis_setup()
+knitr::opts_chunk$set(echo = FALSE)
+wage1 <- wooldridge::wage1
+wage.lm1 <- lm(wage ~ educ, data = wage1)
+wage.lm2 <- lm(wage ~ educ + exper, data = wage1)
+```
+
+## Multiple Regression
+
+### Wages and Education AND MORE!
+
+- Using the wage1 data, regress wages on education (with an intercept). 
+
+Name this wage.lm1
+
+- Using the wage1 data, regress wages on education and experience (with an intercept). 
+- Name this wage.lm2
+- Summarize each regression object using "summary()"
+
+```{r multipleLM-solution}
+wage.lm1 <- lm(wage ~ educ, data = wage1)
+wage.lm2 <- lm(wage ~ educ + exper, data = wage1)
+summary(wage.lm1)
+summary(wage.lm2)
+```
+
+### Table Output for Regressions
+
+1. Display a *stargazer* object of the previous regressions using the *stargazer* function in the *stargazer* package without saving the output or assigning it to a named object 
+2. Use a *text* output type. (In general, it's more useful to use `type = 'html'` and `out = 'folder/filename.html'`)
+3. Set your `title` to read "Education and Wages", `covariate.labels` as "Education" and "Experience," and omit the header containing the package citation information. 
+
+```{r gtLM-solution}
+stargazer(wage.lm1, wage.lm2, type = 'text')
+```
+
+### Raw Stargazer HTML Output 
+
+```{r, echo = TRUE}
+stargazer(wage.lm1, wage.lm2, type = 'html')
+```
+
+### Formatted Stargazer HTML Output 
+
+You can directly insert a `stargazer` table in an `html` Rmarkdown document. One is to include the command that generates the `html` in an `R` chunk (with the option `results='asis'`) that itself is inside an `html` code chunk.  
+
+```{r, echo = TRUE, eval=FALSE}
+stargazer(wage.lm1, wage.lm2,
+          type = "html",
+          title="Education and Wages",
+          header=FALSE,
+          covariate.labels = c("Education", "Experience")
+          )
+```
+
+```{=html}
+```{r, results='asis'}
+stargazer(wage.lm1, wage.lm2,
+          type = "html",
+          title="Education and Wages",
+          header=FALSE,
+          covariate.labels = c("Education", "Experience")
+          )
+```
+<br>
+```
+
+Since this tutorial knits as an `html` document I needed to use some extra tricks. More commonly, you would knit your document as a `pdf`, and in this case you would want to leave out the `html` wrap, and set `type = "latex"`. 
+
+## Assumptions of the Classical Regression Model
+
+1. Linear in the parameters
+2. Random Sampling: $(X_i, Y_i)$ are independently and identically distributed
+3. No Perfect Multicollinearity
+4. $E[u|x] = 0$
+5. Homoskedasticity: $u_i{'s}$ have constant variance regardless of the value of $x$
+6. Large Outliers are Unlikely: $X$ and $Y$ have finite fourth moments
+$$E(X^4)< \infty$$
+$$E(Y^4)< \infty$$
+
+## Implementing Regression
+
+Least Squares Redux
+
+- One variable
+$$ \min_{\hat\beta_0,\hat\beta_1} \sum_{i=1}^n{(y_i-\hat{\beta}_0-\hat{\beta}_1x_{i1})^2} $$
+- Two variables
+$$ \min_{\hat\beta_0,\hat\beta_1,\hat\beta_2} \sum_{i=1}^n{(y_i-\hat{\beta}_0-\hat{\beta}_1x_{i1}-\hat{\beta}_2x_{i2})^2} $$
+- $k$ variables
+$$ \min_{\hat\beta_0,\hat\beta_1,...,\hat\beta_k} \sum_{i=1}^n{(y_i-\hat{\beta}_0-\hat{\beta}_1x_{i1}-...-\hat{\beta}_kx_{ik})^2} $$
+Taking the derivative with respect to each of the ${\beta}'s$ separately yields a system of equations equal to the number of ${\beta}\text{'s }(k + 1)$ and an equal number of parameters to solve for. 
+
+## Interpretation
+
+Predicted values of y:
+$$\hat{wage}=\hat{\beta}_0+\hat{\beta}_1educ+\hat{\beta}_2exper$$
+Changes in $\hat{y}$:
+$$ \Delta \hat{wage}=\hat{\beta}_0+\hat{\beta}_1 \Delta educ + \hat{\beta}_2 \Delta exper$$
+*Ceteris paribus* the predicted change in $y$ in response to an observed change in $x$ is:
+$$ \Delta \hat{wage}=0+\hat{\beta}_1 \Delta educ+\hat{\beta}_2 (0)$$
+$$ \Delta \hat{wage}=\hat{\beta}_1 \Delta educ $$
+The predicted change in wage is $\hat\beta_1$ dollars per hour *for each additional year of education*. 
+
+## Optimization by Hand Demo
+
+The following code very closely replicates the method used in the $lm$ function for minimizing the sum of squared residuals.
+
+```{r optimDemo, echo = TRUE}
+ssr <- function(b, y, x1, x2) {
+    b1 <- b[1]
+    b2 <- b[2]
+    b0 <- b[3]
+    sum((y - b0 - b1*x1 - b2*x2)^2)
+}
+b.ols <- optim(par = c(mean(wage1$wage),0,0), fn = ssr, method = "BFGS", y = wage1$wage, x1 = wage1$educ, x2 = wage1$exper)
+b.ols$par
+sqrt(b.ols$value/(length(wage1$wage)-length(b.ols$par)))
+```
+
+Note: the value of the function at the minimum is the SSR, so $\hat\sigma^2 = b.ols\$value/(n-k)$
+
+## Partialing Out Control Variables
+
+Regress wages on experience and then education on experience. 
+
+Name the results $wage.p$ and $educ.p$
+
+```{r partials, exercise = TRUE, exercise.reveal_solution = FALSE}
+
+
+```
+
+```{r partials-hint}
+# The "lm" function requires two main arguments: function (y ~ x1 + x2...) and data (a data frame) 
+wage.p <- lm(..., ...)
+educ.p <- lm(..., ...)
+```
+
+```{r partials-solution, exercise.reveal_solution = FALSE}
+wage.p <- lm(wage~exper, data = wage1)
+educ.p <- lm(educ~exper, data = wage1)
+```
+
+```{r partials-check}
+grade_code()
+```
+
+Summarize the regression of the residuals of these regressions on each other and compare the effects of education to the summary of $wage.lm2$. 
+
+```{r residReg, exercise = TRUE}
+
+
+```
+
+```{r residReg-hint}
+# We do not need to store the argument. We can just nest the lm() function inside summary()
+summary(lm(..., ...))
+summary(...)
+```
+
+```{r residReg-solution, exercise.reveal_solution = FALSE}
+summary(lm(wage.p$resid~educ.p$residuals))
+summary(wage2.lm2)
+```
+
+```{r residReg-check}
+grade_code("Notice that the coefficients are identical! The standard error of regression (and hence the standard errors of the coeffients, t-statistics, and p-values) differ slightly. This is because R only takes into account the education variable when determining the degrees of freedom. The true standard error of the residual regression should take that into account and the SER should be scaled up by $(n-2)/(n-k)$, where $k = 3$ in this example.")
+```
+
+## Properties of OLS Redux
+
+- $\sum_{i=1}^{n}{\hat{u}_i = 0}$
+- $\sum_{i=1}^{n}{x_i\hat{u_i} = 0}$
+- The *Total* Sum of Squares, $SST = \sum_{i=1}^n{(y_i-\bar{y})^2}$
+- The *Explained* Sum of Squares, $SSE = \sum_{i=1}^n{(\hat{y}_i-\bar{y})^2}$
+- The *Residual* Sum of Squares, $SSR = \sum_{i=1}^n{(y_i-\hat{y})^2}$
+- SST = SSE + SSR (see section 2.3 for proof)
+- Goodness of Fit, $R^2 = SSE/SST = 1 - SSR/SST$
+
+We will discuss issues with using the (unadjusted) $R^2$ more in Chapter 6. 
+
+<html>
+<blockquote class="twitter-tweet" data-partner="tweetdeck"><p lang="en" dir="ltr">If I had my way, any R-squared reported with linear estimation would be computed only after we net out factors that required no imagination our our part. In time series, y(t) would be detrended and/or seasonalized -- depending on what&#39;s being controlled for.<a href="https://twitter.com/hashtag/metricstotheface?src=hash&amp;ref_src=twsrc%5Etfw">#metricstotheface</a></p>&mdash; Jeffrey Wooldridge (@jmwooldridge) <a href="https://twitter.com/jmwooldridge/status/1374502138714279949?ref_src=twsrc%5Etfw">March 23, 2021</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</html>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

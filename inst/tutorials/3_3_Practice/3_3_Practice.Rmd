@@ -1,0 +1,102 @@
+---
+title: "3.3 Monopoly"
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(ggcheck)
+gradethis_setup(exercise.reveal_solution = FALSE, exercise.eval = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+```
+
+## Natural Monopoly
+
+As the manager of a power company, your firm faces a demand function estimated as: 
+
+$$Q_d = 350 - 20Q$$
+
+Internal cost analysis estimates the company's long-run cost function to be: 
+
+$$C(Q) = \frac{Q^2}{200} + 10Q + \frac{10000}{Q}$$
+
+### Graphical Approach
+
+Plot the inverse demand, marginal revenue, long-run average cost, and long-run marginal cost functions. 
+
+```{r naturalMonopoly, exercise = TRUE}
+
+```
+
+```{r naturalMonopoly-hint}
+
+```
+
+```{r naturalMonopoly-solution}
+library(ggplot2)
+ggplot() + 
+  geom_function(fun = function(x) 17.5 - 0.05*x, aes(color = "D")) + 
+  geom_function(fun = function(x) 17.5 - 0.1*x, aes(color = "MR")) + 
+  geom_function(fun = function(x) x/200 + 10 + 10000/(x^2) - 10000/(x^3), aes(color = "LRAC")) + 
+  geom_function(fun = function(x) x/100 + 10 - 10000/(x^2) + 20000/(x^3), aes(color = "LRMC")) +
+  lims(x = c(0,200), y = c(0, 20)) +
+  labs(x = "Quantity", y = "Price", color = "") + 
+  scale_color_manual(breaks = c("D", "MR", "LRAC", "LRMC"), values =c("blue", "skyblue3", "maroon", "red"))
+```
+
+```{r naturalMonopoly-check}
+grade_this({
+  pass_if(ith_geom_is(.result, "function", i = 1) & 
+            ith_geom_is(.result, "function", i = 4))
+  fail(random_encouragement())
+  })
+```
+
+### Computational Approach
+
+Solve computationally for the profit-maximizing quantity, price, and profit.  
+
+```{r equilibrium, exercise = TRUE}
+```
+
+```{r equilibrium-hint1}
+# Be careful! 
+# The profit function is cubic and has multiple quantities where the slope equals zero. 
+# Set your starting `pars` option wisely!
+```
+
+```{r equilibrium-hint2}
+# The "first" critical value is a (local) minumum at about q = 49. 
+# Set the starting `pars` greater than this to get the correct profit-maximizing quantity. 
+```
+
+```{r equilibrium-solution}
+library(MicroWithR)
+pi <- function(x) {
+  17.5*x - 0.05*x^2 - (x^2/200 + 10*x + 10000/x)
+}
+eq <- solnp2(
+  pars = 50, 
+  fun = pi, 
+  LB = 0, 
+  control = list(trace = 0), 
+  max = TRUE
+)
+eq$pars
+```
+
+```{r equilibrium-check}
+grade_this({
+  pass_if(round(.result, 1) == 81.8)
+  fail()
+})
+```
