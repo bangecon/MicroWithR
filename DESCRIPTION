@@ -1,6 +1,6 @@
 Package: MicroWithR
 Title: [learnr] Tutorials for Using R for Intermediate Microeconomics
-Version: 0.1.1
+Version: 2.1.0
 Authors@R: 
     person(given = "James",
            family = "Bang",
@@ -21,6 +21,7 @@ Depends:
   shinytest
 Imports: 
   ggplot2, 
+  ggpubr,
   nleqslv, 
   Ryacas, 
   Deriv, 
