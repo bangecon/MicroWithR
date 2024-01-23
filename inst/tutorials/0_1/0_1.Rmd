@@ -197,44 +197,26 @@ For the purposes of getting computational solutions, there is not really a diffe
 
 ### Graphing a Function
 
-<<<<<<< HEAD
 The `ggplot2` package produces professional-looking graphs that look great with the defaults, and that you can learn to customize in infinitely many ways with experience and practice. The function, `ggplot()` initiates a plot, and you can add layer after layer of plots, labels, data, and formatting options using "geom" functions. For mathematical functions, the `geom_function()` function can add any function that you specify with `function(x)` followed by an `expression`. You can also store the plot properties as an object and add features as you think of them. 
 
 Define a plot, `p` with the math function $f(x) = 8x^2 - 6x - 12$ \textcolor{blue}{*blue*}. 
-=======
-The `ggplot2` package produces professional-looking graphs that look great with the defaults, and that you can learn to customize in infinitely many ways with experience and practice. The function, `ggplot()` initiates a plot, and you can add layer after layer of plots, labels, data, and formatting options using "geom" functions. For mathematical functions, the `geom_function()` function can add any function that you specify with `function(x)` followed by an `expression` that includes mathematical operations applied to the variable, $x$.  
-
-You can also store the plot properties as an object and add features as you think of them. Define a plot, `g` with the math function $f(x) = 8x^2 - 6x - 12$ \textcolor{blue}{*blue*}.  
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 
 ```{r plot, exercise=TRUE, fig.height=6.5, fig.width=4.5, fig.align='center'}
 
 ```
 
-<<<<<<< HEAD
 ```{r plot-solution}
 p <- ggplot() +
   geom_function(fun = function(x) 8*x^2 - 6*x - 12, color = "blue") 
 p
-=======
-```{r plot-solution, warning=FALSE, message = FALSE}
-g <- ggplot() +
-  geom_function(fun = function(x) 8*x^2 - 6*x - 12, color = "blue") 
-g
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 ```
 
 ```{r plot-check}
 grade_this({
-<<<<<<< HEAD
   if (ith_geom_is(.result, "function", i = 1)) {
     pass(random_praise())
   }
   fail(random_encouragement())
-=======
-    pass_if(ith_geom_is(.result, "function", 1)) 
-    fail(random_encouragement())
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 })
 ```
 
@@ -244,20 +226,12 @@ Add the line $y = 20x$ to the same plot in \textcolor{darkorange}{*dark orange*}
 
 ```
 
-<<<<<<< HEAD
 ```{r addPlot-setup}
-=======
-```{r addPlot-setup, warning=FALSE, message = FALSE}
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 p <- ggplot() +
   geom_function(fun = function(x) 8*x^2 - 6*x - 12, color = "blue") 
 ```
 
-<<<<<<< HEAD
 ```{r addPlot-solution}
-=======
-```{r addPlot-solution, warning=FALSE, message = FALSE}
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 p <- p +
     geom_function(fun = function(x) 20*x, color = 'darkorange')
 ```
@@ -265,11 +239,7 @@ p <- p +
 ```{r addPlot-check}
 grade_this({
   if (ith_geom_is(.result, "function", i = 2)) {
-<<<<<<< HEAD
     pass(random_praise(), " Where is the second function though? Maybe we should fixe the scales of the axes.")
-=======
-    pass(random_praise())
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
   }
   fail(random_encouragement())
 })
@@ -283,22 +253,13 @@ Do the following to improve the appearance of the plot:
 
 ```
 
-<<<<<<< HEAD
 ```{r lims-setup}
-=======
-```{r lims-setup, warning=FALSE, message = FALSE}
-library(ggplot2)
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 p <- ggplot() +
   geom_function(fun = function(x) 8*x^2 - 6*x - 12, color = "blue") +
   geom_function(fun = function(x) 20*x, color = 'darkorange')
 ```
 
-<<<<<<< HEAD
 ```{r lims-solution}
-=======
-```{r lims-solution, warning=FALSE, message = FALSE}
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 p <- p +
   lims(x = c(-2, 4), y = c(-25, 75)) + 
   labs(x = expression(italic(x)), y = expression(italic(f) ( italic(x) )))
@@ -316,11 +277,8 @@ grade_this({
 There are also loads of other ways to make beautiful graphs using the package `ggplot2` using custom themes for the plot area, titles, and other options. This class focuses on solutions and basic plots of those solutions, for which `base R` plots more than suffice.
 
 ## Optimization
-<<<<<<< HEAD
 
 ### Ocular Estimation
-=======
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 
 ### Ocular Estimation
 
@@ -330,27 +288,10 @@ If we want to try to "eyeball" the minimum of our quadratic function, we can zoo
 
 ```
 
-<<<<<<< HEAD
 ```{r zoom-solution}
 ggplot() +
   geom_function(fun = function(x) 8*x^2 - 6*x - 12) +
   lims(x = c(0.25, 0.5))
-=======
-```{r zoom-hint}
-# A good range for the y-axis might be -13.25 to -13. Experiment with ranges that you think will help others see the minimum. 
-```
-
-```{r zoom-setup, warning=FALSE, message = FALSE}
-library(ggplot2)
-p <- ggplot() +
-  geom_function(fun = function(x) 8*x^2 - 6*x - 12, color = "blue") +
-  geom_function(fun = function(x) 20*x, color = 'darkorange') +
-  lims(x = c(-2, 4), y = c(-25, 75)) + 
-  labs(x = expression(italic(x)), y = expression(italic(f) ( italic(x) )))
-```
-```{r zoom-solution, warning=FALSE, message = FALSE}
-p + lims(x = c(0.25, 0.5), y = c(-13.15, -13))
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 ```
 
 ```{r zoom-check}
@@ -359,7 +300,6 @@ grade_this({
     pass(random_praise())
   }
   fail(random_encouragement())
-<<<<<<< HEAD
 })
 ```
 
@@ -384,8 +324,6 @@ grade_this({if (!inherits(.result, c("yac_symbol"))) {
   if (.result$yacas_cmd != "16*x-6") { 
     fail("The derivative should be equal to '16*x-6'") }
   pass()
-=======
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 })
 ```
 
@@ -409,22 +347,13 @@ Use the `solnp()` function from the `Rsolnp` package to find the minimum of $f(x
 # `solnp` can be finicky about its starting value, and sometimes gets confused when you choose zero as a starting value. Try almost any other value. 
 ```
 
-<<<<<<< HEAD
 ```{r solnp-solution}
-=======
-```{r solnp-solution, warning=FALSE, message = FALSE}
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 library(Rsolnp)
 solnp(pars = 1, fun = function(x) 8*x^2 - 6*x - 12)
 ```
 
 ```{r solnp-check}
-<<<<<<< HEAD
 grade_this({if (!inherits(.result, c("list"))) {
-=======
-grade_this({
-  if (!inherits(.result, c("list"))) {
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
     fail("Your class of your answer should be a list")}
   if (round(.result$pars, 3) != 0.375) { 
     fail("The solution should be equal to 0.375.") }
@@ -443,20 +372,13 @@ K \ge 0 \\
 \text{where} \\
 w = r = 10$$
 
-<<<<<<< HEAD
 ```{r solnpC, exercise = TRUE}
 solnp(pars = 0,                            # Set initial guess for the solution
-=======
-```{r constrainedSolnp, echo = TRUE}
-library(Rsolnp)
-solnp(pars = c(0,0),                       # Set initial guess for the solution
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
       fun = function(x) 10*x[1] + 10*x[2], # Define the objective function 
       ineqfun = function(x) x[1]*x[2],     # Define the constraint function
       ineqLB = 100,                        # Set the lower bound of the constraint 
       ineqUB =  Inf,                       # Set the upper bound of the constraint
       LB = c(0,0))                         # Set the lower bound for the variables
-<<<<<<< HEAD
 ```
 
 ```{r solnpC-solution}
@@ -475,8 +397,6 @@ grade_this({if (!inherits(.result, c("list"))) {
     fail("The solution should be about 0.375") }
   pass("Notice how computational solutions sometimes give very slightly less precise solutions.")
 })
-=======
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 ```
 
 ## Solving a System of Equations: Supply and Demand
@@ -498,7 +418,6 @@ Solve for the equilibrium price and quantity in the example using `nleqslv`.
 
 ```
 
-<<<<<<< HEAD
 ```{r equilibrium-hint1}
 # A `function(x)` can be a vector that includes multiple equations. 
 ```
@@ -508,14 +427,6 @@ Solve for the equilibrium price and quantity in the example using `nleqslv`.
 ```
 
 ```{r equilibrium-solution}
-=======
-```{r equilibrium-hint}
-# A `function(x)` can be a vector that includes multiple equations. 
-# `nleqslv` looks to set the values of `function(x)` to zero, so you might need to rearrange the equations.
-```
-
-```{r equilibrium-solution, warning=FALSE, message = FALSE}
->>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 library(nleqslv)
 nleqslv(c(1,1), function(x) c(x[1] - x[2], 10 - x[1] - x[2]))
 ```
