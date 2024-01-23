@@ -21,10 +21,6 @@ runtime: shiny_prerendered
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
-library(Ryacas)
-library(Deriv)
-library(Rsolnp)
-library(nleqslv)
 gradethis_setup()
 tutorial_options(exercise.reveal_solution = FALSE, exercise.eval = FALSE, exercise.checker = gradethis_exercise_checker)
 knitr::opts_chunk$set(echo = FALSE)
@@ -45,12 +41,8 @@ $$P = Q_s^2$$
 ```
 
 ```{r equilibrium-solution}
-market <- function(x) {
-    supply <- x[1]^2 - x[2]
-    demand <- 10/x[1] - x[2]
-    return(c(supply, demand))
-}
-equilibrium <- nleqslv(c(2,2), market)
+library(nleqslv)
+equilibrium <- nleqslv(c(2,2), function(x) c(x[1]^2 - x[2], 10/x[1] - x[2]))
 ```
 
 ```{r equilibrium-check}
@@ -62,24 +54,52 @@ grade_this({if (!inherits(.result, c("list"))) {
 })
 ```
 
-2. Graph the market equilibrium. 
+2. Graph the market equilibrium. Scale the x and y axes from 0 to 5 and 0 to 10, respectively. Add a point and label with the equilibrium values.
 
 ```{r equilibriumPlot, exercise = TRUE}
 
 ```
 
+```{r equilibriumPlot-hint-1}
+# The setup stores the result of the equilibrium solution as "equilibrium". 
+# The element of the solution corresponding to the values for x (q, p) is "equilibrium$x".
+```
+
+```{r equilibriumPlot-hint-2}
+# Use `geom_point(aes(x = equilibrium$x[1], y = equilibrium$x[2]))` for the point. 
+# Use `geom_text(aes(x, y, label))` for the text label. 
+```
+
+```{r equilibriumPlot-hint-3}
+# For the label argument use `past0("(", `x value`, ", ", `y value`, ")") to 
+# create a label with the solution values of q and p in parentheses.
+```
+
+```{r equilibriumPlot-setup}
+library(nleqslv)
+equilibrium <- nleqslv(c(2,2), function(x) c(x[1]^2 - x[2], 10/x[1] - x[2]))
+```
+
 ```{r equilibriumPlot-solution}
-curve(10/x,
-      from = 0 ,
-      to = 5,
-      col = 'blue',
-      ylim = c(0, 10))
-curve(x^2, col = 'darkorange', add = TRUE)
-segments(x0 = 0, y0 = equilibrium$x[2], x1 = equilibrium$x[1], y1 = equilibrium$x[2])
-segments(x0 = equilibrium$x[1], y0 = 0, x1 = equilibrium$x[1], y1 = equilibrium$x[2])
+ggplot() + 
+  geom_function(fun = function(x) 10/x) + 
+  geom_function(fun = function(x) x^2) + 
+  geom_point(aes(x = equilibrium$x[1], y = equilibrium$x[2])) +
+  geom_text(
+    aes(x = equilibrium$x[1], y = equilibrium$x[2]),
+    label = 
+      paste0("(", round(equilibrium$x[1], 2), ",", round(equilibrium$x[2], 2), ")"), 
+    hjust = 0) +
+  lims(x = c(0, 5), y = c(0, 10)) + 
+  labs(x = "Quantity", y = "Price")
 ```
 
 ```{r equilibriumPlot-check}
-
+grade_this({
+  if (
+    uses_geom(.result, "function") & uses_geom(.result, "point") & uses_geom(.result, "text")) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
 ```
-

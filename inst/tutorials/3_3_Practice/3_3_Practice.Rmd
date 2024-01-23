@@ -11,11 +11,22 @@ author:
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 ---
 
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.66em;
+}
+</style>
+
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
-library(ggcheck)
-gradethis_setup(exercise.reveal_solution = FALSE, exercise.eval = TRUE)
+gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
 
@@ -54,11 +65,7 @@ ggplot() +
 ```
 
 ```{r naturalMonopoly-check}
-grade_this({
-  pass_if(ith_geom_is(.result, "function", i = 1) & 
-            ith_geom_is(.result, "function", i = 4))
-  fail(random_encouragement())
-  })
+
 ```
 
 ### Computational Approach
@@ -95,8 +102,5 @@ eq$pars
 ```
 
 ```{r equilibrium-check}
-grade_this({
-  pass_if(round(.result, 1) == 81.8)
-  fail()
-})
 ```
+

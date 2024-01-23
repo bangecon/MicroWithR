@@ -21,6 +21,7 @@ date: "`r format(Sys.Date(), '%d %b %Y')`"
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
+library(ggcheck)
 library(Ryacas)
 library(Deriv)
 gradethis_setup(exercise.reveal_solution = FALSE)
@@ -36,31 +37,26 @@ $$ \alpha, \beta < 1 \text{, and}$$
 $$\alpha + \beta > 1.$$
 Suppose that $A = 100$ and $\alpha = \beta = 2/3$. 
 
-1. Plot the short-run production function setting $K = 50$.
+1. Plot the short-run production function for $0 \le L \le 50$ setting $K = 50$.
 
 ```{r shortrun, exercise = TRUE}
-curve(100*x^(2/3)*50^(2/3),
-  type = 'l',
-  xlim = c(0, 50),
-  xlab = "Labor",
-  ylab = "Capital")
 
 ```
 
 ```{r shortrun-solution}
-curve(100*x^(2/3)*50^(2/3),
-  type = 'l',
-  xlim = c(0, 50),
-  xlab = "Labor",
-  ylab = "Capital")
+library(ggplot2)
+ggplot() +
+  geom_function(fun = function(x) 100*x^(2/3)*50^(2/3)) + 
+  lims(x = c(0, 50)) + 
+  labs(x = "Labor", y = "Output")
 ```
 
 ```{r shortrun-check}
-grade_this({if (!inherits(.result, c("list"))) {
-    fail("Your class of your answer should be a list")}
-  if (round(.result$y[2], 3) != 854.988) { 
-    fail("The second y value should equal 854.988.") }
-  pass()
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1) ) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
 })
 ```
 
@@ -70,12 +66,6 @@ grade_this({if (!inherits(.result, c("list"))) {
   c. $(L, K) = (75, 75)$
 
 ```{r scale, exercise = TRUE}
-y = function(L, K) {
-  100*L^(2/3)*K^(2/3)
-}
-y(25,25)
-y(50,50)
-y(75,75)
 
 ```
 
@@ -98,36 +88,29 @@ grade_this({if (round(.result, 2) != 31628.72) {
 3. Plot the isoquants for $Q = 25000$, $Q = 50000$, and $Q = 75000$
 
 ```{r isoquants, exercise = TRUE}
-curve((25000 / (100*x^(2/3)))^(3/2),
-  type = 'l',
-  ylim = c(0, 200),
-  xlim = c(0, 200),
-  xlab = "Labor",
-  ylab = "Capital"
-)
-curve((50000 / (100*x^(2/3)))^(3/2), add = TRUE)
-curve((75000 / (100*x^(2/3)))^(3/2), add = TRUE)
 
+```
+
+```{r isoquants-setup}
+library(ggplot2)
 ```
 
 ```{r isoquants-solution}
-curve((25000 / (100*x^(2/3)))^(3/2),
-  type = 'l',
-  ylim = c(0, 200),
-  xlim = c(0, 200),
-  xlab = "Labor",
-  ylab = "Capital"
-)
-curve((50000 / (100*x^(2/3)))^(3/2), add = TRUE)
-curve((75000 / (100*x^(2/3)))^(3/2), add = TRUE)
+ggplot() + 
+  geom_function(fun = function(x) (25000 / (100*x^(2/3)))^(3/2), aes(color = "25000")) + 
+  geom_function(fun = function(x) (50000 / (100*x^(2/3)))^(3/2), aes(color = "50000")) + 
+  geom_function(fun = function(x) (75000 / (100*x^(2/3)))^(3/2), aes(color = "75000")) + 
+  lims(x = c(0,200), y = c(0,200)) + 
+  labs(x = "Labor", y = "Capital", color = "Output") + 
+  scale_color_manual(values = c('red', 'blue', 'purple'))
 ```
 
 ```{r isoquants-check}
-grade_this({if (!inherits(.result, c("list"))) {
-    fail("Your class of your answer should be a list")}
-  if (round(.result$y[2], 3) != 10269.798) { 
-    fail("The second y value should equal 10,269.798.") }
-  pass()
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1) & ith_geom_is(.result, "function", i = 2) & ith_geom_is(.result, "function", i = 3)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
 })
 ```
 

@@ -1,5 +1,5 @@
 ---
-title: "2.4 Competitive Firms' Output Choices in the Short Run"
+title: "2.5 Technological Diffusion"
 output: 
   learnr::tutorial: 
     progressive: true
@@ -25,192 +25,13 @@ gradethis_setup(exercise.reveal_solution = FALSE, exercise.eval = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
 
-## The Profit Function
-
-Perfect Competition
-
-$$\matrix{\pmatrix{\text{1. Many, many sellers (and buyers)} \\ \text{2. Homogeneous product} \\ \text{3. Perfect information}} \\ \text{4. Free entry/exit} \\ \text{  }} \implies \matrix{\pmatrix{\text{Firms are} \\ \text{price} \\ \text{takers}} \\ \text{Profits/losses} \\ \text{are temporary}}$$
-
-### General Form 
-
-$$\pi(Q) = TR(Q) - C(Q)$$
-Since price is given (by the market), $TR = PQ$:
-$$\pi(Q) = PQ - C(Q)$$
-
-### Per-Unit Form
-
-Since $C(Q) = ATC(Q) \cdot Q$, we can rewrite profits as: 
-
-$$\pi(Q) = [P - ATC(Q)]Q$$
-
-### The Producer's Problem
-
-1. Objective: 
-2. Endogenous (choice) variable: 
-3. Exogenous variable(s): 
-
-## Analytical Approach
-
-Suppose that our firm's technology leads to a cost function that can be approximated by the function:
-
-$$C(Q) = \frac{Q^3}{20} - \frac{9Q^2}{10} + 10Q + 5$$
-
-and that market conditions imply that $P = 10$.
-
-Solve the producer's problem analytically using `Ryacas`. 
-
-1. Load `Ryacas`.
-2. Define the profit function. 
-3. Derive $d\pi/dQ$ and simplify. 
-4. Solve $d\pi/dQ = 0$ for $Q$, remove the variables, and reformat to an ordinary `R` object. 
-
-```{r profitmaxAnalytical, exercise = TRUE}
-
-```
-
-```{r profitmaxAnalytical-solution}
-library(Ryacas)
-pi    <- ysym('7*Q - (0.05*Q^3 - 0.9*Q^2 + 10*Q + 5)')
-dpi   <- deriv(profit, 'Q') |>
-  simplify()
-qStar <- solve(dprofit, 'Q')[2] |>
-  y_rmvars() |>
-  as_r()
-```
-
-```{r profitmaxAnalytical-check}
-grade_this(
-  if(round(.result) != 10) {
-    fail("The solution should be negligibly close to 10.")} 
-  pass()
-)
-```
-
-The first-order condition for the profit-maximization problem is: 
-
-$$`r tex(dprofit)` = 0$$
-
-## Graphical Approach
-
-Run the following code to construct the following graphs: 
-
-1. Total revenue and total cost versus quantity (top left);
-2. Total profit versus quantity (top right);
-3. Marginal revenue, marginal cost, average cost, and average variable cost versus quantity (bottom left); 
-4. Marginal (change in) profit versus quantity (bottom right); 
+## Setup
 
 ```{r profitmaxGraph, exercise = TRUE}
-par(mfrow = c(2,2))                                                   # Set a 2-by-2 plot window.
-curve(
-  0.05 * x ^ 3 - 0.9 * x ^ 2 + 10 * x + 5,                            # Total cost curve
-  col = 'red',         # Line color
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$"           # Y-axis label
-)                                           
-curve(7 * x, col = 'blue', add = TRUE)                                # Total revenue curve
-curve(7 * x - 5, lty = 'dashed', add = TRUE)                          # MR = MC reference line
-curve(
-  7 * x - (0.05 * x ^ 3 - 0.9 * x ^ 2 + 10 * x + 5),                  # Total profit curve
-  col = 'black',
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$",          # Y-axis label
-  ylim = c(-10, 10)    # Y-axis range
-)
-lines(x = c(0, 15),                                                   # Zero-profit reference line
-      y = c(0, 0),
-      lty = 'dashed')  # Line type
-curve(
-  0.15 * x ^ 2 - 1.8 * x + 10,                                        # Marginal cost curve
-  col = 'red',         # Line color
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$",          # Y-axis label
-  ylim = c(0, 12.5)    # Y-axis range
-)
-curve(0.05 * x ^ 2 - 0.9 * x + 10 + 5 / x, col = 'brown', add = TRUE) # Average total cost curve
-curve(0.05 * x ^ 2 - 0.9 * x + 10,                                    # Average variable cost curve
-      col = 'brown',   # Line color
-      add = TRUE,
-      lty = 'dashed')  # Line type
-lines(x = c(0, 15),                                                   # Average/marginal revenue curve (price)
-      y = c(7, 7), 
-      col = 'blue')
-lines(x = c(0, 15),                                                   # Shutdown reference line
-      y = c(5.95, 5.95),
-      lty = 'dashed')
-curve(
-  7 - (0.15 * x ^ 2 - 1.8 * x + 10),                                  # Marginal profit curve
-  col = 'black',
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$",          # Y-axis label
-  ylim = c(-10, 10)    # Y-axis range
-)
-lines(x = c(0, 15),                                                   # d(Profit) = 0 reference line
-      y = c(0, 0),
-      lty = 'dashed')  # Line type
+
 ```
 
 ```{r profitmaxGraph-solution}
-par(mfrow = c(2,2))                                                   # Set a 2-by-2 plot window.
-curve(
-  0.05 * x ^ 3 - 0.9 * x ^ 2 + 10 * x + 5,                            # Total cost curve
-  col = 'red',         # Line color
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$"           # Y-axis label
-)                                           
-curve(7 * x, col = 'blue', add = TRUE)                                # Total revenue curve
-curve(
-  7 * x - (0.05 * x ^ 3 - 0.9 * x ^ 2 + 10 * x + 5),                  # Total profit curve
-  col = 'black',
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$",          # Y-axis label
-  ylim = c(-10, 10)    # Y-axis range
-)
-lines(x = c(0, 15),                                                   # Zero-profit reference line
-      y = c(0, 0),
-      lty = 'dashed')  # Line type
-curve(
-  0.15 * x ^ 2 - 1.8 * x + 10,                                        # Marginal cost curve
-  col = 'red',         # Line color
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$",          # Y-axis label
-  ylim = c(0, 12.5)    # Y-axis range
-)
-curve(0.05 * x ^ 2 - 0.9 * x + 10 + 5 / x, col = 'brown', add = TRUE) # Average total cost curve
-curve(0.05 * x ^ 2 - 0.9 * x + 10,                                    # Average variable cost curve
-      col = 'brown',   # Line color
-      add = TRUE,
-      lty = 'dashed')  # Line type
-lines(x = c(0, 15),                                                   # Average/marginal revenue curve (price)
-      y = c(7, 7), col = 'blue', add = TRUE)
-lines(x = c(0, 15),                                                   # Shutdown reference line
-      y = c(5.95, 5.95),
-      lty = 'dashed', add = TRUE)
-curve(
-  7 - (0.15 * x ^ 2 - 1.8 * x + 10),                                  # Marginal profit curve
-  col = 'black',
-  from = 0,            # Starting x value
-  to = 15,             # Ending x value
-  xlab = "Quantity",   # X-axis label
-  ylab = "$",          # Y-axis label
-  ylim = c(-10, 10)    # Y-axis range
-)
-lines(x = c(0, 15),                                                   # d(Profit) = 0 reference line
-      y = c(0, 0),
-      lty = 'dashed')  # Line type
 ```
 
 ```{r profitmaxGraph-check}
@@ -228,15 +49,7 @@ Careful! Since our profit function has multiple "critical values" (points where 
 ```
 
 ```{r profitmaxNumerical-solution}
-library(Rsolnp)
-loss <- function(x) {
-  - 7*x + (0.05*x^3 - 0.9*x^2 + 10*x + 5)
-}
-solution <- solnp(
-  pars = 1,
-  fun = loss,  # Solnp calculates minima so we want to minimize loss 
-  LB = 0
-)
+
 ```
 
 ```{r profitmaxNumerical-check}

@@ -1,5 +1,5 @@
 ---
-title: "1.6 Applications"
+title: "1.6 Comparative Statics II: Engel Curves and Demand Curves"
 editor_options: 
   markdown: 
     wrap: 72
@@ -20,7 +20,7 @@ h2{font-size: 20pt}
 h3{font-size: 18pt}
 h4,h5,h6{font-size: 16pt}
 body{font-size: 16pt}
- # doc-metadata {
+#doc-metadata {
   margin-bottom: 10px;
   font-size: 0.66em;
 }
@@ -29,546 +29,664 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
+library(Ryacas)
 gradethis_setup()
-tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = FALSE)
-knitr::opts_chunk$set(echo = FALSE, fig.width = 6, fig.height = 8,
-  fig.align='center', out.width = '75%')
+tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE, 
+  fig.align = "center", fig.height = 6, fig.width = 6)
+knitr::include_graphics
+par(mar = c(4, 4, 1, 1))
 ```
 
-## Overview
+## Price Change 
 
-There are many, many specific applications for consumer choice. 
-Here, we model a few using our utility maximization framework: 
+Let's analyze the effect of a $\$0.50$ increase in price, and a $\$0.50$ decrease in price for good 1.
 
-1. Excise Taxes
-2. In-Kind Transfers
-3. Insurance and Risk
-4. Inter-Temporal Choice 
-5. Labor Supply
+### Computational Approach
 
-## Alcoholic Beverage (Excise) Tax
+1.  For a consumer with the same preferences (Cobb-Douglass with $\alpha = 0.25$), and facing the price of good 2 and income ($p_2 = 1$), compute the new equilibrium for an increase in the price of good 1 from $\$1.50$ to $\$2.00$ (`dp1 = 0.5`).
+2.  Print the new optimal bundles.
 
-### Initial Solution
-
-Recall the beer and donuts example from our budget constraint section. 
-Consider a consumer with the income ($m = 20$) and price ($p_b = 2$ and $p_d = 1$) parameters from that example along with preferences described by a Cobb-Douglas utility function with equal budget shares on each good. 
-
-$$\max_x \bigg\{ U(x_b,x_d) = x_b^{0.5}x_d^{0.5} \bigg\}$$
-$$\text{s.t. } 2x_b + x_d \le 20$$
-
-Calculate and graph the initial equilibrium 
-(with beer on the x-axis and donuts on the y-axis as before). 
-
-```{r taxInitialEquilibrium, exercise = TRUE}
-
-```
-
-```{r taxInitialEquilibrium-solution}
-library(Rsolnp)
-ux <- function(x) - x[1] ^ (a) * x[2] ^ (1 - a)
-bc <- function(x) pb * x[1] + pd * x[2]
-a = 0.5; m = 20; pb = 2; pd = 1; control = list(trace = 0)
-eq0 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m,
-    LB = c(0, 0), UB = c(Inf, Inf))
-```
-
-```{r taxInitialEquilibrium-check}
-grade_code() 
-```
-
-### Alcoholic-Beverage Tax Solution
-
-Suppose the government levies a $0.50/unit tax on beer. 
-Calculate the new equilibrium.  
-
-```{r taxEquilibrium, exercise = TRUE}
-
-```
-
-```{r taxEquilibrium-setup}
-a = 0.5; m = 20; pb = 2; pd = 1; t = 0.5; control = list(trace = 0)
-ux <- function(x) - x[1] ^ (a) * x[2] ^ (1 - a)
-bc <- function(x) pb * x[1] + pd * x[2]
-```
-
-```{r taxEquilibrium-solution}
-t = 0.5
-bcT <- function(x) (pb + t) * x[1] + pd * x[2]
-eqT <- solnp(c(1, 1), ux, ineqfun = bcT, ineqLB = 0, ineqUB = m,
-    LB = c(0, 0), UB = c(Inf, Inf))
-```
-
-```{r taxEquilibrium-check}
-grade_code() 
-```
-
-### Alcoholic-Beverage Tax Graph
-
-Graph the equilibrium (indifference curve and budget line) before and after the tax. 
-Place beer on the x-axis (labeled "Beer") and donuts on the y-axis (labeled "Donuts). 
-
-```{r taxGraph, exercise = TRUE}
-
-```
-
-```{r taxGraph-setup}
-library(Rsolnp)
-a = 0.5; m = 20; pb = 2; pd = 1; t = 0.5; control = list(trace = 0)
-bc <- function(x) pb * x[1] + pd * x[2]
-ux <- function(x) - x[1] ^ (a) * x[2] ^ (1 - a)
-eq0 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m, LB = c(0, 0), 
-    UB = c(Inf, Inf))
-bcT <- function(x) (pb + t) * x[1] + pd * x[2]
-eqT <- solnp(c(1, 1), ux, ineqfun = bcT, ineqLB = 0, ineqUB = m,
-    LB = c(0, 0), UB = c(Inf, Inf))
-```
-
-```{r taxGraph-solution}
-curve(-ux(eq0$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))), from = 0, to = m / pb, 
-  ylim = c(0, m / pd), xlab = 'Beer', ylab = 'Donuts', col = 'darkgreen')
-curve(m / pd - pb * x / pd, add = TRUE, col = 'red')
-curve(-ux(eqT$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))), add = TRUE, 
-  lty = 'dashed', col = 'darkgreen')
-curve(m / pd - (pb + t) * x / pd, lty = 'dashed', col = 'red')
-```
-
-```{r taxGraph-check}
-grade_code() 
-```
-
-Note that the tax reduces beer consumption and consumer utility. 
-However, since the budget share is constant, the tax does *not* affect donut consumption in this example. 
-A consumer with slightly different preferences (like constant elasticity of substitution, shown below for r = 0.5) might respond differently.
-
-Run the following code to simulate the CES case.
-
-```{r cesTax, exercise = TRUE}
-r = 0.5
-ces <- function(x) -(x[1] ^ r + x[2] ^ r) ^ (1 / r)
-
-cesEq0 <- solnp(c(1, 1), ces, ineqfun = bc, ineqLB = 0, ineqUB = m, 
-  LB = c(0, 0), UB = c(Inf, Inf))
-cesEqT <- solnp(c(1, 1), ces, ineqfun = bcT, ineqLB = 0, ineqUB = m, 
-  LB = c(0, 0), UB = c(Inf, Inf))
-
-curve((-ces(cesEq0$pars) ^ r - x ^ r) ^ (1/r), from = 0, to = m / pb, 
-  ylim = c(0, m / pd), xlab = 'Beer', ylab = 'Donuts', col = 'darkgreen')
-curve(m / pd  - pb * x / pd, add = TRUE, col = 'red')
-points(cesEq0$pars[1], cesEq0$pars[2], col = 'blue', pch = 20)
-
-curve((-ces(cesEqT$pars) ^ r - x ^ r) ^ (1/r), add = TRUE, col = 'darkgreen')
-curve(m / pd - (pb + t) * x / pd, lty = 'dashed', col = 'red')
-points(cesEqT$pars[1], cesEqT$pars[2], col = 'blue', pch = 20)
-```
-
-```{r cesTax-setup}
-r = 0.5; m = 20; pb = 2; pd = 1; t = 0.5; control = list(trace = 0)
-bc <- function(x) pb * x[1] + pd * x[2]
-bcT <- function(x) (pb + t) * x[1] + pd * x[2]
-```
-
-
-```{r cesTax-solution}
-r = 0.5
-ces <- function(x) -(x[1] ^ r + x[2] ^ r) ^ (1 / r)
-
-cesEq0 <- solnp(c(1, 1), ces, ineqfun = bc, ineqLB = 0, ineqUB = m, 
-  LB = c(0, 0), UB = c(Inf, Inf))
-cesEqT <- solnp(c(1, 1), ces, ineqfun = bcT, ineqLB = 0, ineqUB = m, 
-  LB = c(0, 0), UB = c(Inf, Inf))
-
-curve((-ces(cesEq0$pars) ^ r - x ^ r) ^ (1/r), from = 0, to = m / pb, 
-  ylim = c(0, m / pd), xlab = 'Beer', ylab = 'Donuts', col = 'darkgreen')
-curve(m / pd  - pb * x / pd, add = TRUE, col = 'red')
-points(cesEq0$pars[1], cesEq0$pars[2], col = 'blue', pch = 20)
-
-curve((-ces(cesEqT$pars) ^ r - x ^ r) ^ (1/r), add = TRUE, col = 'darkgreen')
-curve(m / pd - (pb + t) * x / pd, lty = 'dashed', col = 'red')
-points(cesEqT$pars[1], cesEqT$pars[2], col = 'blue', pch = 20)
-```
-
-```{r cesTax-check}
-grade_code()
-```
-
-## Food Stamps (In-Kind Transfers)
-
-### Initial Equilibrium Solution
-
-Recall the beer and donuts example from our budget constraint section. Consider a consumer with the income ($m = 20$) and price ($p_b = 2$ and $p_d = 1$) parameters from that example along with preferences described by a Cobb-Douglas utility function for a beer-lover who spends 90% of their budget on beer. 
-
-$$\max_x \bigg\{ U(x_b,x_d) = x_b^{0.9}x_d^{0.9} \bigg\}$$
-$$\text{s.t. } 2x_b + x_d \le 20$$
-
-```{r, out.width = '300px'}
-knitr::include_graphics("images/barney-beer.gif")
-```
-
-Calculate the initial equilibrium. 
-
-```{r beerLoverEquilibrium, exercise = TRUE}
-
-```
-
-```{r beerLoverEquilibrium-setup}
-m = 20; pb = 2; pd = 1; t = 0.5; control = list(trace = 0)
-bcT <- function(x) (pb + t) * x[1] + pd * x[2]
-ux <- function(x) - x[1] ^ (a) * x[2] ^ (1 - a)
-bc <- function(x) pb * x[1] + pd * x[2]
-```
-
-```{r beerLoverEquilibrium-solution}
-a = 0.9
-eqBarney0 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m,
-    LB = c(0, 0), UB = c(Inf, Inf))
-```
-
-```{r beerLoverEquilibrium-check}
-grade_code() 
-```
-
-### In-Kind Transfer Solution
-
-Suppose the government passes an in-kind transfer of 5 donuts. Calculate and graph the new equilibrium. Include the initial equilibrium (with dashed line type) on your graph.  
-
-```{r inKindEquilibrium, exercise = TRUE, exercise.reveal_solution = TRUE}
-
-```
-
-```{r inKindEquilibrium-setup}
-a = 0.9; m = 20; pb = 2; pd = 1; t = 0.5; control = list(trace = 0)
-bcT <- function(x) (pb + t) * x[1] + pd * x[2]
-ux <- function(x) - x[1] ^ (a) * x[2] ^ (1 - a)
-bc <- function(x) pb * x[1] + pd * x[2]
-eqBarney0 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m,
-    LB = c(0, 0), UB = c(Inf, Inf))
-```
-
-```{r inKindEquilibrium-solution}
-sd = 5
-eqBarney1 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m + sd*pd,
-  LB = c(0, 0), UB = c(m/pb, Inf))
-```
-
-```{r inKindEquilibrium-check}
-grade_code() 
-```
-
-### In-Kind Transfer Graph
-
-Graph the equilibrium (indifference curve and budget line) before and after the transfer. Place beer on the x-axis (labeled "Beer") and donuts on the y-axis (labeled "Donuts). 
-
-```{r inKindGraph, exercise = TRUE}
-library(Rsolnp); a = 0.9; m = 20; pb = 2; pd = 1; t = 0.5; sd = 5
-ux <- function(x) - x[1] ^ (a) * x[2] ^ (1 - a)
-bcT <- function(x) (pb + t) * x[1] + pd * x[2]
-bc <- function(x) pb * x[1] + pd * x[2]
-eqBarney0 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, 
-                   ineqUB = m, LB = c(0, 0), UB = c(Inf, Inf))
-eqBarney1 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, 
-                   ineqUB = m + sd*pd, LB = c(0, 0), UB = c(m/pb, Inf))
-curve((-ux(eqBarney0$pars)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  from = 0, to = (m + sd * pd) / pb, ylim = c(0, (m + sd * pd) / pd),
-  xlab = 'Beer', ylab = 'Donuts', col = 'darkgreen')
-curve(m / pd - pb * x / pd, col = 'red')
-curve((-ux(eqBarney1$pars)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  add = TRUE, col = 'darkgreen')
-curve(sd + m / pd - pb*x / pd, from = 0, to = m / pb, add = TRUE, col = 'red')
-segments(x0 = m / pb, x1 = m / pb, y0 = 0, y1 = sd,  col = 'red')
-```
-
-```{r inKindGraph-solution}
-library(Rsolnp); a = 0.9; m = 20; pb = 2; pd = 1; t = 0.5; sd = 5
-ux <- function(x) - x[1] ^ (a) * x[2] ^ (1 - a)
-bcT <- function(x) (pb + t) * x[1] + pd * x[2]
-bc <- function(x) pb * x[1] + pd * x[2]
-eqBarney0 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, 
-                   ineqUB = m, LB = c(0, 0), UB = c(Inf, Inf))
-eqBarney1 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, 
-                   ineqUB = m + sd*pd, LB = c(0, 0), UB = c(m/pb, Inf))
-curve((-ux(eqBarney0$pars)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  from = 0, to = (m + sd * pd) / pb, ylim = c(0, (m + sd * pd) / pd),
-  xlab = 'Beer', ylab = 'Donuts', col = 'darkgreen')
-curve(m / pd - pb * x / pd, col = 'red')
-curve((-ux(eqBarney1$pars)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  add = TRUE, col = 'darkgreen')
-curve(sd + m / pd - pb*x / pd, from = 0, to = m / pb, add = TRUE, col = 'red')
-segments(x0 = m / pb, x1 = m / pb, y0 = 0, y1 = sd,  col = 'red')
-```
-
-```{r inKindGraph-check}
-grade_code() 
-```
-
-How does the result for this consumer compare to the outcome of a direct income transfer equal to the monetary *value* of the 5 donuts? 
-
-## Intertemporal Choice
-
-### Overview
-
-Intertemporal choice involves choosing between consuming *now* or consuming *later*. In that respect, it resembles the standard consumer between different *goods*, except that the "different goods" differ in terms of the state - the present versus the future - during which the consumer consumes them. This application illustrates the intuition that (1) consumers tend to prefer current consumption over consuming in the future; and (2) variety-loving consumers will choose a "smooth" consumption path that tries to balance current and future consumption. 
-
-### Budget Constraint
-
-The budget constraint requires that the present-value of consumption be less than or equal to the present-value of income (at market interest rates). 
-
-$$c_1 + \frac{c_2}{1+r} \le m_1 + \frac{m_2}{1+r}.$$
-
-In other words, the second-period consumption must be less than or equal to second-period income plus *net* savings from the first period. 
-
-$$c_2 \le m_2 + (1+r)(m_1-c_1).$$
-
-Graph the budget constraint for a consumer who receives an income of 80 in period 1 and 20 in period 2 at a market interest rate of 20%. Position consumption for period 1 on the x-axis. Use the intercepts of the budget line as your x and y limits. 
-
-```{r intertemporalBC, exercise = TRUE}
-
-```
-
-```{r intertemporalBC-solution}
-m1 = 80; m2 = 20; r = 0.20
-curve(m2 + (1 + r) * (m1 - x), from = 0, to = m2 + (1 + r) * m1, 
-  ylim = c(0, m2 + (1 + r) * m1), xlab = expression(x[1]), ylab = expression(x[2]))
-```
-
-```{r intertemporalBC-check}
-grade_code()
-```
-
-### Preferences
-
-Most intertemporal choice problems model utility as the sum of the (diminishing-returns) utilities from consumption in each time period. At the same time, consumers *subjectively* discount future consumption. For our example, let's assume a log utility function as given by: 
-
-$$ u(c_1, c_2) = \sum_{t=1}^2 \bigg\{\delta^{t-1}u(c_t)\bigg\} = ln(c_1) + \delta ln(c_2)$$
-
-Graph the indifference curves for these intertemporal preferences for total utility levels of 6 and 7. Assume a subjective discount rate of $\beta = 2/3$. Plot the graph over the values of the intercepts of the budget constraint above. 
-
-```{r intertemporalPreferences, exercise = TRUE, exercise.reveal_solution = TRUE}
-
-```
-
-```{r intertemporalPreferences-setup}
-m1 = 80; m2 = 20; r = 0.20
-```
-
-```{r intertemporalPreferences-solution}
-d = 2/3
-curve(exp((6 - log(x)) / d), from = 0, to = m2 + (1 + r) * m1, 
-  ylim = c(0, m2 + (1 + r) * m1), xlab = expression(x[1]), ylab = expression(x[2]))
-curve(exp((7 - log(x)) / d), add = TRUE)
-```
-
-```{r intertemporalPreferences-check}
-grade_code()
-```
-
-### Equilibrium
-
-Calculate the equilibrium numerically in `R`. Graph the indifference curve and budget constraint at the equilibrium. 
-
-```{r intertemporalEquilibrium, exercise = TRUE, exercise.reveal_solution = TRUE}
-
-```
-
-```{r intertemporalEquilibrium-setup}
-m1 = 80; m2 = 20; r = 0.20; d = 2/3
-```
-
-```{r intertemporalEquilibrium-solution}
-lnU <- function(x) -(log(x[1]) + d * log(x[2]))
-bc <- function(x) (1 + r) * x[1] + x[2]
-eqTime <- solnp(c(1, 1), lnU, ineqfun = bc, ineqLB = 0, 
-  ineqUB = (1+r) * m1 + m2, LB = c(0,0), UB = c(Inf, Inf))
-```
-
-```{r intertemporalEquilibrium-check}
-grade_code()
-```
-
-### Intertemporal Graph
-
-```{r intertemporalGraph, exercise = TRUE}
-
-```
-
-```{r intertemporalGraph-solution}
-lnU <- function(x) -(log(x[1]) + d * log(x[2]))
-curve(exp(((-lnU(eqTime$pars)) - log(x)) / d), from = 0, to = m2 + (1 + r) * m1, 
-  ylim = c(0, m2 + (1 + r) * m1), xlab = expression(x[1]), ylab = expression(x[2]))
-curve(m2 + (1 + r) * (m1 - x), add = T) 
-```
-
-```{r intertemporalGraph-check}
-grade_code()
-```
-
-### Effect of a Rate Hike
-
-One thing we can see is how much the allocation changes in response to a change in the interest rate *to 200%*. Run the following code to simulate this change.
-
-```{r intertemporalRateHike, exercise = TRUE}
-r = 2
+```{r priceChange, exercise = TRUE}
 
 
 ```
 
-```{r intertemporalRateHike-setup}
-m1 = 80; m2 = 20; r = 0.20; d = 2/3
-lnU <- function(x) -(log(x[1]) + d * log(x[2]))
-bc <- function(x) (1 + r) * x[1] + x[2]
-eqTime <- solnp(c(1, 1), lnU, ineqfun = bc, ineqLB = 0, 
-  ineqUB = (1+r) * m1 + m2, LB = c(0,0), UB = c(Inf, Inf))
+```{r priceChange-setup}
+library(MicroWithR)
+ux <- function(x)
+  x[1] ^ (a) * x[2] ^ (1 - a)
+bc <- function(x)
+  p1 * x[1] + p2 * x[2]
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100 
+eq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    control = list(trace = 0),
+    max = TRUE
+  )
 ```
 
-```{r intertemporalRateHike-solution}
-r = 2
-eqRateHike <- solnp(c(1, 1), lnU, ineqfun = bc, ineqLB = 0, 
-  ineqUB = (1+r) * m1 + m2, LB = c(0,0), UB = c(Inf, Inf))
+```{r priceChange-solution}
+dp1 = 0.5
+bc2 <- function(x)
+  (p1 + dp1) * x[1] + p2 * x[2]
+dpEq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc2,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    control = list(trace = 0),
+    max = TRUE
+  )
 ```
 
-```{r intertemporalRateHike-check}
-grade_code()
+```{r priceChange-check}
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (.result$pars != c(17.5, 78.75)) { 
+    fail("The optimal amount of goods one and two after the change should be 17.5 and 78.75") }
+  pass()
+})
 ```
 
-### Graphical Effect of a Rate Hike
-
-Graph the effect of the rate hike (including the original equilibrium for a point of reference).
-
-```{r intertemporalRateHikeGraph, exercise = TRUE}
-
+```{r dpEquilibrium}
+dp1 = 0.5
+bc2 <- function(x)
+  (p1 + dp1) * x[1] + p2 * x[2]
+dpEq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc2,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    control = list(trace = 0),
+    UB = c(Inf, Inf), 
+    max = TRUE
+  )
 ```
 
-```{r intertemporalRateHikeGraph-setup}
-m1 = 80; m2 = 20; r = 0.2; d = 2/3
-lnU <- function(x) -(log(x[1]) + d * log(x[2]))
-bc <- function(x) (1 + r) * x[1] + x[2]
-eqTime <- solnp(c(1, 1), lnU, ineqfun = bc, ineqLB = 0, 
-  ineqUB = (1+r) * m1 + m2, LB = c(0,0), UB = c(Inf, Inf))
-r = 2
-eqRateHike <- solnp(c(1, 1), lnU, ineqfun = bc, ineqLB = 0, 
-  ineqUB = (1+r) * m1 + m2, LB = c(0,0), UB = c(Inf, Inf))
-```
+Consumption of good 1 after the price increase is: 
 
-```{r intertemporalRateHikeGraph-solution}
-r = 0.2
-curve(exp(((-lnU(eqTime$pars)) - log(x)) / d), from = 0, to = m2 + (1 + r) * m1, 
-  ylim = c(0, m2 + (1 + r) * m1), xlab = expression(x[1]), ylab = expression(x[2]))
-curve(m2 + (1 + r) * (m1 - x), add = TRUE)
-r = 2
-curve(exp(((-lnU(eqRateHike$pars)) - log(x)) / d), add = TRUE)
-curve(m2 + (1 + r) * (m1 - x), add = TRUE)
-```
+$$x_1^{\dagger\dagger} = `r round(dpEq$pars[1], 3)`$$
 
-```{r intertemporalRateHikeGraph-check}
-grade_code()
-```
+$$\frac{\Delta x_1}{\Delta p_1} \Bigg|_{x_1 = x_1^*} \approx `r round((dpEq$pars[1] - eq$pars[1])/(dp1), 3)`$$
 
-From this we can see that *current* consumption is not all that sensitive to the interest rate. 
+### Graphical Approach
 
-## Insurance and Risk Premia
+Add the `geom_function()` layers to the graph to add the budget line and indifference curve for the equilibrium after the increase in price. Include the `geom_point()` for the new optimal bundle and label it using `geom_text()`. 
 
-### Overview
+```{r priceChangeGraph, exercise = TRUE, exercise.setup = 'dpEquilibrium'}
+# We solved for consumption (and utility at that consumption) for the original price, the price after an increase, and after a decrease. 
 
-Choice under uncertainty involves maximizing utility over different *states* or outcomes of some random event. A simple way of formulating this problem is to consider two possible states: a bad outcome in which the consumer suffers some loss of assets and occurs with probability $\pi$; and a good outcome in which the consumer keeps their entire asset endowment and occurs with probablity $1-\pi$. 
-
-The consumer starts with an initial endowment of assets, $E$. They may choose to insure as much of that endowment against a fixed loss ($L < E$) as they want at price, or *premium*, of $p$. Without insurance, the consumer only enjoys $E - L$ (with probability $\pi$) if the bad outcome occurs; they enjoy $E$ fully (with probability $1-\pi$) if there is no loss. 
-
-The consumer may "buy" additional units of bad-state consumption by insuring the losses at price, $p$ for each dollar of bad-state consumption they choose to insure. The consumer chooses the amount of insurance, $I$ before observing the uncertain state outcome. 
-
-To make the problem more concrete, use the following parameter values: 
-1. $E = \$100,000$
-2. $L = \$50,000$
-3. $\pi = 0.2$
-4. $p = 0.2$
-
-### Budget Constraint
-
-The budget constraint for this consumer works out to be: 
-
-$$pc_b + (1-p)c_g \le E(m)$$
-where $E(m)$ is the expected income of the consumer, i.e. $E - pL$.
-
-Plot the budget constraint for the consumer. 
-
-```{r insuranceBC, exercise = TRUE}
-
-```
-
-```{r insuranceBC-solution}
-E  = 100000
-L  =  50000
-pi =  0.2
-p  =  0.2
-# Entire Budget Constraint
-curve((E - pi * L) / (1 - p) - (p / (1 - p)) * x,
-      from = 0,
-      to = (E - p * L) / p,
-      xlab = expression(c[b]),
-      ylab = expression(c[g])
-)
-# Relevant Budget Constraint between No Insurance and Full Insurance
-curve((E - pi * L) / (1 - p) - (p / (1 - p)) * x,
-      from = E - p * L,
-      to = E + p * L,
-      xlab = expression(c[b]),
-      ylab = expression(c[g])
-)
-```
-
-### Preferences
-
-Suppose that the consumer has preferences that we can express as the square root of good and bad state consumption levels, and that the overall level of utility is based on the *expected value* of whichever state we observe.
-
-$$E[u(c_b, c_g)] = \pi\sqrt{c_b} + (1-\pi)\sqrt{c_g}$$
-
-Plot the indifference curve for 
-
-```{r insuranceUtility, exercise = TRUE}
 
 ```
 
-```{r insuranceUtility-solution}
-curve(((sqrt(99500) - pi * sqrt(x)) / (1 - pi)) ^ 2, from = 0, to = 100000)
+```{r priceChangeGraph-setup}
+library(MicroWithR)
+ux <- function(x)
+  x[1] ^ (a) * x[2] ^ (1 - a)
+bc <- function(x)
+  p1 * x[1] + p2 * x[2]
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100 
+eq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    control = list(trace = 0),
+    max = TRUE
+  )
+dp1 = 0.5
+bc2 <- function(x)
+  (p1 + dp1) * x[1] + p2 * x[2]
+dpEq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc2,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    control = list(trace = 0),
+    max = TRUE
+  )
 ```
 
-```{r insuranceUtility-check}
-grade_code()
+```{r priceChangeGraph-solution}
+library(ggplot2)
+p <- ggplot() +
+  geom_function(
+    fun = function(x)
+      ux(eq$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+    color = 'darkgreen'
+  ) +
+  geom_function(
+    fun = function(x)
+      m / p2 - x * p1 / p2,
+    color = 'red'
+  ) +
+  geom_point(aes(x = eq$pars[1], y = eq$pars[2]), color = 'blue') +
+  geom_text(
+    aes(x = eq$pars[1], y = eq$pars[2]),
+    label = paste0(
+      'x* = (',
+      round(eq$pars[1], 2),
+      ', ',
+      round(eq$pars[2], 2),
+      ') \n u(x*) = ',
+      round(ux(eq$pars), 2)
+    ),
+    hjust = 0,
+    vjust = 0
+  ) +
+  lims(x = c(0, 100), y = c(0, 100)) +
+  labs(x = "Good 1", y = "Good 2")
+p + geom_function(
+  fun = function(x)
+    ux(dpEq$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+  color = 'darkgreen'
+) +
+  geom_function(
+    fun = function(x)
+      (m + dm) / p2 - x * p1 / p2,
+    color = 'red'
+  ) +
+  geom_point(aes(x = dpEq$pars[1], y = dpEq$pars[2]), color = 'blue') +
+  geom_text(
+    aes(x = dpEq$pars[1], y = dpEq$pars[2]),
+    label = paste0(
+      'x* = (',
+      round(dpEq$pars[1], 2),
+      ', ',
+      round(dpEq$pars[2], 2),
+      ') \n u(x*) = ',
+      round(ux(dpEq$pars), 2)
+    ),
+    hjust = 0,
+    vjust = 0
+  )
 ```
 
-### Equilibrium
+```{r priceChangeGraph-check}
+grade_this({
+  if (uses_geoms(.result, "function") & uses_geoms(.result, "point")) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
 
-```{r insuranceEquilibrium, exercise = TRUE}
+## Demand Curves
+
+Recall from the previous section (and its appendix) that the general form for the demand function for good 1 for a consumer with Cobb-Douglas preferences is: 
+
+$$x_1(p_1, \alpha, m) = \frac{\alpha m}{p_1}$$
+
+Plot the demand curve for good 1 from the example ($\alpha = 0.25$, $p_2 = 1$, and $m = 100$).
+
+```{r cdDemand, exercise = TRUE}
 
 ```
 
-```{r insuranceEquilibrium-solution}
-ux <- function(x) {
-  -(pi*sqrt(x[1]) + (1-pi)*sqrt(x[2]))
+```{r cdDemand-setup}
+library(ggplot2)
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100 
+```
+
+```{r cdDemand-solution}
+ggplot() + 
+  geom_function(fun = function(x) a * m / x) + 
+  lims(x = c(0, 150)) +
+  labs(x = "Income", y = "Consumption of Good 1") 
+```
+
+```{r cdDemand-check}
+grade_this({
+  if (uses_geoms(.result, "function")) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
+
+Note that this plots consumption of the good on the y axis and price on the x axis, which is the opposite of how we usually see it. We get the convention of plotting price (the independent variable?) on the y axis from Alfred Marshall. Why do you think Alfred Marshall would graph demand functions "backwards?"
+
+It turns out this function is not too hard to invert using normal algebra. We can alsu do it using the `coord_flip()` function from `ggplot2`. Do this to plot the demand curve in the usual, Marshallian way.  
+
+```{r coodrFlip, exercise = TRUE}
+
+```
+
+```{r coodrFlip-setup}
+library(ggplot2)
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100 
+```
+
+```{r coodrFlip-solution}
+ggplot() + 
+  geom_function(fun = function(x) a * m / x) + 
+  lims(x = c(0, 150)) + 
+  labs(x = "Income", y = "Consumption of Good 1") + 
+  coord_flip()
+```
+
+```{r coodrFlip-check}
+grade_this({
+  if (uses_geoms(.result, "function")) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
+
+### Plotting Demand by Connecting the Dots
+
+Plot the three points you derived in the previous exercise for the prices of good 1 equal to 1.5 and 2.0. (Orient quantity on the x-axis ranging from 0 to 60 and price on the y-axis ranging from 0 to 2.5)
+
+The solutions (for $p_1 = 1.5$ and $p_1 = 2$, respectively) are stored in the setup for the exercise as `eq` and `dpEq`, respectively. All you need to do is plot the points for price and quantity of good 1 using `geom_point()`. 
+
+```{r demandPoints, exercise = TRUE}
+
+```
+
+```{r demandPoints-setup}
+library(MicroWithR)
+library(ggplot2)
+ux <- function(x)
+  x[1] ^ (a) * x[2] ^ (1 - a)
+bc <- function(x)
+  p1 * x[1] + p2 * x[2]
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100 
+eq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    max = TRUE
+  )
+dp1 = 0.5
+bc2 <- function(x)
+  (p1 + dp1) * x[1] + p2 * x[2]
+dpEq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc2,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    control = list(trace = 0),
+    max = TRUE
+  )
+```
+
+```{r demandPoints-solution}
+ggplot() + 
+  geom_point(aes(x = eq$pars[1], y = p1)) + 
+  geom_point(aes(x = dpEq$pars[1], y = p1 + dp1)) + 
+  lims(x = c(0, 20), y = c(0,2.5)) + 
+  labs(x = "Quantity of Good 1", y = "Price of Good 1")
+```
+
+```{r demandPoints-check}
+grade_this({
+  if (uses_geoms(.result, "point")) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
+
+Connect the dots with line segments. 
+
+```{r demandSegments, exercise = TRUE}
+ggplot() + 
+  geom_point(aes(x = eq$pars[1], y = p1)) + 
+  geom_point(aes(x = dpEq$pars[1], y = p1 + dp1)) + 
+  lims(x = c(0, 20), y = c(0,2.5)) + 
+  labs(x = "Quantity of Good 1", y = "Price of Good 1") 
+  # Add a layer to connect the points here (don't forget to add "+" to the previous line).
+
+```
+
+```{r demandSegments-setup}
+library(MicroWithR)
+library(ggplot2)
+ux <- function(x)
+  x[1] ^ (a) * x[2] ^ (1 - a)
+bc <- function(x)
+  p1 * x[1] + p2 * x[2]
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100 
+eq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    max = TRUE
+  )
+dp1 = 0.5
+bc2 <- function(x)
+  (p1 + dp1) * x[1] + p2 * x[2]
+dpEq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc2,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    control = list(trace = 0),
+    UB = c(Inf, Inf), 
+    max = TRUE
+  )
+```
+
+```{r demandSegments-solution}
+ggplot() + 
+  geom_point(aes(x = eq$pars[1], y = p1)) + 
+  geom_point(aes(x = dpEq$pars[1], y = p1 + dp1)) + 
+  lims(x = c(0, 20), y = c(0,2.5)) + 
+  labs(x = "Quantity of Good 1", y = "Price of Good 1") + 
+  geom_segment(aes(x = eq$pars[1], xend = dpEq$pars[1], y = p1, yend = p1 + dp1))
+```
+
+```{r demandSegments-check}
+grade_this({
+  if (uses_geoms(.result, "segment")) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
+
+### Connecting Many Dots on a Demand Curve
+
+The more points we do this for, the smoother and more complete our
+demand curve becomes. Run the code below to derive the demand schedule
+for $x_1$ using the parameter values in our original example (m = 100,
+p2 = 1, $\alpha$ = 0.25) for the prices ranging from 0.5 to 2.5 in
+increments of 0.1. 
+
+1. Define `p1seq` as the sequence of prices and `c1` as a `NULL` object. 
+2. Create a `for` loop to iterate the constrained optimization function over all of the values in the length of `p1` using the following steps:
+a. Defines the initial values of the choice variables, `pars` to be equal to `c(1,1)` if `i == 1` and otherwise equal to the value of the solution from the previous iteration (which we call `c` below); 
+b. Define `c` as the value of the `pars` result from the current iteration solution. 
+c. Define the $i^th$ element of `c1` as the first element of the `pars` variable (the optimal level of consumption for that price) of each solution.
+3. Plot the demand curve of p1 (y-axis) versus c1 (x-axis).
+
+```{r demandCurve, echo = TRUE}
+library(MicroWithR)
+ux <- function(x)
+  x[1] ^ (a) * x[2] ^ (1 - a)
+bc <- function(x)
+  p1 * x[1] + p2 * x[2]
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100 
+p1seq <- seq(0.5, 2.5, 0.1)
+c1 <- NULL
+for(i in 1:length(p1seq)) {
+    pars <- c(1,1)
+  c <- solnp2(
+    pars = pars,
+    ux,
+    ineqfun = function(x) p1seq[i] * x[1] + p2 * x[2],
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    control = list(trace = 0), 
+    max = TRUE
+  )$pars
+  c1[i] <- c[1]
 }
-bc <- function(x) {
-  p*x[1] + (1-p)*x[2] 
-}
-insuranceEquilibrium <- solnp(
-  pars = c(E, E), 
-  fun = ux, 
-  ineqfun = bc,
-  ineqLB = 0, 
-  ineqUB = E - pi*L, 
-  LB = c(E - L, E - p*L)
-)
+ggplot() + 
+  geom_line(aes(x = c1, y = p1seq)) +
+  lims(x = c(0, max(c1)), y = c(0, max(p1seq))) +
+  labs(x = "Quantity of Good 1", y = "Price of Good 1")
 ```
 
-```{r insuranceEquilibrium-check}
+### Plotting a Demand Function
+
+Recall that the analytical solution for the demand curve was:
+
+```{r demand, echo = TRUE}
+library(Ryacas)
+u <- ysym('x1^(alpha) * x2^(1-alpha)')
+L <- u + ysym('lambda*(m - p1*x1 - p2*x2)')
+dL <- deriv(L, c('x1', 'x2', 'lambda'))
+MU <- c(
+  p1*solve(dL[1], 'lambda'), 
+  p2*solve(dL[2], 'lambda')) |>
+  y_rmvars()
+MRS <- with_value(MU[1]/MU[2], 'p1', p1) |>
+  with_value('p2', p2) |> yac_str() |>
+  Deriv::Simplify() |> ysym()
+D <- solve(c(MRS, dL[[3]]), c(ysym('p1/p2'), 0), c('x1', 'x2')) |> 
+  y_rmvars() |>
+  simplify()
+D[1] <- with_value(D[1], 'x2', D[2]) |> 
+  simplify() |> suppressWarnings()
+```
+
+$$x_1(p_1, m) = `r tex(D[1])`$$
+
+1.  Plot this function. Note that this function expresses *quantity* as
+    a function of *price*, which implies that the axes are reversed.
+2.  Rearrange the demand function to get *price* as a function of
+    *quantity* in order to plot the *inverse* demand function (with
+    price on the y-axis as usual).
+
+```{r demandFunction, exercise = TRUE}
 
 ```
 
-## Labor Supply
+```{r demandFunction-setup}
+library(ggplot2)
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100 
+```
 
-Alternatives for describing choice of labor supply:
+```{r demandFunction-solution}
+ggplot() + 
+  geom_function(fun = function(x) a * m / x) +
+  lims(x = c(0, 2.5), y = c(0,50)) + 
+  labs(x = "Price of Good 1", y = "Quantity of Good 1")
+ggplot() + 
+  geom_function(fun = function(x) a * m / x) +
+  lims(x = c(0, 2.5), y = c(0,50)) + 
+  labs(x = "Price of Good 1", y = "Quantity of Good 1") + 
+  coord_flip()
+```
 
-1. Choose amounts of consumption (a "good") and *labor* (a "bad"); 
-2. Choose amounts of consumption and *leisure* (both "goods").
+```{r demandFunction-check}
+grade_this({
+  if (uses_geoms(.result, "function")) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
 
+## Income and Substitution Effects
 
-## Tax Rebates
+The *substitution effect* arises because the change in the price of one good encourages a consumer to buy more of the relatively cheaper good (and less of the relatively more expensive good) in order to keep the same level of satisfaction.  
 
+Analytically, the substitution effect is the difference between (1) the quantity that minimizes the consumer's expenditures *subject to leaving the the consumer at least as well-off as the original equilibrium* ($\tilde{x}$); and (2) the original quantity consumed ($x^*$).  
 
+The *income effect* arises because when prices change, the same amount of money income can now buy a greater or lesser amount of goods and services, overall.  
+
+Analytically, the income effect is the difference between (1) $\tilde{x}$; and (2) the new quantity consumed ($x^**$)
+
+### Finding $\tilde{x}$. 
+
+To separate the income and substitution, the first order of business is finding $\tilde{x}$. Run the following code to use the `Rsolnp::solnp()` function to solve the *nonlinearly*-constrained optimization problem for finding $\tilde{x}$, 
+$$min_x \bigg\{p_1x_1 + p_2x_2 \bigg\}$$
+$$\text{s.t. } u_0^* - u(x_1, x_2) \le 0$$
+
+```{r xTilde, echo = TRUE}
+library(Rsolnp)
+library(MicroWithR)
+ux <- function(x)
+  x[1] ^ (a) * x[2] ^ (1 - a)
+bc <- function(x)
+  p1 * x[1] + p2 * x[2]
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100 
+eq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    max = TRUE
+  )
+dp1 = 0.5
+bc2 <- function(x)
+  (p1 + dp1) * x[1] + p2 * x[2]
+xTilde <-
+  solnp2(
+    pars = eq$pars,
+    fun = bc2,
+    ineqfun = ux,
+    ineqLB = ux(eq$pars),
+    ineqUB = Inf,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    max = FALSE
+  )
+xTilde$pars
+```
+
+### Graphical Decomposition
+
+```{r}
+dpEq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc2,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    control = list(trace = 0),
+    UB = c(Inf, Inf), 
+    max = TRUE
+  )
+```
+
+```{r substitutionEffect, echo = TRUE, fig.height = 8, fig.width = 8}
+subEffect <- ggplot() + 
+  geom_function(
+    fun = function(x) ux(eq$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))), 
+    color = 'darkgreen') + 
+  geom_function(
+    fun = function(x) m/p2 - (p1/p2)*x, 
+    color = 'red') + 
+  geom_function(
+    fun = function(x) bc2(xTilde$pars)/p2 - ((p1 + dp1)/p2)*x, 
+    color = 'red', linetype = 'dashed') + 
+  geom_point(aes(x = xTilde$pars[1], y = xTilde$pars[2])) +
+  geom_point(aes(x = eq$pars[1], y = eq$pars[2]), ) +
+  geom_text(aes(
+    x = xTilde$pars[1], y = xTilde$pars[2], 
+    label = paste0("(", round(xTilde$pars[1], 2), ", ", round(xTilde$pars[2], 2), ")")), 
+    hjust = 0, vjust = 0) +
+  geom_text(aes(
+    x = eq$pars[1], y = eq$pars[2], 
+    label = paste0("(", round(eq$pars[1], 2), ", ", round(eq$pars[2], 2), ")")), 
+    hjust = 0, vjust = 0) +
+  lims(x = c(0, m/p1), y = c(0, m/p2)) + 
+  labs(x = "Consumption of Good 1", y = "Consumption of Good 2")
+subEffect
+```
+
+```{r incomeEffect, fig.height = 8, fig.width = 8}
+incEffect <- subEffect + 
+  geom_function(
+    fun = function(x) ux(dpEq$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))), 
+    color = 'darkgreen', linetype = 'dashed') + 
+  geom_function(
+    fun = function(x) m/p2 - ((p1 + dp1)/p2)*x, 
+    color = 'red', linetype = 'dashed') + 
+  geom_point(aes(x = dpEq$pars[1], y = dpEq$pars[2]), ) +
+  geom_text(aes(
+    x = dpEq$pars[1], y = dpEq$pars[2], 
+    label = paste0("(", round(dpEq$pars[1], 2), ", ", round(dpEq$pars[2], 2), ")")), 
+    hjust = -1, vjust = 0)
+incEffect
+```
+
+### Changes in Consumer Surplus
+
+The two dashed expenditure lines (through $x^**$ and $\tilde{x}$) capture the difference in income needed to achieve the new and original maximum levels of utility, respectively, calculated at the new price levels. In other words this is the additional income the consumer "feels" by moving from the original indifference curve to the new one. It is also one of the ways to capture the change in consumer surplus across all markets when relative prices change. 
+
+```{r sC, echo=FALSE}
+question("What is the approximate dollar-denominated welfare effect (i.e. income effect) of the price change (evaluated at the new prices) for our example?",
+    answer("zero"),
+    answer("-9.64"),
+    answer("9.64", correct = TRUE),
+    answer("90.36"),
+    allow_retry = TRUE
+  )
+```
+
+### Calculating Consumer Surplus
+
+Once you've found $\tilde{x}$, finding the consumer surplus is relatively straightforward. In our case, the expenditures needed at the new prices in order to reach the original utility is the value of the expenditure function at $\tilde{x}$, which equals the budget constraintafter the price change evaluated at `xTilde$pars`, or `r round(bc2(xTilde$pars), 2)`; the expenditures needed to reach the new optimal utility is simply the consumer's money income, `m`. The change in consumer surplus will be the difference `r round(m - bc2(xTilde$pars), 2)`. 
+
+Some policy analyses use this to evaluate the welfare effects of policy changes in terms of real income. The trick is estimating (with as few assumptions as possible!) the unobserved $\tilde{x}$. 

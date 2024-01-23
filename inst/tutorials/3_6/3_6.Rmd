@@ -1,5 +1,5 @@
 ---
-title: "4.6 Oligopoly: Cournot and Stackelberg Oligopoly"
+title: "3.6 Oligopoly: Cournot and Stackelberg Oligopoly"
 output: 
   learnr::tutorial: 
     progressive: true

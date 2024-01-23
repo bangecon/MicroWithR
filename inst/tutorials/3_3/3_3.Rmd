@@ -1,5 +1,5 @@
 ---
-title: "3.3 Oligopoly"
+title: "3.3 Monopoly"
 output: 
   learnr::tutorial: 
     progressive: true
@@ -27,414 +27,785 @@ body{font-size: 16pt}
 library(learnr)
 library(gradethis)
 gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
-knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
 
-## Oligopoly
+## The Firm's Three Problems
 
-### Characteristics of Oligopoly
+1. Input cost minimization
+2. Output profit maximization
+3. Input profit maximization
 
-1.  Few Large Producers (often one dominant firm)
-2.  Products may be homogeneous or differentiated
-3.  Mutual Interdependence (Some Control over Price)
-4.  Barriers to Entry
+### Monopolistic Output Markets
 
-### Basic Types of Oligopoly
+$$\matrix{ \matrix{\text{1. Single Seller} \\ \text{2. No Close Substitutes} } \Biggr\} \\ \text{3. Barred Entry} \\ \text{  }} \matrix{\text{ } \\ \implies \\ \text{ } \\ \implies \\ \text{ } }  \matrix{\Biggl\{ \matrix{\text{Firms are} \\ \text{price makers}} \\ \text{Profits/losses may} \\ \text{be permanent}}$$
 
-|             | Sweezy    | Bertrand     | Cournot      | Stackelberg |
-|-------------|-----------|--------------|--------------|-------------|
-| Firms       | Few       | Few          | Few?         | 2           |
-| Strategy    | Quantity  | Price        | Quantity     | Price       |
-| Products    | Different | Same         | Same         | Same        |
-| Timing      | Unclear   | Simultaneous | Simultaneous | Sequential  |
-| Information | Unclear   | Perfect      | Perfect      | Perfect     |
-| Rationality | Unclear   | Full         | Full         | Full        |
+### The Producer's Input-Hiring Problem
 
-### Review: Monopoly
+1. Objective: 
+2. Endogenous (choice) variable(s): 
+3. Exogenous variable(s): 
 
-Market (inverse) demand:
+## Monopolist Demand, Total Revenue, and Marginal Revenue
 
-$$P = 10 - Q$$
+The monopolist responds to the demand curve for the entire market, *not* a separate, perfectly (or more) elastic demand curve from the market-level equilibrium. 
 
-Firm Costs: 
+THE MONOPOLIST ***IS*** THE MARKET!!!
 
-$$TC = 6Q$$
+### Monopolist Demand
 
-Solve for the monopoly equilibrium price and quantity. 
+Recall that the demand curve for the example we have followed was: 
 
-Suppose that the firms entered a trust that enabled them to collude. What would the quantity of each individual firm be? 
+$$Q_d(P) = D(P) = 6,000,000 - 2,000,000P$$  
 
-### Solution
+for which the *inverse* demand curve:
 
-If you chose to try doing this using R (which you might not need to since everything is linear), the code might look a little like this:
+$$P(Q) = D^{-1}(Q) = 3 - \frac{Q}{2,000,000}$$  
 
-```{r, echo=TRUE}
-library(Rsolnp)
-Dinv = function(x) {
-  10 - x
+### Monopolist Total Revenue
+
+This makes the *total* revenue curve: 
+
+$$TR(Q) = P(Q)\cdot Q = 3Q - \frac{Q^2}{2,000,000},$$ 
+
+Plot the total revenue function. 
+
+```{r tr, exercise = TRUE}
+
+```
+
+```{r tr-hint}
+# Check the plausible axis limits. 
+# For linear demand curves MR = 0 midway between the x and y intercepts. 
+```
+
+```{r tr-solution}
+library(ggplot2)
+ggplot() + 
+  geom_function(fun = function(x) x*(3 - x/2e6)) + 
+  lims(x = c(0, 6000000), y = c(0, 4500000)) + 
+  labs(x = "Quantity", y = "Total Revenue")
+```
+
+```{r tr-check}
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1)) {
+    pass(random_praise())
+    }
+  fail(random_encouragement())
+  })
+```
+
+### Monopolist Marginal Revenue
+
+For linear demand, the marginal revenue function has the same intercept on the price axis and is twice as steep as the inverse demand function. The *marginal* revenue function for our example is:
+
+$$MR(Q) = 3 - \frac{Q}{1,000,000}$$
+
+<details><summary>
+Click here to see the derivation of the marginal revenue function from the (inverse) demand function.</summary>
+Since $P = 3 - \frac{Q}{2,000}$, $TR = PQ = \Big(3 - \frac{Q}{2,000,000}\Big)Q = 3Q - \frac{Q^2}{2,000,000}$. Using the power rule for derivatives, the derivative of total revenue with respect to quantity is $\frac{dTR}{dQ} = 3 - \frac{2Q^1}{2,000,000} = 3 - \frac{Q}{1,000,000}$. `Ryacas` can do this for us: 
+```{r mr, echo = TRUE, message = FALSE}
+library(Ryacas)
+tr.ysym <- ysym('3*x - x^2/2000000')
+mr.ysym <- deriv(tr.ysym, 'x') 
+mr.ysym
+```
+
+$$MR = \frac{dTR}{dQ} = `r tex(mr.ysym)`$$
+
+For any linear demand function, the marginal revenue function will also be linear, will have the same vertical (price) intercept, and its slope will be twice as steep. If the demand function is not linear, we might need to figure out the marginal revenue function analytically (either by hand or using the `deriv()` function). 
+</details>
+
+Plot demand and marginal revenue. 
+
+```{r demandGraph, exercise = TRUE}
+
+```
+
+```{r demandGraph-solution}
+library(ggplot2)
+ggplot() + 
+  geom_function(fun = function(x) 3 - x/2000000, aes(color = "D")) + 
+  geom_function(fun = function(x) 3 - x/1000000, aes(color = "MR")) + 
+  lims(x = c(0, 6e+06), y = c(0, 3)) + 
+  labs(x = "Quantity", y = "$", color = "") +
+  scale_color_manual(breaks = c("D", "MR"), values = c("blue", "deepskyblue"))
+```
+
+
+```{r demandGraph-check}
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1) & 
+      ith_geom_is(.result, "function", i = 2)) {
+    pass(random_praise())
+    }
+  fail(random_encouragement())
+  })
+```
+
+## Costs
+
+Suppose like we did in the last section that the production function for that firm took a Cobb-Douglas form with labor share equal to $1/3$ and total factor productivity parameter $50$. It also faced input prices of $w = 25$ and $r = 50$. In the competitive market, our firm planned its initial capital input (and planned labor input) based on an expected quantity of $100$.  
+
+Here, the firm is the *entire* market, so let's suppose that this firm will plan its capital budget such that its long-run marginal cost equals marginal revenue. 
+
+### Review: Cost Minimization and Short-Run Marginal Cost
+
+$$\min_{L,K} \bigg\{C(L, K) = 10L + 20K \bigg\}$$
+
+$$\text{s.t.: } f(L,K) = 50L^{1/3}K^{2/3} \ge 2500$$
+
+The "Lagrangian" function for our example is: 
+
+$$\mathcal{L} = wL + rK + \lambda (2500 - 50L^{1/3}K^{2/3})$$
+
+### Monopolist's Capital Budgeting 
+
+If one firm were to satisfy the entire market's demand, it would minimize costs for a quantity where the demand curve intersects the long-run marginal cost curve, which in our case (given constant returns to scale) is the same as the long-run average cost curve.  
+
+Recall that in our example $LRAC = 0.3$, $LRAC = LRMC$ (because of CRTS), and the inverse demand is $P(Q) = 3 - Q/2,000,000$. 
+
+Solve for (1) the expected quantity produced; and (2) the optimal capital input for this level of output. 
+
+```{r capitalBudget, exercise = TRUE}
+
+```
+
+```{r capitalBudget-solution}
+library(nleqslv)
+demand <- function(x) 3 - x/2000000 - 0.3
+q <- nleqslv(1, demand, control = list(trace = 0))$x
+library(MicroWithR)
+A = 100
+a = 1/3
+p1 = 10
+p2 = 20
+qx <- function(x) {
+  A * x[1] ^ (a) * x[2] ^ (1 - a)
 }
-loss <- function(x) {
-  -(Dinv(x)*x - 6*x)
+tc <- function(x) {
+  p1*x[1] + p2*x[2]
 }
-eq0 <- solnp(
-  pars = 1, 
-  fun = loss, 
-  LB = 0, 
+costmin <- solnp2(
+  pars = c(1,1),
+  fun = tc,
+  ineqfun = qx,
+  ineqLB = q,
+  ineqUB = Inf,
+  LB = c(0, 0),
+  UB = c(Inf, Inf), 
   control = list(trace = 0)
-) 
-p0 = Dinv(eq0$pars)
-qi = eq0$pars/2
-```
-
-$$(Q,P) = (`r eq0$pars`, `r p0`)$$
-
-$$(Q_1, Q_2) = (`r eq0$pars/2`, `r eq0$pars/2`)$$ 
-
-## Bertrand Duopoly
-
-A Bertrand oligopoly is a "winner take all" market in which the firm that charges the lowest price "wins" the opportunity to supply the entire market. If there is a tie, then firms charging the lowest price split the quantity equally. 
-
-$$Q_1 = D(P_1,P_2) = \Biggl\{ \matrix{0 \text{ if } P_1 > P_2 \\ Q/2 \text{ if } P_1 = P_2 \\ Q \text{ if } P_1 < P_2}$$
-
-$$Q_2 = D(P_1,P_2) = \Biggl\{ \matrix{0 \text{ if } P_2 > P_1 \\ Q/2 \text{ if } P_2 = P_1 \\ Q \text{ if } P_2 < P_1}$$
-
-### "Analytical" Solution
-
-Four Non-Cases: 
-
-1. $p_1 \ne p_2$ and $min\{p_1, p_2\} < MC$
-2. $p_1 = p_2$ and $min\{p_1, p_2\} < MC$
-3. $p_1 \ne p_2$ and $min\{p_1, p_2\} > MC$
-4. $p_1 = p_2$ and $min\{p_1, p_2\} > MC$
-
-Suppose two identical firms choose their price to maximize profits subject to a "winner take all" market structure. What will the profit-maximizing price of the winning firm(s) be? 
-
-### Simulation of Bertrand Duopoly
-
-Use the following link to choose your strategy under the demand and cost conditions for the example. 
-
-[Bertrand Duopoloy Activity](https://forms.gle/kRFtVWAQgcCTZbDp6)
-
-<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe8Z5TTc29MeRST2_zhCmpVedXVmNQnoItNg8Mn38jKvzzoWA/viewform?embedded=true" width="640" height="1123" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
-
-## Cournot Duopoly
-
-In a Cournot Duopoly, firms choose *quantity* instead of price. The market (inverse) demand function determines the price based on the total combined output. 
-
-$$\begin{split} P &= D^{-1}(Q) &= 10 - Q \\ 
-&= D^{-1}(Q_1 + Q_2) &= 10 - (Q_1 + Q_2) \end{split}$$
-
-The maximization problem for firm 1 is: 
-
-$$max_{Q_1}\{[10 - (Q_1 + Q_2)]Q_1 - 6Q_1\},$$
-
-or: 
-
-$$max_{Q_1}\{10Q_1 - Q_1Q_2 - Q_1^2 - 6Q_1\}.$$
-
-### Best-Response Functions
-
-The first-order conditions for each firm give us that firm's best-response function, or reaction function depending on what it expects the other firm to produce. 
-
-```{r, echo = TRUE}
-library(Ryacas, warn.conflicts = FALSE)
-pi1 <- ysym('4*Q1 - Q1*Q2 - Q1^2') 
-pi2 <- ysym('4*Q2 - Q1*Q2 - Q2^2')
-br1 <- deriv(pi1, 'Q1') |>
-  solve(0, 'Q1') 
-br2 <- deriv(pi2, 'Q2') |>
-  solve(0, 'Q2') 
-```
-
-$$`r tex(br1)`$$
-$$`r tex(br2)`$$
-
-### Nash Equilibrium: Graphical Solution
-
-**Nash Equilibrium**: an outcome where, given the strategy choices of the other players, no individual player can obtain a higher payoff by altering their strategy choice ([Emerson, 2020](https://open.oregonstate.education/intermediatemicroeconomics/chapter/module-17/#section17-1)).
-
-The market reaches a Nash Equilibrium when the quantities each firm chooses demonstrate *consistent conjectures*. In other words, each firm plays its best response to the other firm's best response (and vice-versa and so on...).
-
-This occurs at the solution of the best response functions. Plot both best-response functions, with $Q_1$ on the x-axis and $Q_2$ on the y-axis.  
-
-```{r brPlot, exercise = TRUE}
- 
-```
-
-```{r brPlot-solution}
-curve((4 - x)/2, 
-      from = 0, to = 4, 
-      ylim = c(0,4), col = 'darkblue', 
-      xlab = expression(Q[1]), 
-      ylab = expression(Q[2]))
-curve(4-2*x, from = 0, to = 2, add = TRUE, col = 'darkorange')
-legend('topright', 
-       c('BR of Firm 1', 'BR of Firm 2'), 
-       lty = 1, col = c('darkorange', 'darkblue'))
-```
-
-```{r brPlot-check}
-grade_code()
-```
-
-### Graphical Solution with Isoprofit Curves
-
-```{r, echo = TRUE}
-library(Rsolnp)
-loss <- function(x) {
-  x1 <- x[1]
-  x2 <- x[2]
-  -(4*x1 - x1*x2 - x1^2)
-}
-br2c <- function(x) {
-  x1 <- x[1]
-  x2 <- x[2]
-  eval(D(quote(4*x2 - x1*x2 - x2^2), 'x2'))
-}
-cournot <- solnp(
-    c(1,1), 
-    loss, 
-    ineqfun = br2c,                   # Solution must be on (or outside) firm 2 BR
-    ineqLB = -Inf,
-    ineqUB = 0,
-    eqfun = function(x) x[1] - x[2], # Solution must be symmetric 
-    eqB = 0,
-    LB = c(0,0), 
-    control = list(trace = 0)
 )
-curve((4 - x)/2,                          # Firm 2 BR
-      from = 0, to = 4, 
-      ylim = c(0,4), col = 'darkblue', 
-      xlab = expression(Q[1]), 
-      ylab = expression(Q[2]))
-curve(4-2*x, from = 0, to = 2, 
-      add = TRUE, col = 'darkorange')     # Firm 1 BR
-curve(4 - x - 16/(9*x), 
-      add = TRUE, col = 'darkorange')       # Firm 1 Cournot Profit
-curve(4 - x - 1/x, 
-      add = TRUE, col = 'darkorange', lty = 2)   # Firm 1 Profit = 1
-curve(4 - x - 2/x, 
-      add = TRUE, col = 'darkorange', lty = 3) # Firm 1 Profit = 2.5
-curve(((-9)*x+sqrt(((-9)*x+36)^2-576)+36)/18, from = 0, to = 4/3, 
-      add = T, col = 'darkblue')  # Top half of Firm 2 isoprofit
-curve(-(sqrt(((-9)*x+36)^2-576)-((-9)*x+36))/18, from = 0, to = 4/3, 
-      add = T, col = 'darkblue') # Bottom half of Firm 2 isoprofit
-points(x = c(cournot$pars[1], 2, 1), y = c(cournot$pars[2], 0, 1))
-text(x = cournot$pars[1], y = cournot$pars[2], "Cournot", adj = c(0.5,0))
-text(x = 2, y = 0, "Firm 1 Monopoly", adj = c(0.5,0))
-text(x = 1, y = 1, "Collusion", adj = c(0.5,0))
-legend('topright', 
-       c('Firm 1 BR', 'Firm 2 BR', 'Firm 1 Profit = 1', 
-         'Equilibrium Profit', 'Firm 1 Profit = 2'), 
-       lty = c(1, 1, 2, 1, 3), 
-       col = c('darkorange', 'darkblue', 'darkorange', 'darkorange', 'darkorange'))
+K <- costmin$pars[2]
+K
 ```
 
-Note: I took an assist from `Ryacas` to find the top and bottom functions for the firm 2 isoprofit function. Here is the code that helped me: 
+```{r capitalBudget-check}
+grade_this({if (round(.result, 0) != 54000) { 
+    fail("The capital input is about 54,000") }
+  pass()
+})
+```
+
+This happens at $Q = 5,400,000$, which corresponds to labor and capital inputs of $L = 54,000$ and $K - 54,000$. 
+
+### Short-Run Total Cost 
+
+For $K^* = 54,000$, our firm's short run costs as a function of quantity of output are: 
+
+<details><summary> Click here to see the derivation of the cost function from the production function and total costs. </summary>
+$$f(K,L) = 100L^{1/3}K^{2/3} $$
+$$L(Q) = \Bigg(\frac{Q}{54,000^{2/3} \cdot 100} \Bigg)^3 = \frac{Q^3}{2.916 \cdot 10^{15}}$$
+$$C(Q) = 10L(Q) + 20(54,000) = \frac{Q^3}{2.916 \cdot 10^{14}} + 1,080,000$$
+</details>
+
+$$ C(Q) = \frac{Q^3}{2.916 \cdot 10^{14}} + 1,080,000$$
+
+### Marginal Cost 
+
+For this cost function, marginal cost will be: 
+
+$$\frac{3Q^2}{2.916 \cdot 10^{14}}$$ 
+
+### Average Cost
+
+Average costs will be: 
+
+$$\frac{Q^2}{2.916 \cdot 10^{14}} + \frac{1,080,000}{Q}$$
+
+### Average Variable Cost
+
+Average variable costs will be: 
+
+$$\frac{Q^2}{2.916 \cdot 10^{14}}$$
+Add marginal cost, average cost, and average variable cost for this monopolist to the demand/marginal revenue graph (`g`).
+
+```{r costs, exercise = TRUE}
+
+```
+
+```{r costs-setup}
+library(ggplot2)
+g <- ggplot() + 
+  geom_function(fun = function(x) 3 - x/2000000, aes(color = "D")) + 
+  geom_function(fun = function(x) 3 - x/1000000, aes(color = "MR")) + 
+  lims(x = c(0, 6e+06), y = c(0, 3)) + 
+  labs(x = "Quantity", y = "$", color = "") +
+  scale_color_manual(breaks = c("D", "MR"), values = c("blue", "deepskyblue"))
+```
+
+
+```{r costs-solution}
+g <- g + 
+  geom_function(fun = function(x) 3*x^2 / (2.916 * 10^(14)), aes(color = "MC")) + 
+  geom_function(fun = function(x) x^2 / (2.916 * 10^(14)) + 1080000 / x, 
+                aes(color = "ATC")) +
+  geom_function(fun = function(x) x^2 / (2.916 * 10^(14)), aes(color = "AVC")) +
+  scale_color_manual(
+    breaks = c("D", "MR", "MC", "ATC", "AVC"), 
+    values = c("blue", "deepskyblue", 'red', 'firebrick', 'hotpink2'))
+```
+
+## Solving for Equilibrium
+
+Like any firm, the monopolist maximizes profits and sets its output according to $MR(Q^*) = MC(Q^*)$ and sets its price according to the demand curve at that quantity, $D^{-1}(Q^*)$.
+
+### Computational Approach
+
+Solve for the profit-maximizing quantity and find the monopolist's price at that quantity.
+
+```{r sr, exercise = TRUE}
+
+```
+
+```{r sr-setup}
+library(nleqslv)
+demand <- function(x) 3 - x/2000000 - 0.3
+q <- nleqslv(1, demand, control = list(trace = 0))$x
+library(MicroWithR)
+A = 100
+a = 1/3
+w = 10
+r = 20
+qx <- function(x) {
+  A * x[1] ^ (a) * x[2] ^ (1 - a)
+}
+tc <- function(x) {
+  w*x[1] + r*x[2]
+}
+costmin <- solnp2(
+  pars = c(1,1),
+  fun = tc,
+  ineqfun = qx,
+  ineqLB = q,
+  ineqUB = Inf,
+  LB = c(0, 0),
+  UB = c(Inf, Inf), 
+  control = list(trace = 0)
+)
+K <- costmin$pars[2]
+```
+
+```{r sr-solution}
+d.Inv <- function(x) {
+  3 - qx(x)/2000000
+}
+profit <- function(x) {
+    qx(x) * d.Inv(x) - tc(x)
+}
+eq <- solnp2(
+  par = c(1, 1), 
+  fun = profit, 
+  eqfun = function(x) x[2],
+  eqB = K,
+  LB = c(0,0), 
+  control = list(trace = 0), 
+  max = TRUE
+  )
+eq$pars
+qx(eq$pars)
+d.Inv(eq$pars)
+profit(eq$pars)
+```
+
+```{r sr, echo = FALSE}
+grade_this({if (round(.result, 0) != 3331447) { 
+    fail("The maximum level of profit should be about 3,331,447") }
+  pass()
+})
+```
+
+## Efficiency
+
+* **Productive Efficiency:** We can immediately see that the monopolist does not reach the minimum of ATC: minimum ATC occurs where MC = ATC. Since MC < ATC at the monopoly equilibrium, the monopolist utilizes *excess capacity*.  
+We can further see this from the fact that the *optimal* capital-labor ratio for our example is $1:1$, but in the monopoly equilibrium this ratio is about $6.4:1$. We can also see that the monopolist produces at an average cost of about 0.4 while the competitive market produces at an average cost of 0.3.
+* **Allocative Efficiency:** Allocative efficiency we can see from the fact that $MC \approx 0.09 < P \approx 1.54$, which means that since $MU = P$ from the consumer problem (since we implicitly assume consumers are price-takers), $MC \ne MU$. Even if the market otherwise satisfies the usual efficiency conditions, the fact that a monopolist exists spoils allocative efficiency. 
+
+Let's calculate the consumer and producer surplus under each market structure to see just how much total surplus the monopolist destroys by restricting output. 
+
+### Graphical Method (Competitive Equilibrium)
+
+Graphically, the total surplus in the competitive equilibrium is shown below as the sum of the consumer surplus in light blue (sum of marginal utilities enjoyed above the price paid) and the producer surplus in pink (sum of revenues received above the marginal costs incurred). 
+
+```{r echo = FALSE}
+library(ggplot2)
+A = 100
+a = 1/3
+w = 10
+r = 20
+qx <- function(x) {
+  A * x[1] ^ (a) * x[2] ^ (1 - a)
+}
+d.Inv <- function(x) {
+  3 - qx(x)/2000000
+}
+g <- ggplot() + 
+  geom_function(fun = function(x) 3 - x/2000000, aes(color = "D")) + 
+  geom_function(fun = function(x) 3 - x/1000000, aes(color = "MR")) + 
+  lims(x = c(0, 6e+06), y = c(0, 3)) + 
+  labs(x = "Quantity", y = "$", color = "") +
+  scale_color_manual(breaks = c("D", "MR"), values = c("blue", "deepskyblue")) + 
+  geom_function(fun = function(x) 3*x^2 / (2.916 * 10^(14)), aes(color = "MC")) + 
+  geom_function(fun = function(x) x^2 / (2.916 * 10^(14)) + 1080000 / x, 
+                aes(color = "ATC")) +
+  geom_function(fun = function(x) x^2 / (2.916 * 10^(14)), aes(color = "AVC")) +
+  scale_color_manual(
+    breaks = c("D", "MR", "MC", "ATC", "AVC"), 
+    values = c("blue", "deepskyblue", 'red', 'firebrick', 'hotpink2'))
+```
+
+```{r, echo = TRUE}
+schedule = data.frame(x = seq(0, qx(c(54000, 54000)), 100), p = NA, d = NA, mc = NA)
+schedule$p = d.Inv(c(54000, 54000))
+schedule$d = sapply(schedule$x, FUN = function(x) 3 - x/2000000) 
+schedule$mc = sapply(schedule$x, FUN = function(x) 3*x^2 / (2.916 * 10^(14)))
+g + 
+  geom_ribbon(aes(x = x, ymin = p, ymax = d, fill = "CS"), data = schedule, alpha = 0.1)  + 
+  geom_ribbon(aes(x = x, ymin = mc, ymax = p, fill = "PS"), data = schedule, alpha = 0.1) + 
+  labs(x = "Quantity", y = "$", color = "", fill = "") + 
+  scale_fill_manual(breaks = c("CS", "PS"), values = c("blue", "red"))
+```
+
+### Computational Method (Competitive Equilibrium)
+
+We calculate the surplus by finding the area of these shaded regions. We could do the total surplus all at once, but doing it separately helps see how the monopolist *transfers* surplus from the consumer to itself as well as destroying some of the total surplus. 
+
+For linear functions areas below and between curves is easy: we only need to calculate areas of triangles and/or rectangles; for curves, we calculate the areas below by taking the *integral* (gasp!) of the diferrence between the curves. 
+
+Calculate the consumer surplus using the fact that we know that the demand function is linear with intercept of 3, the equilibrium quantity is 5,400,000, and the equilibrium price is 0.3.
+
+```{r cs, exercise = TRUE}
+
+```
+
+```{r cs-hint}
+
+```
+
+```{r cs-setup}
+library(nleqslv)
+demand <- function(x) 3 - x/2000000 - 0.3
+q <- nleqslv(1, demand, control = list(trace = 0))$x
+library(MicroWithR)
+A = 100
+a = 1/3
+w = 10
+r = 20
+qx <- function(x) {
+  A * x[1] ^ (a) * x[2] ^ (1 - a)
+}
+tc <- function(x) {
+  w*x[1] + r*x[2]
+}
+costmin <- solnp2(
+  pars = c(1,1),
+  fun = tc,
+  ineqfun = qx,
+  ineqLB = q,
+  ineqUB = Inf,
+  LB = c(0, 0),
+  UB = c(Inf, Inf), 
+  control = list(trace = 0)
+)
+K <- costmin$pars[2]
+d.Inv <- function(x) {
+  3 - qx(x)/2000000
+}
+profit <- function(x) {
+    qx(x) * d.Inv(x) - tc(x)
+}
+eq <- solnp2(
+  par = c(1, 1), 
+  fun = profit, 
+  eqfun = function(x) x[2],
+  eqB = 54000,
+  LB = c(0,0), 
+  control = list(trace = 0), 
+  max = TRUE
+  )
+```
+
+```{r cs}
+cs <- 0.5*(3 - d.Inv(c(54000,54000)))*qx(c(54000,54000))
+cs
+```
+
+```{r cs-check}
+grade_this({if (round(.result, 0) != 7290000) { 
+    fail("The consumer surplus is about 7,290,000") }
+  pass()
+})
+```
+
+Next, calculate the producer surplus using the `integrate()` function over the function $0.3 - MC(Q)$. (Unfortunately there's no simple formula shortcut since the marginal cost curve is a curve.) 
+
+```{r ps, exercise = TRUE}
+
+```
+
+
+```{r ps-setup}
+library(nleqslv)
+demand <- function(x) 3 - x/2000000 - 0.3
+q <- nleqslv(1, demand, control = list(trace = 0))$x
+library(MicroWithR)
+A = 100
+a = 1/3
+w = 10
+r = 20
+qx <- function(x) {
+  A * x[1] ^ (a) * x[2] ^ (1 - a)
+}
+tc <- function(x) {
+  w*x[1] + r*x[2]
+}
+costmin <- solnp2(
+  pars = c(1,1),
+  fun = tc,
+  ineqfun = qx,
+  ineqLB = q,
+  ineqUB = Inf,
+  LB = c(0, 0),
+  UB = c(Inf, Inf), 
+  control = list(trace = 0)
+)
+K <- costmin$pars[2]
+d.Inv <- function(x) {
+  3 - qx(x)/2000000
+}
+profit <- function(x) {
+    qx(x) * d.Inv(x) - tc(x)
+}
+eq <- solnp2(
+  par = c(1, 1), 
+  fun = profit, 
+  eqfun = function(x) x[2],
+  eqB = 54000,
+  LB = c(0,0), 
+  control = list(trace = 0), 
+  max = TRUE
+  )
+```
+
+```{r ps-hint}
+```
+
+
+```{r ps-solution}
+ps <-
+  integrate(
+    function(x)
+      0.3 - (3 * x ^ 2) / 2916e11,
+    lower = 0,
+    upper = 5.4e+06
+  )[1] |>
+  unlist()
+ps
+```
+
+```{r ps-check}
+grade_this({if (round(.result, 0) != 1080000) { 
+    fail("The producer surplus is about 1,080,000") }
+  pass()
+})
+```
+
+### Graphical Method (Monopoly Equilibrium)
+
+Graphically, we can visualize the two sets of surpluses in a single plot space by shading the different surpluses on top of one another using slightly different colors.
+
+```{r echo = FALSE}
+library(ggplot2)
+schedule = data.frame(x = seq(0, qx(c(54000, 54000)), 100), p = NA, d = NA, mc = NA)
+schedule$p = d.Inv(costmin$pars)
+schedule$d = sapply(schedule$x, FUN = function(x) 3 - x/2000000) 
+schedule$mc = sapply(schedule$x, FUN = function(x) 3*x^2 / (2.916 * 10^(14)))
+# schedulem = data.frame(x = seq(0, qx(eq$pars), 100), p = NA, d = NA, mc = NA)
+# schedulem$pm = d.Inv(eq$pars)
+# schedulem$d = sapply(schedulem$x, FUN = function(x) 3 - x/2000000) 
+# schedulem$mc = sapply(schedulem$x, FUN = function(x) 3*x^2 / (2.916 * 10^(14)))
+g <- ggplot() + 
+  geom_function(fun = function(x) 3 - x/2000000, aes(color = "D")) + 
+  geom_function(fun = function(x) 3 - x/1000000, aes(color = "MR")) + 
+  geom_function(fun = function(x) 3*x^2 / (2.916 * 10^(14)), aes(color = "MC")) + 
+  geom_function(fun = function(x) x^2 / (2.916 * 10^(14)) + 1080000 / x, 
+                aes(color = "ATC")) +
+  geom_function(fun = function(x) x^2 / (2.916 * 10^(14)), aes(color = "AVC")) +
+  geom_ribbon(aes(x = x, ymin = p, ymax = d, fill = "CS"), data = schedule, alpha = 0.1) + 
+  geom_ribbon(aes(x = x, ymin = mc, ymax = p, fill = "PS"), data = schedule, alpha = 0.1) + 
+  lims(x = c(0, 6e+06), y = c(0, 3)) + 
+  labs(x = "Quantity", y = "$", color = "", fill = "") +
+  scale_color_manual(
+    breaks = c("D", "MR", "MC", "ATC", "AVC"), 
+    values = c("blue", "deepskyblue", 'red', 'firebrick', 'hotpink2')) + 
+  scale_fill_manual(
+    breaks = c("CS", "PS"), 
+    values = c("blue", "red"))
+```
+
+```{r, echo = TRUE, fig.width=9}
+schedule$pm = d.Inv(eq$pars)
+mc <- function(x) {
+  3*x^2/(2.916e14)
+}
+g + 
+  geom_ribbon(
+    aes(x = x, ymin = pm, ymax = d, fill = "CS'"),
+    data = subset(schedule, x <= qx(eq$pars)), alpha = 0.1) + 
+  geom_ribbon(
+    aes(x = x, ymin = mc, ymax = pm, fill = "PS'"), 
+    data = subset(schedule, x <= qx(eq$pars)), alpha = 0.1) +
+  geom_text(aes(
+    x = qx(eq$pars)/2, 
+    y = (d.Inv(eq$pars) + 2*d.Inv(costmin$pars))/3, label = "A"), 
+    size = 5) + 
+  geom_text(aes(
+    x = (2*qx(eq$pars) + qx(costmin$pars))/3, 
+    y = (d.Inv(eq$pars) + 2*d.Inv(costmin$pars))/3, label = "B"), 
+    size = 5) + 
+  geom_text(aes(
+    x = (2*qx(eq$pars) + qx(costmin$pars))/3, 
+    y = (mc(qx(eq$pars)) + 2*d.Inv(costmin$pars))/3, label = "C"), 
+    size = 5) + 
+  scale_fill_manual(
+    breaks = c("CS", "PS", "CS'", "PS'"), 
+    values = c("blue", "red", "deepskyblue", "firebrick"))
+```
+
+We can see from this figure that some of the surpluses generated by a competitive market get left out by the monopolist since the monopolist chooses to produce a quantity below the point where marginal costs intersect with demand and $P = MU = MC$. The name for these unrealized gains are called "deadweight losses." Next, we will calculate these for our example. 
+
+### Computational Method (Monopoly Equilibrium)
+
+Calculate the consumer surplus under this monopolist.  
+
+```{r cs.m, exercise = TRUE}
+
+```
+
+```{r cs.m-setup}
+library(nleqslv)
+demand <- function(x) 3 - x/2000000 - 0.3
+q <- nleqslv(1, demand, control = list(trace = 0))$x
+library(MicroWithR)
+A = 100
+a = 1/3
+w = 10
+r = 20
+qx <- function(x) {
+  A * x[1] ^ (a) * x[2] ^ (1 - a)
+}
+tc <- function(x) {
+  w*x[1] + r*x[2]
+}
+costmin <- solnp2(
+  pars = c(1,1),
+  fun = tc,
+  ineqfun = qx,
+  ineqLB = q,
+  ineqUB = Inf,
+  LB = c(0, 0),
+  UB = c(Inf, Inf), 
+  control = list(trace = 0)
+)
+K <- costmin$pars[2]
+d.Inv <- function(x) {
+  3 - qx(x)/2000000
+}
+profit <- function(x) {
+    qx(x) * d.Inv(x) - tc(x)
+}
+eq <- solnp2(
+  par = c(1, 1), 
+  fun = profit, 
+  eqfun = function(x) x[2],
+  eqB = 54000,
+  LB = c(0,0), 
+  control = list(trace = 0), 
+  max = TRUE
+  )
+```
+
+```{r cs.m-hint}
+```
+
+
+```{r cs.m-solution}
+cs.m <- 0.5 * (3 - d.Inv(eq$pars)) * qx(eq$pars)
+cs.m
+```
+
+```{r cs.m-check}
+grade_this({if (round(.result, 0) != 2120982) { 
+    fail("The producer surplus is about 2,120,982") }
+  pass()
+})
+```
+
+Calculate the producer surplus under this monopolist.  
+
+```{r ps.m, exercise = TRUE}
+
+```
+
+```{r ps.m-setup}
+library(nleqslv)
+demand <- function(x) 3 - x/2000000 - 0.3
+q <- nleqslv(1, demand, control = list(trace = 0))$x
+library(MicroWithR)
+A = 100
+a = 1/3
+w = 10
+r = 20
+qx <- function(x) {
+  A * x[1] ^ (a) * x[2] ^ (1 - a)
+}
+tc <- function(x) {
+  w*x[1] + r*x[2]
+}
+costmin <- solnp2(
+  pars = c(1,1),
+  fun = tc,
+  ineqfun = qx,
+  ineqLB = q,
+  ineqUB = Inf,
+  LB = c(0, 0),
+  UB = c(Inf, Inf), 
+  control = list(trace = 0)
+)
+K <- costmin$pars[2]
+d.Inv <- function(x) {
+  3 - qx(x)/2000000
+}
+profit <- function(x) {
+    qx(x) * d.Inv(x) - tc(x)
+}
+eq <- solnp2(
+  par = c(1, 1), 
+  fun = profit, 
+  eqfun = function(x) x[2],
+  eqB = 54000,
+  LB = c(0,0), 
+  control = list(trace = 0), 
+  max = TRUE
+  )
+```
+
+```{r ps.m-hint}
+```
+
+```{r ps.m-solution}
+ps.m <-
+  integrate(
+    function(x)
+      d.Inv(eq$pars) - (3 * x ^ 2) / 2916e11,
+    lower = 0,
+    upper = qx(eq$pars)
+  )[1] |>
+  unlist()
+ps.m
+```
+
+```{r ps.m-check}
+grade_this({if (round(.result, 0) != 4411447 ) { 
+    fail("The producer surplus is about 4,411,447") }
+  pass()
+})
+```
+
+The following table presents a comparison of the surplusses under a competitive market and a monopolist, respectively. 
 
 ```{r}
-pi2star <- solve(ysym('4 - x - x2 - 16/(9*x2)'), 0, 'x2')
-```
-
-Notice that the top and bottom of the curve have separate expressions because of the presence of squares and square-root functions with respect to $x_2$. I could not have done this easily by hand!
-
-### Nash Equilibrium: Analytical Solution
-
-Once we have the best-response functions, solving the equilibrium
-
-```{r, echo = TRUE}
-eq1 <- solve(c(br1, br2), c(0,0), c('Q1', 'Q2')) |> 
-  y_rmvars() 
-p1 <- 10 - eq1[1] - eq1[2]
-```
-
-$$\pmatrix{Q_1 \\ Q_2 \\ P} = \pmatrix{ `r tex(eq1[1])` \\ `r tex(eq1[2])` \\ `r tex(p1)`}$$
-
-### Nash Equilibrium: Computational Solution
-
-Nash equilibrium is really tricky without doing at least one of the profit-function derivatives. The code below does it for our simple example using only the `Rsolnp::` package with the help of the derivative (`D()`) function in the basic `stats::` package. (0/10 - do not recommend: extracting the derivative expression is a PITA.)
-
-```{r, echo = TRUE}
-library(Rsolnp)
-loss <- function(x) {
-  x1 <- x[1]
-  x2 <- x[2]
-  -(4*x1 - x1*x2 - x1^2)
+library(nleqslv)
+demand <- function(x) 3 - x/2000000 - 0.3
+q <- nleqslv(1, demand, control = list(trace = 0))$x
+library(MicroWithR)
+A = 100
+a = 1/3
+w = 10
+r = 20
+qx <- function(x) {
+  A * x[1] ^ (a) * x[2] ^ (1 - a)
 }
-br2 <- function(x) {
-  x1 <- x[1]
-  x2 <- x[2]
-  eval(D(quote(4*x2 - x1*x2 - x2^2), 'x2'))
+tc <- function(x) {
+  w*x[1] + r*x[2]
 }
-cournot <- solnp(
-    c(1,1), 
-    loss, 
-    ineqfun = br2,                   # Solution must be on (or outside) firm 2 BR
-    ineqLB = -Inf,
-    ineqUB = 0,
-    eqfun = function(x) x[1] - x[2], # Solution must be symmetric 
-    eqB = 0,
-    LB = c(0,0), 
-    control = list(trace = 0)
+costmin <- solnp2(
+  pars = c(1,1),
+  fun = tc,
+  ineqfun = qx,
+  ineqLB = q,
+  ineqUB = Inf,
+  LB = c(0, 0),
+  UB = c(Inf, Inf), 
+  control = list(trace = 0)
 )
-```
+K <- costmin$pars[2]
+d.Inv <- function(x) {
+  3 - qx(x)/2000000
+}
+profit <- function(x) {
+    qx(x) * d.Inv(x) - tc(x)
+}
+eq <- solnp2(
+  par = c(1, 1), 
+  fun = profit, 
+  eqfun = function(x) x[2],
+  eqB = 54000,
+  LB = c(0,0), 
+  control = list(trace = 0), 
+  max = TRUE
+  )
+cs <- 0.5*(3 - d.Inv(c(54000,54000)))*qx(c(54000,54000))
+ps <-
+  integrate(
+    function(x)
+      0.3 - (3 * x ^ 2) / 2916e11,
+    lower = 0,
+    upper = 5.4e+06
+  )[1] |>
+  unlist()
+cs.m <- 0.5 * (3 - d.Inv(eq$pars)) * qx(eq$pars)
+ps.m <-
+  integrate(
+    function(x)
+      d.Inv(eq$pars) - (3 * x ^ 2) / 2916e11,
+    lower = 0,
+    upper = qx(eq$pars)
+  )[1] |>
+  unlist()
 
-$$(Q_1, Q_2) = `r cournot$pars[1]`, `r cournot$pars[2]`$$
-
-### Simulation of Cournot Duopoly
-
-Use the following link to choose your strategy under the demand and cost conditions for the example. 
-
-[Cournot Duopoloy Activity](https://forms.gle/JthsPp2CrbdqCB9dA)
-
-<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdAFg3fm31Nr73ggV03uXCw5nV8IfyS0yEhYY26zkxNnI0gOQ/viewform?embedded=true" width="640" height="1151" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
-
-Final note: as the number of firms in a Cournot duopoly increases, price and quantity approach the perfectly competitive equilibrium. 
-
-```{r, echo = TRUE}
-cournotLim <- data.frame(
-  N = seq(1,100, by = 1)
+surplusTable <- data.frame(
+  Competition = c(cs, ps, cs + ps), 
+  Monopolist = c(cs.m, ps.m, cs.m + ps.m),
+  Change = c(cs.m - cs, ps.m - ps, (cs.m + ps.m) - (cs + ps)), 
+  row.names = c("Consumer Surplus", "Producer Surplus", "Total Surplus")
 )
-cournotLim$Q_i = 4/(cournotLim$N+1)
-cournotLim$Price = 10 - (4*cournotLim$N/(cournotLim$N+1))
-cournotLim$Profit = cournotLim$Price*cournotLim$Q_i - 6*cournotLim$Q_i
-cournotLim$Q_m = cournotLim$N*4/(cournotLim$N+1)
-par(mar = c(5, 4, 4, 4) + 0.3)              # Additional space for second y-axis
-plot(cournotLim$N, cournotLim$Q_m, type = 'l', 
-     ylim = c(2,8), col = 'blue3', 
-     xlab = "Number of Firms", ylab = "Market Price or Quantity")
-lines(cournotLim$N, cournotLim$Price, col = 'lightblue3')
-lines(cournotLim$N, rep(4, nrow(cournotLim)), lty = 2)
-lines(cournotLim$N, rep(6, nrow(cournotLim)), lty = 3)
-par(new = TRUE)                             # Add new plot
-plot(cournotLim$N, cournotLim$Profit, type = 'l', col = 'green', 
-     axes = FALSE, ylim = c(0,2), xlab = "", ylab = "")
-axis(side = 4, at = pretty(range(cournotLim$Profit)))
-legend('topright', legend = c("Market Quantity", "Market Price", "Firm Profit", "Competitive Q", "Competitive P"), col = c('blue3', 'lightblue3', 'green', 'black', 'black'), lty = c(1, 1, 1, 2, 3))
+surplusTable
 ```
 
-## Stackelberg (Leader-Follower) Duopoly
+Summary:  
 
-The Stackelberg Model assumes one firm is the "leader" and chooses *first* (here, assume firm 1 is the leader), and the other firm (firm 2) is the "follower" and chooses *after* observing the leader's choice of output. 
-
-At first we might think that the *follower* has the upper hand: they get to see the leader's decision before choosing. But remember: firm 1 *knows* what firm 2's best response will be, and lead with the quantity that maximizes firm 1's profit, subject to the firm 2's best response function as a constraint. 
-
-The decision tree becomes: 
-
-```{r}
-# library(ggplot2)
-# source('../../../R/gameTree.R')
-# gameTree(players = c("Firm 1", "Firm 2"), strategies = c("BR(Q)", "Low Q"), payoffs1 = c(2, 2, 1, 2), payoffs2 = c(1, 1, 2, 2))
-```
-
-### Backwards Induction and Subgame Perfect Nash Equilibrium (SPNE)
-
-A common method for solving the equilibrium for a sequential games is *backward induction*, which leads to a *subgame perfect Nash equilibrium* (SPNE). Backward induction starts with the last move (or "subgame") in the game, solves the best response of the player(s) at that stage, and assumes that the player(s) in the preceding round(s) perfectly anticipate the response. 
-
-Solving the second and final stage of our game, we have firm 2's best response as the solution to:
-
-$$max_{Q_2}\{4Q_2 - Q_1Q_2 - Q_2^2\},$$
-
-which we solved in the cournot problem to be: 
-
-$$Q_2 = \frac{4 - Q_1}{2}$$
-
-Firm one exploits the fact that it anticipates firm 2's response *and* the fact that the game is no longer symmetric, and solves: 
-
-$$max_{Q_1}\{4Q_1 - Q_1Q_2 - Q_1^2\}$$
-subject to: 
-
-$$Q_2 = \frac{4 - Q_1}{2}$$
-
-Solve the choice of $Q_1$ by firm 1. 
-
-```{r stackelberg, exercise = TRUE}
-
-```
-
-```{r stackelberg-solution}
-solution <- solnp(
-    c(1,1), 
-    loss, 
-    eqfun = br2, # Solution need only satisfy firm 2 best response
-    eqB = 0, 
-    LB = c(0,0), # No symmetry constraint
-    control = list(trace = 0)
-)
-```
-
-```{r stackelberg-check}
-grade_code()
-```
-
-### Graph of the Solution
-
-The solution for the leader puts the production on an isoprofit curve as close to firm 1's monopoly outcome as possible, while maintaining a point of tangency with firm 2's best response function. 
-
-The following code demonstrates this property of the equilibrium, with firm 1's best response function added as a reference. 
-
-```{r, echo = TRUE}
-curve((4 - x)/2, 
-      from = 0, to = 4, 
-      ylim = c(0, 4), col = 'darkblue', 
-      xlab = expression(Q[1]), 
-      ylab = expression(Q[2]))
-curve(4-2*x, from = 0, to = 2, add = TRUE, col = 'darkorange')
-curve(4 - x - 2/x, add = TRUE, col = 'darkorange')
-curve(-(x+sqrt((4-x)^2-4)-4)/2, add = TRUE, col = 'darkblue')
-curve(-(x-4-sqrt((4-x)^2-4))/2, add = TRUE, col = 'darkblue')
-legend('topright', 
-       c('BR of Firm 1', 'BR of Firm 2', 'Leader Profit', 'Follower Profit'), 
-       lty = c('solid', 'solid', 'solid', 'solid'), 
-       col = c('darkorange', 'darkblue', 'darkorange', 'darkblue'))
-points(x = c(1, 2, 2), y = c(1, 1, 0))
-text(x = 1, y = 1, "Collusion", adj = c(0.5,0))
-text(x = 2, y = 1, "Stackelberg", adj = c(0.5,1))
-text(x = 2, y = 0, "Firm 1 Monopoly", adj = c(0.5,0))
-```
-
-```{r}
-pi2star <- solve(ysym('4 - x - x2 - 1/x2'), 0, 'x2') 
-```
-
-
-It's somewhat worth noting that in this example the leader ends up with the same profits as they would have earned with collusion! 
-
-## Comparison of Equilibria
-
-```{r, echo = TRUE}
-compare <- data.frame(
-  Price = c(8, 6, 22/3, 7), 
-  Quantity1 = c(1, 2, 4/3, 2),
-  Quantity2 = c(1, 2, 4/3, 1),
-  Profit1 = c(2, 0, 16/9, 2), 
-  Profit2 = c(2, 0, 16/9, 1), 
-  row.names = c("Collusion", "Bertrand", "Cournot", "Stackelberg")
-)
-print(compare, digits = 3)
-```
-
-```{r}
-curve((4 - x)/2,                          # Firm 2 BR
-      from = 0, to = 4, 
-      ylim = c(0,4), col = 'darkblue', 
-      xlab = expression(Q[1]), 
-      ylab = expression(Q[2]))
-curve(4-2*x, from = 0, to = 2, 
-      add = TRUE, col = 'darkorange')     # Firm 1 BR
-curve(4 - x - 16/(9*x), add = TRUE)       # Firm 1 Cournot Profit
-curve(4 - x - 0/x, add = TRUE, lty = 2)   # Firm 1 Bertrand Profit
-curve(4 - x - 2/x, add = TRUE, lty = 3)   # Firm 1 Stackelberg Profit
-points(x = c(cournot$pars[1], 2, 2, 2, 1), y = c(cournot$pars[2], 1, 2, 0, 1))
-text(x = cournot$pars[1], y = cournot$pars[2], "Cournot", adj = c(0.5,0))
-text(x = 2, y = 2, "Bertrand", adj = c(0.5,0))
-text(x = 2, y = 1, "Stackelberg", adj = c(0.5,1))
-text(x = 1, y = 1, "Collusion", adj = c(0.5,1))
-text(x = 2, y = 0, "Firm 1 Monopoly", adj = c(0.5,0))
-legend('topright', 
-       c('Firm 1 BR', 'Firm 2 BR', 'Bertrand Profit 1', 
-         'Cournot Profit 1', 'Stackelberg Profit 1'), 
-       lty = c(1, 1, 2, 1, 3), 
-       col = c('darkorange', 'darkblue', 'black', 'black', 'black'))
-```
-
+1. Consumers lose the blue portion of the deadweight loss (the upper triangle, labeled B) *and* transfer some of their original surplus (the double-shaded rectangle, labeled A) to the producer. Together, these losses equal $-(A+B)$.  
+2. Producers lose the red portion of the deadweight loss (the lower curved triangle, labeled C) *but* gain back even more by capturing some of the consumers' original surplus (the double-shaded portion, labeled A) through higher prices on the lower quantity produced. Together the net gain for the producer equals $A - C$.   
+3. Adding up we get the total net change in surplus, which is the sum of the changes to consumer and producer surplusses, $-(A+B) + (A-C) = -(B+C)$.

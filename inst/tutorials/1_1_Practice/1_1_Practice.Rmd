@@ -21,6 +21,7 @@ date: "`r format(Sys.Date(), '%d %b %Y')`"
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
+library(ggcheck)
 gradethis_setup()
 tutorial_options(exercise.reveal_solution = FALSE, exercise.eval = FALSE, exercise.checker = gradethis_exercise_checker)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6.5, fig.width = 8.5)
@@ -29,35 +30,32 @@ knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6.5, fig.
 
 ### Food Stamps
 
-Consider a consumer who receives "food stamps" that subsidizes up to five donuts (but does not subsidize beer). Graph the budget line for this consumer using the original parameters ($m = 20$, $p_d = 1$, and $p_b = 2$). (Hint: You need to plot two separate lines because there are two segments to this budget line. The first is as if income has increased by the dollar value of 5 donuts; the second part is horizontal noting that you cannot spend the subsidy on beer and so the maximum amount of beer the consumer can buy does not change. Use the `segments(x0, x1, y0, y1)` function to draw this part.)
+Consider a consumer who receives "food stamps" that subsidizes up to five donuts (but does not subsidize beer). Graph the budget line for this consumer using the original parameters ($m = 20$, $p_d = 1$, and $p_b = 2$). (Hint: You need to plot two separate lines because there are two segments to this budget line. The first is as if income has increased by the dollar value of 5 donuts; the second part is horizontal noting that you cannot spend the subsidy on beer and so the maximum amount of beer the consumer can buy does not change. Use the `geom_segment(aes(x, xend, y, yend))` function to draw this part.)
 
 ```{r foodStamps, exercise = TRUE}
 
 ```
 
-```{r foodStamps-solution}
+```{r foodStamps-solution, warning=FALSE, message = FALSE}
+library(ggplot2)
 m = 20
 p_d = 1
 p_b = 2
 s_d = 5
-curve(
-  s_d + m / p_d - p_b * x / p_d,
-  from = 0,
-  to = m / p_b,
-  xlab = "Beer",
-  ylab = "Donuts",
-  xlim = c(0, m / p_b),
-  ylim = c(0, s_d + m / p_d)
-)
-segments(
-  x0 = m / p_b,
-  x1 = m / p_b,
-  y0 = 0,
-  y1 = s_d
-)
+ggplot() + 
+  geom_function(fun = function(x) s_d + m / p_d - p_b * x / p_d, 
+    xlim = c(0, m/p_b)) +
+  geom_segment(aes(x = m/p_b, xend = m/p_b, y = 0, yend = s_d)) +
+  lims(x = c(0, m/p_b), y = c(0, s_d + m/p_d)) + 
+  labs(x = "Beer", y = "Donuts")
 ```
 
 ```{r foodStamps-check}
-grade_code() 
+grade_this({
+  if ((ith_geom_is(.result, "function", 1) & ith_geom_is(.result, "segment", 2)) | 
+      ith_geom_is(.result, "segment", 1) & ith_geom_is(.result, "function", 2)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
 ```
-

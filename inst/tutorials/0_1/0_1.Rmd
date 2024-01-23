@@ -28,19 +28,9 @@ library(learnr)
 library(gradethis)
 library(Ryacas)
 library(Deriv)
-library(Rsolnp)
-library(nleqslv)
 gradethis_setup()
 tutorial_options(exercise.reveal_solution = TRUE, exercise.eval = FALSE, exercise.checker = gradethis_exercise_checker)
 knitr::opts_chunk$set(echo = FALSE)
-# webshot::install_phantomjs(force = TRUE)
-# new_recorder <- function(tutorial_id, tutorial_version, 
-#                          user_id, event, data) {
-#   cat(tutorial_id, " (", tutorial_version, "): ",
-#       user_id, ", ", event, ", ", data$label, ", ",
-#       data$answers, ", ", data$correct, "\n", sep = "")
-#   }
-# options(tutorial.event_recorder = new_recorder)
 ```
 
 ## Getting Started with R
@@ -206,93 +196,111 @@ For the purposes of getting computational solutions, there is not really a diffe
 
 ### Graphing a Function
 
-The `curve()` function can plot any function, while `abline()` plots linear functions with y-intercept `a` and slope `b`. Calling `curve()` or `abline()` after a previous plot function adds the new function to the existing plot area. 
+The `ggplot2` package produces professional-looking graphs that look great with the defaults, and that you can learn to customize in infinitely many ways with experience and practice. The function, `ggplot()` initiates a plot, and you can add layer after layer of plots, labels, data, and formatting options using "geom" functions. For mathematical functions, the `geom_function()` function can add any function that you specify with `function(x)` followed by an `expression`. You can also store the plot properties as an object and add features as you think of them. 
 
-Plot $f(x) = 8x^2 - 6x - 12$ from $x = -2$ to $x = 4$ in \textcolor{blue}{*blue*}. Then, add the line $y = 20x$ to the same plot in \textcolor{darkorange}{*dark orange*}. 
+Define a plot, `p` with the math function $f(x) = 8x^2 - 6x - 12$ \textcolor{blue}{*blue*}. 
 
 ```{r plot, exercise=TRUE, fig.height=6.5, fig.width=4.5, fig.align='center'}
 
 ```
 
 ```{r plot-solution}
-curve(8 * x ^ 2 - 6 * x - 12,
-      from = -2 ,
-      to = 4,
-      col = 'blue')
-abline(0, 20, col = 'darkorange')
+p <- ggplot() +
+  geom_function(fun = function(x) 8*x^2 - 6*x - 12, color = "blue") 
+p
 ```
 
 ```{r plot-check}
-grade_code()
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
 ```
 
-### Graphics Options 
+Add the line $y = 20x$ to the same plot in \textcolor{darkorange}{*dark orange*} by redefining `p` as `p + 'new function layer'`. 
 
-You can also do fancy things with the axis labels and other attributes. Run the following code to add fancy axis labels to the previous graph. 
+```{r addPlot, exercise=TRUE, fig.height=6.5, fig.width=4.5, fig.align='center'}
 
-```{r fancyLabels, exercise = TRUE, fig.height=6.5, fig.width=4.5, fig.align='center'}
-curve(
-  8 * x ^ 2 - 6 * x - 12,
-  from = -2 ,
-  to = 4,
-  col = 'blue',
-  xlab = expression(italic(x)),
-  ylab = expression(italic(f)(italic(x)))
-)
-abline(0, 20, col = 'darkorange')
 ```
 
-```{r fancyLabels-solution}
-curve(
-  8 * x ^ 2 - 6 * x - 12,
-  from = -2 ,
-  to = 4,
-  col = 'blue',
-  xlab = expression(italic(x)),
-  ylab = expression(italic(f)(italic(x)))
-)
-abline(0, 20, col = 'darkorange')
+```{r addPlot-setup}
+p <- ggplot() +
+  geom_function(fun = function(x) 8*x^2 - 6*x - 12, color = "blue") 
 ```
 
-```{r fancyLabels-check}
-grade_code()
+```{r addPlot-solution}
+p <- p +
+    geom_function(fun = function(x) 20*x, color = 'darkorange')
+```
+
+```{r addPlot-check}
+grade_this({
+  if (ith_geom_is(.result, "function", i = 2)) {
+    pass(random_praise(), " Where is the second function though? Maybe we should fixe the scales of the axes.")
+  }
+  fail(random_encouragement())
+})
+```
+
+Do the following to improve the appearance of the plot:  
+1. Edit the scales of the axes to go from $x = -2$ to $x = 4$ and from $y = -25$ to $y = 75$ using `lims()`.  
+2. Format the axes to read as $x$ $f(x)$ using labels
+
+```{r lims, exercise=TRUE, fig.height=6.5, fig.width=4.5, fig.align='center'}
+
+```
+
+```{r lims-setup}
+p <- ggplot() +
+  geom_function(fun = function(x) 8*x^2 - 6*x - 12, color = "blue") +
+  geom_function(fun = function(x) 20*x, color = 'darkorange')
+```
+
+```{r lims-solution}
+p <- p +
+  lims(x = c(-2, 4), y = c(-25, 75)) + 
+  labs(x = expression(italic(x)), y = expression(italic(f) ( italic(x) )))
+```
+
+```{r lims-check}
+grade_this({
+  if (gradethis_equal(.result, .solution)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
 ```
 
 There are also loads of other ways to make beautiful graphs using the package `ggplot2` using custom themes for the plot area, titles, and other options. This class focuses on solutions and basic plots of those solutions, for which `base R` plots more than suffice.
 
-### Changing the Plot Range
+## Optimization
+
+### Ocular Estimation
 
 If we want to try to "eyeball" the minimum of our quadratic function, we can zoom in on the range $0.25 \le x \le 0.5$. Run the following code to graph this portion of the domain of our function.
 
 ```{r zoom, exercise = TRUE, fig.height=6.5, fig.width=4.5, fig.align='center'}
-curve(
-  8 * x ^ 2 - 6 * x - 12,
-  from = 0.25 ,
-  to = 0.5,
-  col = 'blue',
-  xlab = expression(italic(x)),
-  ylab = expression(italic(f)(italic(x)))
-)
+
 ```
 
 ```{r zoom-solution}
-curve(
-  8 * x ^ 2 - 6 * x - 12,
-  from = 0 ,
-  to = 0.5,
-  col = 'blue',
-  xlab = expression(italic(x)),
-  ylab = expression(italic(f)(italic(x)))
-)
+ggplot() +
+  geom_function(fun = function(x) 8*x^2 - 6*x - 12) +
+  lims(x = c(0.25, 0.5))
 ```
 
 ```{r zoom-check}
-grade_code()
+grade_this({
+  if (gradethis_equal(.result, .solution)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
 ```
 
 It looks like the minimum is somewhere around $0.37$ or $0.38$. Next, let's use *calculus* get a more precise answer. 
-
-## Optimization
 
 ### Analytic Solution
 
@@ -330,17 +338,26 @@ To find the minimum of the function, notice that to the left of the minimum, the
 
 Some optimization problems are more complicated. For these, it might help to find the optimum using computational methods. These functions basically take an initial value of `x`, calculate the change in the function to see if it is increasing or decreasing, select a new `x` a little bit in the appropriate direction (decreasing direction for mimima; increasing direction for maxima), rinse, and repeat until the change in `x` is very, *very* small. 
 
-Use the `optimize` function to find the minimum of $f(x) = 8x^2 - 6x - 12$ on the interval $-10^9 \le x \le 10^9$ - effectively from minus-infinity to infinity. (Hint: You must define the function argument in the same way you originally defined it using `function(x) {expression}`.)
+Use the `solnp()` function from the `Rsolnp` package to find the minimum of $f(x) = 8x^2 - 6x - 12$.
 
-```{r optimize, exercise = TRUE}
+```{r solnp, exercise = TRUE}
 
 ```
 
-```{r optimize-solution}
-optimize(function(x) {8*x^2 - 6*x - 12}, interval = c(-10^9, 10^9))
+```{r solnp-hint1}
+# You must define the function argument in the same way you defined it for `geom_function()` using `function(x) {expression}`.
 ```
 
-```{r optimize-check}
+```{r solnp-hint2}
+# `solnp` can be finicky about its starting value, and sometimes gets confused when you choose zero as a starting value. Try almost any other value. 
+```
+
+```{r solnp-solution}
+library(Rsolnp)
+solnp(pars = 1, fun = function(x) 8*x^2 - 6*x - 12)
+```
+
+```{r solnp-check}
 grade_this({if (!inherits(.result, c("list"))) {
     fail("Your class of your answer should be a list")}
   if (.result$minimum != 0.375) { 
@@ -351,25 +368,34 @@ grade_this({if (!inherits(.result, c("list"))) {
 
 ### Constrained Optimization
 
-Most of the examples we explore in economics involve *constrained* optimization, such as when a consumer seeks to maximize utility *subject to a budget constraint* or when a firm seeks to minimize costs *subject to a production target*. Several packages in R perform constrained optimization. We will use the `solnp` function from the `Rsolnp` package for this type of problem. We will practice this type of problem later. Here is how you could use `solnp` to solve the previous example: 
+Most of the examples we explore in economics involve *constrained* optimization, such as when a consumer seeks to maximize utility *subject to a budget constraint* or when a firm seeks to minimize costs *subject to a production target*. Several packages in R perform constrained optimization. We will use the `solnp` function from the `Rsolnp` package for this type of problem. We will practice this type of problem later. Here is how you could use `solnp` to solve a cost minimization problem.  
+$$min_{L, K} {wL + rK} \\
+\text{s.t.} \\
+LK \ge 100 \\
+L \ge 0 \\
+K \ge 0 \\
+\text{where} \\
+w = r = 10$$
 
-```{r solnp, exercise = TRUE}
-solnp(pars = 0,                           # Set initial guess for the solution
-      fun = function(x) 8*x^2 - 6*x - 12, # Define the objective function 
-      ineqfun = function(x) x,            # Define the constraint function
-      ineqLB = -10^9,                     # Set the lower bound of the constraint 
-      ineqUB =  10^9)                     # Set the upper bound of the constraint
+```{r solnpC, exercise = TRUE}
+solnp(pars = 0,                            # Set initial guess for the solution
+      fun = function(x) 10*x[1] + 10*x[2], # Define the objective function 
+      ineqfun = function(x) x[1]*x[2],     # Define the constraint function
+      ineqLB = 100,                        # Set the lower bound of the constraint 
+      ineqUB =  Inf,                       # Set the upper bound of the constraint
+      LB = c(0,0))                         # Set the lower bound for the variables
 ```
 
-```{r solnp-solution}
-solnp(pars = 0,                           # Set initial guess for the solution
-      fun = function(x) 8*x^2 - 6*x - 12, # Define the objective function 
-      ineqfun = function(x) x,            # Define the constraint function
-      ineqLB = -10^9,                     # Set the lower bound of the constraint 
-      ineqUB =  10^9)                     # Set the upper bound of the constraint
+```{r solnpC-solution}
+solnp(pars = 0,                            # Set initial guess for the solution
+      fun = function(x) 10*x[1] + 10*x[2], # Define the objective function 
+      ineqfun = function(x) x[1]*x[2],     # Define the constraint function
+      ineqLB = 100,                        # Set the lower bound of the constraint 
+      ineqUB =  Inf,                       # Set the upper bound of the constraint
+      LB = c(0,0))                         # Set the lower bound for the variables
 ```
 
-```{r solnp-check}
+```{r solnpC-check}
 grade_this({if (!inherits(.result, c("list"))) {
     fail("Your class of your answer should be a list")}
   if (round(.result$pars, 3) != 0.375) { 
@@ -392,13 +418,17 @@ Solve for the equilibrium price and quantity using `nleqslv::nleqslv`.
 
 ```
 
+```{r equilibrium-hint1}
+# A `function(x)` can be a vector that includes multiple equations. 
+```
+
+```{r equilibrium-hint2}
+# `nleqslv` looks to set the values of `function(x)` to zero, so you might need to rearrange them.
+```
+
 ```{r equilibrium-solution}
-market <- function(x) {
-    supply <- x[1] - x[2]
-    demand <- 10 - x[1] - x[2]
-    return(c(supply, demand))
-}
-equilibrium <- nleqslv(c(2,2), market)
+library(nleqslv)
+nleqslv(c(1,1), function(x) c(x[1] - x[2], 10 - x[1] - x[2]))
 ```
 
 ```{r equilibrium-check}

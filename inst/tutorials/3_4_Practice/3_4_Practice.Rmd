@@ -11,11 +11,21 @@ author:
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 ---
 
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.66em;
+}
+</style>
 
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
-library(ggcheck)
 gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
@@ -24,7 +34,7 @@ knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 
 As the manager of a firm in a monopolistically-competitive market, you estimate demand for your product to follow the demand function: 
 
-$$Q_d = 36 - 4P + 8A^{0.5}$$
+$$Q_d = 36 - 4P + A$$
 where $A$ is the amount of expenditure the firm makes on advertising. 
 
 The internal (total) cost function of the firm is:
@@ -34,34 +44,17 @@ $$C(Q) = 4 + 4Q + Q^2 + A$$
 Solve for the profit-maximizing levels of output, price, and advertising expenditures. 
 
 ```{r advertising, exercise = TRUE}
+```
+
+```{r advertising-setup}
 
 ```
 
-```{r advertising-hint}
-# Since cost is a function of Q, you might want to try inverting the demand function to make it price as a function of quantity to make total revenues = P(Q,A)*Q. 
-```
+```{r advertising-solution}
 
-```{r advertising-solution, message = FALSE, warning = FALSE}
-library(managerialEconWithR)
-pi <- function(x) {
-  9*x[1] - 0.25*x[1]^2 + 2*x[1]*x[2]^0.5 - (4 + 4*x[1] + x[1]^2 + x[2])
-}
-eq <- solnp2(
-  pars = c(1,1), 
-  fun = pi, 
-  LB = c(0, 0), 
-  control = list(trace = 0), 
-  max = TRUE
-)
-(Q = eq$pars[1])
-(A = eq$pars[2])
-(P = 9 - 0.25*Q + 2*A^0.5 )
 ```
 
 ```{r advertising-check}
-grade_this({
-  pass_if(round(.result, 1) == 26.5) 
-  fail()
-})
+
 ```
 

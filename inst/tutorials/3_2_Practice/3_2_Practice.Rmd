@@ -11,10 +11,21 @@ author:
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 ---
 
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.66em;
+}
+</style>
+
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
-library(ggcheck)
 gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
@@ -37,11 +48,13 @@ Plot the individual firm's average and marginal cost schedules.
 
 ```
 
+
 ```{r supply-hint}
 
 ```
 
-```{r supply-solution, warning = FALSE, message=FALSE}
+
+```{r supply-solution}
 library(ggplot2)
 ggplot() + 
   geom_function(fun = function(x) x^2/80000 - x/160 + 1, aes(color = "MC"), xlim = c(375, 750)) + 
@@ -54,16 +67,12 @@ ggplot() +
 ```
 
 ```{r supply-check}
-grade_this({
-  pass_if(ith_geom_is(.result, "function", i = 1) & 
-            ith_geom_is(.result, "function", i =4) )
-  fail(random_encouragement())
-})
+
 ```
 
 Note that the firm's actual *supply* curve only begins at the minimum of average variable cost, which I show below. 
 
-```{r, echo = TRUE, message=FALSE, warning=FALSE}
+```{r, echo = TRUE}
 library(ggplot2)
 ggplot() + 
   geom_function(fun = function(x) x^2/80000 - x/160 + 1, aes(color = "MC"), xlim = c(375, 750)) + 
@@ -85,7 +94,7 @@ Find and plot the market supply curve if the market has 9,000 identical firms. P
 
 ```
 
-```{r marketSupplyPlot-solution, message=FALSE, warning=FALSE}
+```{r marketSupplyPlot-solution}
 library(ggplot2)
 ggplot() + 
   geom_function(
@@ -98,7 +107,9 @@ ggplot() +
 
 ```{r marketSupplyPlot-check}
 grade_this({
-  pass_if(ith_geom_is(.result, "function", i = 1)) 
+  if (ith_geom_is(.result, "function", i = 1)) {
+    pass(random_praise())
+    }
   fail(random_encouragement())
   })
 ```
@@ -132,11 +143,11 @@ $$x_2(p_2, \alpha, m) = `r tex(D[2])`$$
 
 ```
 
-```{r equilibrium-setup, message=FALSE, warning=FALSE}
+```{r equilibrium-setup}
 library(ggplot2)
 ```
 
-```{r equilibrium-solution, message=FALSE, warning=FALSE}
+```{r equilibrium-solution}
 library(ggplot2)
 ggplot() + 
   geom_function(
@@ -149,14 +160,6 @@ ggplot() +
   scale_color_manual(breaks = c("D", "S"), values = c("blue", "red"))
 ```
 
-```{r equilibrium-check}
-grade_this({
-  pass_if(ith_geom_is(.result, "function", i = 1) & 
-            ith_geom_is(.result, "function", i = 2)) 
-  fail(random_encouragement())
-  })
-```
-
 It looks like the equilibrium crosses at exactly 1. Let's check this by solving for the equilibrium computationally. 
 
 ### Computational Approach
@@ -167,25 +170,25 @@ The equations we're trying to solve here are a nonlinear mess! Luckily, as long 
 
 ```
 
-```{r eqSolve-setup, message=FALSE, warning=FALSE}
+```{r eqSolve-setup}
 
 ```
 
-```{r eqSolve-solution, message=FALSE, warning=FALSE}
+```{r eqSolve-solution}
 library(nleqslv)
 srEq <- nleqslv(
-  c(1,4.5e6), 
+  c(1,1), 
   function(x) c(
     x[1]*x[2] - 4.5e6,
-    x[2] ^ 2 / 6.48e12 - x[2] / 1.44e6 + 1 - x[1]
+    x[2] ^ 2 / 6.48e12 - x / 1.44e6 + 1 - x[1]
     )
   )
-srEq$x
+srEq$pars
 ```
 
 ```{r eqSolve-check}
-grade_this({
-  pass_if(round(.result[1], 1) == 1) 
-  fail()
+grade_this({if (round(.result, 1) != c(1.6,932169.8)) { 
+    fail("The cost-minimizing labor and capital inputs are about 1.6 and 932170.") }
+  pass()
 })
 ```

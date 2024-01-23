@@ -21,25 +21,28 @@ date: "`r format(Sys.Date(), '%d %b %Y')`"
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
+library(Ryacas)
+library(Deriv)
 gradethis_setup(exercise.reveal_solution = FALSE, exercise.eval = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
 
 ## Constant Marginal Productivity 
 
-1. Compute the values of the cost-minimizing combinations of labor and capital to produce at least ten different quantities of output using a production function where $MP_L = MP_K = 100$ for all levels of the inputs $L$ and $K$ where $w = 1$ and $r = 2$. 
+### Long Run
 
-Plot the long-run total and long-run average cost curves. 
+1. Compute the values of the cost-minimizing combinations of labor and capital to produce at least ten different quantities of output using a production function where $MP_L = MP_K = 100$ for all levels of the inputs $L$ and $K$ where $w = 1$ and $r = 2$.  
+2. Plot the long-run total and long-run average cost curves.  
 
 ```{r constantMPLs, exercise = TRUE}
 
 ```
 
 ```{r constantMPLs-solution}
-library(Ryacas)
-library(Deriv)
 library(Rsolnp)
-w = 1; r = 2
+library(ggplot2)
+w = 1
+r = 2
 costSchedule <-
   data.frame(
     Quantity = seq(from = 0, to = 5000, by = 100),
@@ -50,35 +53,91 @@ costSchedule <-
   )
 for (i in 1:nrow(costSchedule)) {
   costMinTemp <- solnp(
-    pars = c(1, 1), 
-    fun = function(x) w*x[1] + r*x[2],
-    ineqfun = function(x) 100*(x[1] + x[2]),
-    ineqLB = costSchedule$Quantity[i], 
-    ineqUB = Inf, 
-    LB = c(0, 0))
+    pars = c(1, 1),
+    fun = function(x)
+      w * x[1] + r * x[2],
+    ineqfun = function(x)
+      100 * (x[1] + x[2]),
+    ineqLB = costSchedule$Quantity[i],
+    ineqUB = Inf,
+    LB = c(0, 0),
+    control = list(trace = 0)
+  )
   costSchedule$Labor[i] <- costMinTemp$pars[1]
   costSchedule$Capital[i] <- costMinTemp$pars[2]
   costSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
 }
-costSchedule$Average_Cost <- costSchedule$Total_Cost / costSchedule$Quantity
-par(mfrow = c(1, 2))
-plot(costSchedule$Quantity, costSchedule$Total_Cost, type = 'l', ylim = c(0,50), xlab = "Quantity", ylab = "Total Cost")
-plot(costSchedule$Quantity, costSchedule$Average_Cost, type = 'l', ylim = c(0,0.02), xlab = "Quantity", ylab = "Average Cost")
+costSchedule$Average_Cost <-
+  costSchedule$Total_Cost / costSchedule$Quantity
+tcGraph <- ggplot() +
+  geom_line(aes(x = Quantity, y = Total_Cost), data = costSchedule) +
+  labs(x = "Quantity", y = "Total Cost")
+acGraph <- ggplot() +
+  geom_line(aes(x = Quantity, y = Average_Cost), data = costSchedule[-1, ]) +
+  labs(x = "Quantity", y = "Total Cost") + lims(y = c(0, 1))
+library(ggpubr)
+ggarrange(tcGraph, acGraph)
 ```
 
 ```{r constantMPLs-check}
-grade_code()
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
 ```
 
-2. Fix $K = 10$ in the previous question. Compute the short-run cost-minimizing input combinations for at least 10 different quantities of output. 
+### Short Run 
 
-Plot the total and total variable cost curves on one graph and the marginal, average, and average variable cost curves on another. 
+1. Fix $K = 10$ in the previous question. Compute the short-run cost-minimizing input combinations for at least 10 different quantities of output.  
+2. Plot the total and total variable cost curves on one graph and the marginal, average, and average variable cost curves on another.  
 
 ```{r SRconstantMPLs, exercise = TRUE}
 
 ```
 
+```{r SRconstantMPLs-setup}
+library(Rsolnp)
+library(ggplot2)
+w = 1
+r = 2
+costSchedule <-
+  data.frame(
+    Quantity = seq(from = 0, to = 5000, by = 100),
+    Labor = NA,
+    Capital = NA,
+    Total_Cost = NA,
+    Average_Cost = NA
+  )
+for (i in 1:nrow(costSchedule)) {
+  costMinTemp <- solnp(
+    pars = c(1, 1),
+    fun = function(x)
+      w * x[1] + r * x[2],
+    ineqfun = function(x)
+      100 * (x[1] + x[2]),
+    ineqLB = costSchedule$Quantity[i],
+    ineqUB = Inf,
+    LB = c(0, 0),
+    control = list(trace = 0)
+  )
+  costSchedule$Labor[i] <- costMinTemp$pars[1]
+  costSchedule$Capital[i] <- costMinTemp$pars[2]
+  costSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
+}
+costSchedule$Average_Cost <-
+  costSchedule$Total_Cost / costSchedule$Quantity
+tcGraph <- ggplot() +
+  geom_line(aes(x = Quantity, y = Total_Cost), data = costSchedule) +
+  labs(x = "Quantity", y = "Total Cost")
+acGraph <- ggplot() +
+  geom_line(aes(x = Quantity, y = Average_Cost), data = costSchedule[-1, ]) +
+  labs(x = "Quantity", y = "Total Cost") + lims(y = c(0, 0.5))
+```
+
 ```{r SRconstantMPLs-solution}
+library(ggpubr)
 SRcostSchedule <-
   data.frame(
     Quantity = seq(from = 0, to = 5000, by = 20),
@@ -89,30 +148,45 @@ SRcostSchedule <-
   )
 for (i in 1:nrow(SRcostSchedule)) {
   costMinTemp <- solnp(
-    pars = 1, 
-    fun = function(x) w*x + r*10,
-    ineqfun = function(x) 100*(x + 10),
-    ineqLB = SRcostSchedule$Quantity[i], 
-    ineqUB = Inf, 
-    LB = 0)
+    pars = 1,
+    fun = function(x)
+      w * x + r * 10,
+    ineqfun = function(x)
+      100 * (x + 10),
+    ineqLB = SRcostSchedule$Quantity[i],
+    ineqUB = Inf,
+    LB = 0,
+    control = list(trace = 0)
+  )
   SRcostSchedule$Labor[i] <- costMinTemp$pars[1]
-  SRcostSchedule$Variable_Cost[i] <- w*SRcostSchedule$Labor[i]
+  SRcostSchedule$Variable_Cost[i] <- w * SRcostSchedule$Labor[i]
   SRcostSchedule$Total_Cost[i] <- tail(costMinTemp$values, 1)
 }
-SRcostSchedule$Average_Cost <- SRcostSchedule$Total_Cost / SRcostSchedule$Quantity
-SRcostSchedule$Average_Variable_Cost <- 
+SRcostSchedule$Average_Cost <-
+  SRcostSchedule$Total_Cost / SRcostSchedule$Quantity
+SRcostSchedule$Average_Variable_Cost <-
   SRcostSchedule$Variable_Cost / SRcostSchedule$Quantity
-SRcostSchedule$Marginal_Cost <- 
-  c(NA,diff(SRcostSchedule$Total_Cost, lag = 2)/40, NA)
-par(mfrow = c(1, 2))
-plot(SRcostSchedule$Quantity, SRcostSchedule$Total_Cost, type = 'l', ylim = c(0,50), xlab = "Quantity", ylab = "Total Cost")
-lines(SRcostSchedule$Quantity, SRcostSchedule$Variable_Cost, col = 'darkorange')
-plot(SRcostSchedule$Quantity, SRcostSchedule$Average_Cost, type = 'l', ylim = c(0,0.05), xlab = "Quantity", ylab = "Average Cost")
-lines(SRcostSchedule$Quantity, SRcostSchedule$Average_Variable_Cost, col = 'darkorange')
-lines(SRcostSchedule$Quantity, SRcostSchedule$Marginal_Cost, col = 'red')
+SRcostSchedule$Marginal_Cost <-
+  c(NA, diff(SRcostSchedule$Total_Cost, lag = 2) / 40, NA)
+srtcGraph <- ggplot() +
+  geom_line(aes(x = Quantity, y = Total_Cost, color = "TC"), data = costSchedule) +
+  geom_line(aes(x = Quantity, y = Variable_Cost, color = "TVC"), data = costSchedule) +
+  labs(x = "Quantity", y = "Total Cost") +
+  scale_colour_manual(breaks = c("TC", "TVC"),
+                      values = c("black", "purple"))
+sracGraph <- ggplot() +
+  geom_line(aes(x = Quantity, y = Average_Cost, color = "ATC"), data = costSchedule[-1, ]) +
+  labs(x = "Quantity", y = "Total Cost") + lims(y = c(0, 1)) +
+  geom_line(aes(x = Quantity, y = Average_Variable_Cost, color = "AVC"),
+            data = srCrtsSchedule[-1,]) +
+  geom_line(aes(x = Quantity, y = Marginal_Cost, color = "MC"), data = srCrtsSchedule) +
+  scale_colour_manual(breaks = c("ATC", "AVC", "MC"), values = c("black","purple", "red"))
+ggarrange(srtcGraph, sracGraph)
 ```
 
 ```{r SRconstantMPLs-check}
-grade_code()
+grade_this({if (!inherits(.result, c("ggarrange"))) {
+    fail("Your class of your answer should be a ggarrange")}
+  pass()
+})
 ```
-

@@ -11,6 +11,7 @@ author:
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 ---
 
+```{=html}
 <style type="text/css">
 h1{font-size: 24pt}
 h2{font-size: 20pt}
@@ -22,33 +23,36 @@ body{font-size: 16pt}
   font-size: 0.66em;
 }
 </style>
-
+```
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
+library(ggcheck)
+library(shiny)
 library(Deriv)
 library(Ryacas)
 gradethis_setup()
 tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)
-knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
+knitr::opts_chunk$set(
+  echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
 knitr::include_graphics
 ```
 
 ## Utility
 
-Utility is a numerical representation of a consumer's preference rankings. 
+Utility is a numerical representation of a consumer's preference rankings.
 
-### Utility Functions 
+### Utility Functions
 
-A utility function assigns numerical values to a person's preferences. 
+A utility function assigns numerical values to a person's preferences.
 
 It's often easier to say $U(A) > U(B)$ than $A \succ B$.
 
 ### Are the Values Meaningful?
 
-Short answer, no.
+Short answer: no.
 
-Specific utility functions often have certain features that lead to specific features of how consumers respond to price and/or income changes. 
+Long answer: utility functions often have certain features that demonstrate the specific features of how consumers respond to price and/or income changes.
 
 ### Cardinal Utility: Jeremy Bentham (1780)
 
@@ -64,13 +68,13 @@ knitr::include_graphics("images/VilfredoPareto.jpg")
 
 ### More on Jeremy Bentham
 
-You can visit Jeremy Bentham to this day! His mummified corpse sits on display in the atrium of the student centre at University College London. 
+You can visit Jeremy Bentham to this day! His mummified corpse sits on display in the atrium of the student centre at University College London.
 
 ```{r}
 knitr::include_graphics("images/JeremyBenthamMummy.jpg")
 ```
 
-UCL used to display his head in a museum until students from King's College stole it as a prank (and since been recovered, but is no longer on display). It only comes out for "special occasions." 
+UCL used to display his head in a museum until students from King's College stole it as a prank (and since been recovered, but is no longer on display). It only comes out for "special occasions."
 
 ```{r}
 knitr::include_graphics("images/JeremyBenthamHead.jpg")
@@ -80,254 +84,194 @@ knitr::include_graphics("images/JeremyBenthamHead.jpg")
 
 ### General Properties
 
-One function that satisfies the basic assumptions so far is a simple multiplicative utility function: 
+One function that satisfies the basic assumptions so far is a simple multiplicative utility function:
 
 $$U(x_1, x_2) = x_1x_2$$
 
-1. Use the `persp(x, y, z)` function in r to graph this utility function for $0 \le x_1 \le 10$ and $0 \le x_2 \le 10$. (Hint: use seq() define $x$ and $y$ as sequences; and define $z$ as the outer product of $x$ and $y$.)
+The following plot uses the `plotly::plot_ly(z, type = surface)` function to graph this utility function in 3D (with interactive percpective control!).
 
-2. Graph the indifference curves for this utility function for $U(*) = 10$ and $U(*) = 25$. (Hint: to graph an indifference curve, you need to fix $U(x_1,x_2) = \bar{U}$ and solve for $x_2 = f(x_1| U = \bar{U})$.)
+```{r, echo = TRUE, message=FALSE, warning=FALSE}
+library(plotly)
+x <- seq(0, 10, length.out = 100)
+y <- seq(0, 10, length.out = 100)
+U <- outer(
+  x,
+  y,
+  FUN = function(x, y)
+    x * y
+)
+g <- plot_ly(z = ~ U, type = 'surface')  %>%
+  layout(scene = list(
+    xaxis = list(title = 'Consumption of Good 1'),
+    yaxis = list(title = 'Consumption of Good 2'), 
+    zaxis = list(title = 'Utility')
+  ))
+g 
+```
+
+Graph the indifference curves for this utility function for $U(*) = 10$ and $U(*) = 25$. (Hint: to graph an indifference curve, you need to fix $U(x_1,x_2) = \bar{U}$ and solve for $x_2 = f(x_1| U = \bar{U})$.)
 
 ```{r simpleUtility, exercise=TRUE, exercise.reveal_solution = TRUE}
-x = seq(0, 10, 0.1) # Create a vector sequence for x
-y = seq(0, 10, 0.1) # Create a vector sequence for y
-z = outer(x, y)     # Create the grid of utilitiesas the outer product of x and y
+
 
 ```
 
-```{r simpleUtility-solution}
-x = seq(0, 10, 0.1)
-y = seq(0, 10, 0.1)
-z = outer(x, y)
-persp(x,
-      y,
-      z,
-      xlab = expression(x1),
-      ylab = expression(x2),
-      zlab = expression(U(x1, x2)))
-plot(
-  x,
-  10 / x,
-  type = 'l',
-  ylim = c(0, 10),
-  xlab = expression(x[1]),
-  ylab = expression(x[2])
-)
-curve(25 / x, add = TRUE)
+```{r simpleUtility-hint}
+# You need to load tha `ggplot2` package!
+```
+
+```{r simpleUtility-solution, messages = FALSE, warnings = FALSE}
+library(ggplot2) 
+ggplot() +
+  geom_function(fun = function(x) 10/x) + 
+  geom_function(fun = function(x) 25/x) + 
+  lims(x = c(0,10), y = c(0, 10)) + 
+  labs(x = "Good 1", y = "Good 2")
 ```
 
 ```{r simpleUtility-check}
-grade_this({if (!inherits(.result, c("list"))) {
-    fail("Your class of your answer should be a list")}
-  if (.result$y[1] != Inf) { 
-    fail("The y-intercept should approach infinity.") }
-  pass()
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1) & ith_geom_is(.result, "function", i = 2)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
 })
 ```
 
-One potential problem with this multiplicative utility function is that it does not have diminishing returns. 
+One potential problem with this multiplicative utility function is that it does not have diminishing returns.
 
 ### Cobb-Douglas
 
-The Cobb-Douglas utility function is very similar to the simple multiplicative utility function, except that it typically does have diminishing returns. The general form of the Cobb-Douglas function is: 
+The Cobb-Douglas utility function is very similar to the simple multiplicative utility function, except that it typically does have diminishing returns. The general form of the Cobb-Douglas function is:
 
 $$U(x_1, x_2) = x_1^\alpha x_2^\beta,\text{ where } 0 < \alpha < 1 \text{ and } 0 < \beta < 1.$$
 
-For any Cobb-Douglas function, we can apply a *monotonic transformation* to it so that $\alpha + \beta = 1$, or 
+For any Cobb-Douglas function, we can apply a *monotonic transformation* to it so that $\alpha + \beta = 1$, or
 
 $$U(x_1, x_2) = x_1^\alpha x_2^{1 - \alpha},\text{ where } 0 < \alpha < 1.$$
 
 ### Graphical Representation
 
-1. Use the `persp(x, y, z)` function in r to graph this utility function for $0 \le x_1 \le 50$, $0 \le x_2 \le 50$, and $\alpha = 0.25$. (Hint: use seq() define $x$ and $y$ as sequences; and define $z$ as the outer product of $x$ and $y$.)
+1.  Use the `plotly::plot_ly(z, type)` function to make a 3d graph of this utility function.
 
 ```{r CobbDouglas, exercise=TRUE, exercise.reveal_solution = TRUE}
 
 ```
 
-```{r CobbDouglas-solution}
-x = seq(0, 10, 0.1)
-y = seq(0, 10, 0.1)
-z = outer(x^0.25, y^0.75)
-persp(x,
-      y,
-      z,
-      xlab = expression(x1),
-      ylab = expression(x2),
-      zlab = expression(U(x1, x2)))
+```{r CobbDouglas-hint}
+# Use seq() define $x$ and $y$ as sequences; and define $z$ as the `outer()` product of $x^{\alpha}$ and $y^{(1-\alpha)}$.
+```
+
+```{r CobbDouglas-solution, messages = FALSE, warnings = FALSE}
+library(plotly)
+a = 0.25
+x <- seq(0, 10, length.out = 101)
+y <- seq(0, 10, length.out = 101)
+U <- outer(x, y, FUN = function(x, y) x^a * y^(1-a))
+g <- plot_ly(z = ~ U, type = 'surface')  %>%
+  layout(scene = list(
+    xaxis = list(title = 'Consumption of Good 1'),
+    yaxis = list(title = 'Consumption of Good 2'), 
+    zaxis = list(title = 'Utility')
+  ))
+g
 ```
 
 ```{r CobbDouglas-check}
 grade_this({
-  if (!inherits(.result, c("matrix"))) {
-    fail("Your class of your answer should be a matrix")}
-  if (dim(.result) != c(4,4)) { 
-    fail("The result should have 4 rows and 4 columns") }
-  if (.result[1,1] != 0.2) { 
-    fail("The first position of your result should be 0.2") }
+  if (!inherits(.result, c("plotly"))) {
+    fail("Your class of your answer should be a plotly graph")}
+  if (length(.result) != 8) { 
+    fail("The result should a length of 8") }
   pass()
 })
 ```
 
 ### Indifference Curve
 
-2. Plot the indifference curves for the Cobb-Douglas function with $\alpha = 0.25$ for $U(*) = 10$ and $U(*) = 25$ and $0 \le x_1 \le 50$ and $0 \le x_2 \le 50$.
+2.  Plot the indifference curves for the Cobb-Douglas function with $\alpha = 0.25$ for $U(*) = 10$ and $U(*) = 25$ and $0 \le x_1 \le 50$ and $0 \le x_2 \le 50$.
 
 ```{r cdIndifference, exercise=TRUE, exercise.reveal_solution = TRUE}
 
 ```
 
-```{r cdIndifference-solution}
-curve((10 / x^0.25)^(1/0.75),
-  type = 'l',
-  ylim = c(0, 50),
-  xlim = c(0, 50),
-  xlab = expression(x[1]),
-  ylab = expression(x[2])
-)
-curve((25 / x^0.25)^(1/0.75), add = TRUE)
+```{r cdIndifference-setup, messages = FALSE, warnings = FALSE}
+library(ggplot2) 
+```
+
+```{r cdIndifference-solution, messages = FALSE, warnings = FALSE}
+ggplot() +
+  geom_function(fun = function(x) (10 / x^0.25)^(1/0.75), color = 'red') + 
+  geom_function(fun = function(x) (25 / x^0.25)^(1/0.75), color = 'violet') + 
+  lims(x = c(0,10), y = c(0, 10)) + 
+  labs(x = "Good 1", y = "Good 2")
 ```
 
 ```{r cdIndifference-check}
-grade_this({if (!inherits(.result, c("list"))) {
-    fail("Your class of your answer should be a list")}
-  if (.result$y[1] != Inf) { 
-    fail("The y-intercept should approach infinity.") }
-  pass()
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1) & ith_geom_is(.result, "function", i = 2)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
 })
 ```
 
 ### Quasi-Linear
 
-Quasi-linear utility functions take the form, $U(x) = v(x_1) + cx_2$. A couple of examples of this sort of utility funciton include: 
-$$U(x) = bx_1^{\alpha} + cx_2,\text{ where }0<\alpha<1,\text{ and}$$
-$$U(x) = 4x_1-x_1^2 + 2x_2$$
-Quasi-linear utility is sometimes used because it gives simple solutions. 
+Quasi-linear utility functions take the form, $U(x) = v(x_1) + cx_2$. A couple of examples of this sort of utility funciton include: $$U(x) = bx_1^{\alpha} + cx_2,\text{ where }0<\alpha<1,\text{ and}$$ $$U(x) = 4x_1-x_1^2 + 2x_2$$ Quasi-linear utility is sometimes used because it gives simple solutions.
 
 ### Constant Elasticity of Substitution
 
-The constant elasticity of substitution has the convenient property that the percentage change in the *relative* demand for good one ($x_1/x_2$) for a given percentage change in its *relative* price, $p_1/p_2$ (known as the *elasticity of substitution*), is the same everywhere. 
-$$U(x) = (x_1^r + x_2^r)^{\frac{1}{r}}, $$ 
-where $s=\frac{1}{1-r}$ is the elasticity of substitution.
+The constant elasticity of substitution has the convenient property that the percentage change in the *relative* demand for good one ($x_1/x_2$) for a given percentage change in its *relative* price, $p_1/p_2$ (known as the *elasticity of substitution*), is the same everywhere. $$U(x) = (x_1^r + x_2^r)^{\frac{1}{r}}, $$ where $s=\frac{1}{1-r}$ is the elasticity of substitution.
 
 ## MRS, Revisited
 
 ### Marginal Utility
 
-The *marginal utility* of each good is the amount that utility changes as a result of a (very small?) change in the amount of that good. Mathematically, for *inifinitesimal* changes, marginal utility is the *derivative* of $u(x)$ with respect to $x_i$, or: 
-$$MU_i = \frac{d}{dx_i}u(x_1, x_2, ...,x_n)$$
+The *marginal utility* of each good is the amount that utility changes as a result of a (very small?) change in the amount of that good. Mathematically, for *inifinitesimal* changes, marginal utility is the *derivative* of $u(x)$ with respect to $x_i$, or: $$MU_i = \frac{d}{dx_i}u(x_1, x_2, ...,x_n)$$
 
-Use the `deriv` function to obtain the function for the marginal utility of $u(x) = x_1^{0.25}x_2^{0.75}$ with respect to $x_1$ and $x_2$. Name these derivatives `MU1` and `MU2`, respectively.
+We can use the `deriv` function in `Ryacas` to obtain the function for the marginal utility of $u(x) = x_1^{0.25}x_2^{0.75}$ with respect to $x_1$ and $x_2$.
 
-```{r marginalUtility, exercise = TRUE, exercise.reveal_solution = TRUE}
-
-```
-
-```{r marginalUtility-solution}
+```{r, echo = FALSE}
 u <- ysym('x1^0.25 * x2^0.75')
 MU1 <- deriv(u, 'x1')
 MU2 <- deriv(u, 'x2')
 ```
 
-```{r marginalUtility-check}
-grade_this({if (!inherits(.result, c("yac_symbol"))) {
-    fail("Your class of your answer should be a yac_symbol")}
-  if (.result != "y: 0.75*x1^0.25*x2^(-0.25)") { 
-    fail("The marginal utility of good 2 should be 0.75*(x1/x2)^0.25.") }
-  pass()
-})
-```
+$$MU_1 = \frac{\partial U}{\partial x_1} = `r tex(MU1)`$$ 
+$$MU_2 = \frac{\partial U}{\partial x_2} = `r tex(MU2)`$$
 
-```{r}
+<details style="line-height:105%">
+
+<summary>Click here to see the code for deriving the marginal utilities using `R` and converting the output to `LaTeX` equation syntax.</summary>
+```{r, echo = TRUE}
 u <- ysym('x1^0.25 * x2^0.75')
 MU1 <- deriv(u, 'x1')
 MU2 <- deriv(u, 'x2')
 ```
 
-$$`r tex(MU1)`$$
-$$`r tex(MU2)`$$
+\$MU_1 = \frac{\partial U}{\partial x_1} = \` r tex(MU1)\`\$ 
 
-<details style="line-height:105%"><summary>Click here to see the code for converting the output to `LaTeX` equation syntax.</summary>
-
-The `Ryacas` package includes a `tex` function that converts R expressions into LaTeX-friendly equations, as long as the object is already a `yac_symbol` oject.
-
-\$\` r tex(MU2)\`\$
+\$MU_2 = \frac{\partial U}{\partial x_2} = \` r tex(MU2)\`\$
 
 </details>
 
 ### Marginal Rate of Substitution
 
-The *marginal rate of substitution* between two goods ($MRS_{ij}$) is the ratio of the marginal utilities, $\frac{MU_i}{MU_j}$. The MRS tells us the consumer's willingness to exchange good 1 for good 2 on the margin in such a way that they would be *indifferent*. Hence, the MRS also represents the slope of the indifference curve through any given values of $x_i$ and $x_j$. 
+The *marginal rate of substitution* between two goods ($MRS_{ij}$) is the ratio of the marginal utilities, $\frac{MU_i}{MU_j}$. The MRS tells us the consumer's willingness to exchange good 1 for good 2 on the margin in such a way that they would be *indifferent*. Hence, the MRS also represents the slope of the indifference curve through any given values of $x_i$ and $x_j$.
 
-Use the `Simplify` function from the `Deriv` package to get $MRS_{12} = \frac{MU_1}{MU_2}$ for the previous exercise. Remember that your marginal utility results stored as `yac_symbol` objects, so you need to convert them to strings before applying `Simplify`, and then finally converting it back to a `ysym`. Try using piping to keep it readable! <br>(Note: `Ryacas` has a `simplify` function, but it just doesn't work as well for the functions we're trying to simplify.)
-
-```{r marginalRateOfSubstitution, exercise = TRUE, exercise.reveal_solution = TRUE}
-
-```
-
-```{r marginalRateOfSubstitution-solution}
+```{r, echo = FALSE}
 MRS <- (MU1/MU2) |>
   yac_str() |> 
   Simplify() |>
   ysym()
-MRS
 ```
 
-```{r marginalRateOfSubstitution-check}
-grade_this({if (!inherits(.result, c("yac_symbol"))) {
-    fail("Your class of your answer should be a yac_symbol")}
-  if (.result$yacas_cmd != "x2/(3*x1)") { 
-    fail("The MRS should be x2/(3*x1)") }
-  pass()
-})
-```
+$$MRS = `r tex(MRS)`$$
 
-```{r}
-MRS <- (MU1/MU2) |>
-  yac_str() |> 
-  Simplify() |>
-  ysym()
-MRS
-```
+We can do the same thing with the symbolic parameters to get the general form of the MRS for the Cobb-Douglas utility function without specifying the parameters (e.g. $\alpha$). One way this could be useful is that it allows us to analyze the effect of changes in these parameters. 
 
-$$`r tex(MRS)`$$
-
-### General Form 
-
-We can do the same thing with the symbolic parameters to get the general form of the MRS for the Cobb-Douglas utility function. Define `v` as the general form of the utility function from the previous exercise using the parameter name "alpha" instead of the numerical value of 0.25 and repeat the steps to produce the MRS, `MRSv`. 
-
-In addition, we can take derivatives with respect to both goods in one line, which will give you a vector of derivative functions. The fancy math name for this is the *gradient* of $f$ with respect to $x$, denoted $\nabla f(x_1, x_2)$. You can then get the $MRS$ by dividing the marginal utilities (dividing the first element of the gradient by the second). Try this by running the following code. 
-
-```{r generalMRS, exercise=TRUE, exercise.reveal_solution = TRUE}
-v <- ysym('x1^alpha * x2^(1-alpha)')
-MV <- deriv(v, c('x1', 'x2'))
-MRSv <- (MV[1]/MV[2]) |>
-  yac_str() |> 
-  Simplify() |>
-  ysym()
-MRSv
-```
-
-```{r generalMRS-solution}
-v <- ysym('x1^alpha * x2^(1-alpha)')
-MV <- deriv(v, c('x1', 'x2'))
-MRSv <- (MV[1]/MV[2]) |>
-  yac_str() |> 
-  Simplify() |>
-  ysym()
-MRSv
-```
-
-```{r generalMRS-check}
-grade_this({if (!inherits(.result, c("yac_symbol"))) {
-    fail("Your class of your answer should be a yac_symbol")}
-  if (.result$yacas_cmd != "(alpha*x2)/(x1*(1-alpha))") { 
-    fail("The MRS should be (alpha/(1-alpha))*(x2/x1)") }
-  pass()
-})
-```
-
-```{r}
+```{r, echo = TRUE}
 v <- ysym('x1^alpha * x2^(1-alpha)')
 MV <- deriv(v, c('x1', 'x2'))
 MRSv <- (MV[1]/MV[2]) |>
@@ -336,11 +280,11 @@ MRSv <- (MV[1]/MV[2]) |>
   ysym()
 ```
 
-$$`r tex(MRSv)`$$
+$$MRS(\alpha) = `r tex(MRSv)`$$
 
 ## Monotonic Transformations
 
-### Rank-Order Equivalence 
+### Rank-Order Equivalence
 
 Many (in fact, infinitely many) functions can describe the same preferences (and give the same equilibria)!
 
@@ -350,266 +294,119 @@ For a given utility function, any *monotonic transformation* - strictly increasi
 
 The function $log_b(x)$ is *monotonic* for and base, $b$ and for all $x > 0$.
 
-```{r, fig.width = 6, fig.height=4, out.width='75%'}
-par(mar=c(5,4,1,1)) 
-curve(log(x), from = 0, to = 100)
+```{r, echo = TRUE, fig.width = 6, fig.height=4, out.width='75%'}
+ggplot() + 
+  geom_function(fun = function(x) log(x), xlim = c(0.25,100))
 ```
 
-<details style="line-height:105%"><summary>Click here to see the code for the graph.<p></p></summary>
-`par(mar=c(5,4,1,1)) # set margins (bottom, left, top, right)`
-`curve(log(x), from = 0, to = 100)`<br>
-<br>
-</details>
+A useful trick with Cobb-Douglas utility is taking logs:
 
-A useful trick with Cobb-Douglas utility is taking logs: 
-
-$$u(x) = x_1^{\alpha}x_2^{1-\alpha}$$
-$$ v(x) = ln[u(x)] = ln(x_1^{\alpha}x_2^{1-\alpha})$$
-Using the log-law formulas (see list of useful formulas at the end of the "Introduction" tutorial) we have: 
+$$u(x) = x_1^{\alpha}x_2^{1-\alpha}$$ $$ v(x) = ln[u(x)] = ln(x_1^{\alpha}x_2^{1-\alpha})$$ Using the log-law formulas (see list of useful formulas at the end of the "Introduction" tutorial) we have:
 
 $$v(x) = ln(x_1^\alpha) + ln(x_2^{1-\alpha})=\alpha ln(x_1) + (1-\alpha)ln(x_2)$$
 
-In other words, the utility function becomes log-linear, that is, linear in the (natural) *log* of $x$. 
+In other words, the utility function becomes log-linear, that is, linear in the (natural) *log* of $x$.
 
 ## Special Cases
 
 ### Perfect Substitutes
 
-For perfect substitutes, the indifference-curve map is linear. 
+Graph the utility function from 0 to 25 donuts and 0 to 25 beers for a consumer who sees them as perfect substitutes as given by the following utility function: $$u(x) = (x_1 + x_2)^{0.5}$$
 
-1. Graph the utility function from 0 to 25 donuts and 0 to 25 beers for a consumer who sees them as perfect substitutes as given by the following utility function: 
-$$u(x) = (x_1 + x_2)^{0.5}$$
-Plot the indifference curve for u = 5
-
-```{r perfectSubstitutes, exercise = TRUE}
-### Define the level of u, and sequances for x and y.
-
-### Define z = f(x,y) and plot x, y, z using persp()
-
+```{r substitutes3d, exercise=TRUE, exercise.reveal_solution = TRUE}
 
 ```
 
-```{r perfectSubstitutes-solution}
-u0 = 5
-x = seq(0, 25, 0.1)
-y = seq(0, 25, 0.1)
-z = (outer(x, y, FUN = "+"))^0.5
-persp(x,
-      y,
-      z)
-curve(u0^2 - x,
-  type = 'l',
-  ylim = c(0, 25),
-  xlim = c(0, 25))
+```{r substitutes3d-hint}
+# Use seq() define $x$ and $y$ as sequences; and define $z$ as the `outer()` product of $x^{\alpha}$ and $y^{(1-\alpha)}$.
+```
+
+```{r substitutes3d-solution, messages = FALSE, warnings = FALSE}
+x <- seq(0, 10, length.out = 101)
+y <- seq(0, 10, length.out = 101)
+z <- outer(x, y, FUN = function(x, y) (x + y)^0.5)
+plot_ly(z = ~z, type = 'surface') 
+```
+
+```{r substitutes3d-check}
+grade_this({
+  if (!inherits(.result, c("plotly"))) {
+    fail("Your class of your answer should be a plotly graph")}
+  if (length(.result) != 8) { 
+    fail("The result should a length of 8") }
+  pass()
+})
+```
+
+For perfect substitutes, the indifference-curve map is linear. Plot the indifference curve for $u = \{5, 10, 15, 20, 25, 30\}$.
+
+```{r perfectSubstitutes, exercise = TRUE}
+
+```
+
+```{r perfectSubstitutes-solution, messages = FALSE, warnings = FALSE}
+u = c(5, 10, 15, 20, 25, 30)
+ggplot() + 
+  geom_function(fun = function(x) u[1]^2 - x, color = 'red') + 
+  geom_function(fun = function(x) u[2]^2 - x, color = 'orange') + 
+  geom_function(fun = function(x) u[3]^2 - x, color = 'yellow') + 
+  geom_function(fun = function(x) u[4]^2 - x, color = 'green') + 
+  geom_function(fun = function(x) u[5]^2 - x, color = 'blue') + 
+  geom_function(fun = function(x) u[6]^2 - x, color = 'violet') +
+  lims(x = c(0,900), y = c(0,900))
 ```
 
 ```{r perfectSubstitutes-check}
-grade_this({if (!inherits(.result, c("list"))) {
-    fail("Your class of your answer should be a list")}
-  if (.result$y[1] != 25) { 
-    fail("The y-intercept should equal 25.") }
-  pass()
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1) & ith_geom_is(.result, "function", i = 2)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
 })
 ```
 
 ### Perfect Complements
 
-For perfect complements, the indifference curves are L-shaped. Run the following code to graph a set of two indifference curves for donuts and beer for a consumer who sees them as perfect complements. 
+For perfect complements, the indifference curves are L-shaped. Run the following code to graph a set of two indifference curves for donuts and beer for a consumer who sees them as perfect complements.
 
 ```{r perfectComplements, exercise = TRUE}
-plot(
-  x = c(rep(10, 11)),
-  y = c(seq(10, 80, 7)),
-  type = 'l',
-  xlim = c(0, 80),
-  ylim = c(0, 80),
-  xlab = 'Donuts',
-  ylab = 'Beer',
-  col = 'red', 
-  main = 'Beer and Donuts are Perfect Complements'
-) 
-segments(
-  x0 = 10, 
-  x1 = 80, 
-  y0 = 10, 
-  y1 = 10, 
-  col = 'red'
-)
-segments(
-  x0 = 20, 
-  x1 = 20, 
-  y0 = 20, 
-  y1 = 80, 
-  col = 'orange'
-)
-segments(
-  x0 = 20, 
-  x1 = 80, 
-  y0 = 20, 
-  y1 = 20, 
-  col = 'orange'
-)
-segments(
-  x0 = 30, 
-  x1 = 30, 
-  y0 = 30, 
-  y1 = 80, 
-  col = 'yellow'
-)
-segments(
-  x0 = 30, 
-  x1 = 80, 
-  y0 = 30, 
-  y1 = 30, 
-  col = 'yellow'
-)
-segments(
-  x0 = 40, 
-  x1 = 40, 
-  y0 = 40, 
-  y1 = 80, 
-  col = 'green'
-)
-segments(
-  x0 = 40, 
-  x1 = 80, 
-  y0 = 40, 
-  y1 = 40, 
-  col = 'green'
-)
-segments(
-  x0 = 50, 
-  x1 = 50, 
-  y0 = 50, 
-  y1 = 80, 
-  col = 'blue'
-)
-segments(
-  x0 = 50, 
-  x1 = 80, 
-  y0 = 50, 
-  y1 = 50, 
-  col = 'blue'
-)
-segments(
-  x0 = 60, 
-  x1 = 60, 
-  y0 = 60, 
-  y1 = 80, 
-  col = 'violet'
-)
-segments(
-  x0 = 60, 
-  x1 = 80, 
-  y0 = 60, 
-  y1 = 60, 
-  col = 'violet'
-)
-arrows(
-  x0 = 10,
-  x1 = 60,
-  y0 = 10,
-  y1 = 60,
-  col = 'black'
-)
+ggplot() + 
+  geom_segment(aes(x = 10, xend = 10, y = 10, yend = 80), color = 'red') +
+  geom_segment(aes(x = 10, xend = 80, y = 10, yend = 10), color = 'red') +
+  geom_segment(aes(x = 20, xend = 20, y = 20, yend = 80), color = 'orange') +
+  geom_segment(aes(x = 20, xend = 80, y = 20, yend = 20), color = 'orange') +
+  geom_segment(aes(x = 30, xend = 30, y = 30, yend = 80), color = 'yellow') +
+  geom_segment(aes(x = 30, xend = 80, y = 30, yend = 30), color = 'yellow') +
+  geom_segment(aes(x = 40, xend = 40, y = 40, yend = 80), color = 'green') +
+  geom_segment(aes(x = 40, xend = 80, y = 40, yend = 40), color = 'green') +
+  geom_segment(aes(x = 50, xend = 50, y = 50, yend = 80), color = 'blue') +
+  geom_segment(aes(x = 50, xend = 80, y = 50, yend = 50), color = 'blue') +
+  geom_segment(aes(x = 60, xend = 60, y = 60, yend = 80), color = 'violet') +
+  geom_segment(aes(x = 60, xend = 80, y = 60, yend = 60), color = 'violet') +
+  geom_segment(aes(x = 10, xend = 60, y = 10, yend = 60), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,80), y = c(0,80)) +
+  labs(x = "Beer", y = "Donuts", title = "Beer and Donuts are Perfect Complements")
 ```
 
-```{r perfectComplements-solution}
-plot(
-  x = c(rep(10, 11)),
-  y = c(seq(10, 80, 7)),
-  type = 'l',
-  xlim = c(0, 80),
-  ylim = c(0, 80),
-  xlab = 'Donuts',
-  ylab = 'Beer',
-  col = 'red', 
-  main = 'Beer and Donuts are Perfect Complements'
-) 
-segments(
-  x0 = 10, 
-  x1 = 80, 
-  y0 = 10, 
-  y1 = 10, 
-  col = 'red'
-)
-segments(
-  x0 = 20, 
-  x1 = 20, 
-  y0 = 20, 
-  y1 = 80, 
-  col = 'orange'
-)
-segments(
-  x0 = 20, 
-  x1 = 80, 
-  y0 = 20, 
-  y1 = 20, 
-  col = 'orange'
-)
-segments(
-  x0 = 30, 
-  x1 = 30, 
-  y0 = 30, 
-  y1 = 80, 
-  col = 'yellow'
-)
-segments(
-  x0 = 30, 
-  x1 = 80, 
-  y0 = 30, 
-  y1 = 30, 
-  col = 'yellow'
-)
-segments(
-  x0 = 40, 
-  x1 = 40, 
-  y0 = 40, 
-  y1 = 80, 
-  col = 'green'
-)
-segments(
-  x0 = 40, 
-  x1 = 80, 
-  y0 = 40, 
-  y1 = 40, 
-  col = 'green'
-)
-segments(
-  x0 = 50, 
-  x1 = 50, 
-  y0 = 50, 
-  y1 = 80, 
-  col = 'blue'
-)
-segments(
-  x0 = 50, 
-  x1 = 80, 
-  y0 = 50, 
-  y1 = 50, 
-  col = 'blue'
-)
-segments(
-  x0 = 60, 
-  x1 = 60, 
-  y0 = 60, 
-  y1 = 80, 
-  col = 'violet'
-)
-segments(
-  x0 = 60, 
-  x1 = 80, 
-  y0 = 60, 
-  y1 = 60, 
-  col = 'violet'
-)
-arrows(
-  x0 = 10,
-  x1 = 60,
-  y0 = 10,
-  y1 = 60,
-  col = 'black'
-)
+```{r perfectComplements-solution, messages = FALSE, warnings = FALSE}
+ggplot() + 
+  geom_segment(aes(x = 10, xend = 10, y = 10, yend = 80), color = 'red') +
+  geom_segment(aes(x = 10, xend = 80, y = 10, yend = 10), color = 'red') +
+  geom_segment(aes(x = 20, xend = 20, y = 20, yend = 80), color = 'orange') +
+  geom_segment(aes(x = 20, xend = 80, y = 20, yend = 20), color = 'orange') +
+  geom_segment(aes(x = 30, xend = 30, y = 30, yend = 80), color = 'yellow') +
+  geom_segment(aes(x = 30, xend = 80, y = 30, yend = 30), color = 'yellow') +
+  geom_segment(aes(x = 40, xend = 40, y = 40, yend = 80), color = 'green') +
+  geom_segment(aes(x = 40, xend = 80, y = 40, yend = 40), color = 'green') +
+  geom_segment(aes(x = 50, xend = 50, y = 50, yend = 80), color = 'blue') +
+  geom_segment(aes(x = 50, xend = 80, y = 50, yend = 50), color = 'blue') +
+  geom_segment(aes(x = 60, xend = 60, y = 60, yend = 80), color = 'violet') +
+  geom_segment(aes(x = 60, xend = 80, y = 60, yend = 60), color = 'violet') +
+  geom_segment(aes(x = 10, xend = 60, y = 10, yend = 60), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,80), y = c(0,80)) +
+  labs(x = "Beer", y = "Donuts", title = "Beer and Donuts are Perfect Complements")
 ```
 
 ```{r perfectComplements-check}
@@ -622,116 +419,36 @@ grade_code()
 knitr::include_graphics("images/NonAlcoholicBeer.jpg")
 ```
 
-With a neutral good, utility does not depend at all on the quantity of the neutral good. Run the following code to graph a set of indifference curves for the case where one good is "neutral." 
+With a neutral good, utility does not depend at all on the quantity of the neutral good. Run the following code to graph a set of indifference curves for the case where one good is "neutral."
 
 ```{r neutralGood, exercise = TRUE}
-plot(
-  x = c(rep(10, 11)),
-  y = c(seq(0, 60, 6)),
-  type = 'l',
-  xlim = c(0, 60),
-  ylim = c(0, 60),
-  xlab = 'Donuts',
-  ylab = 'Non-Alcoholic Beer',
-  col = 'red', 
-  main = 'Non-Alcoholic Beer is a Neutral Good'
-) 
-segments(
-  x0 = 20, 
-  x1 = 20, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'orange'
-)
-segments(
-  x0 = 30, 
-  x1 = 30, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'yellow'
-)
-segments(
-  x0 = 40, 
-  x1 = 40, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'green'
-)
-segments(
-  x0 = 50, 
-  x1 = 50, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'blue'
-)
-segments(
-  x0 = 60, 
-  x1 = 60, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'violet'
-)
-arrows(
-  x0 = 10, 
-  x1 = 60, 
-  y0 = 30, 
-  y1 = 30
-)
+u = seq(10, 60, 10)
+ggplot() +
+  geom_vline(xintercept = u[1], color = 'red') + 
+  geom_vline(xintercept = u[2], color = 'orange') + 
+  geom_vline(xintercept = u[3], color = 'yellow') + 
+  geom_vline(xintercept = u[4], color = 'green') + 
+  geom_vline(xintercept = u[5], color = 'blue') + 
+  geom_vline(xintercept = u[6], color = 'violet') + 
+  geom_segment(aes(x = 10, xend = 60, y = 30, yend = 30), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,80), y = c(0,80)) +
+  labs(x = "Beer", y = "Donuts", title = "Non-Alchoholic Beer is a Neutral Good")
 ```
 
-```{r neutralGood-solution}
-plot(
-  x = c(rep(10, 11)),
-  y = c(seq(0, 60, 6)),
-  type = 'l',
-  xlim = c(0, 60),
-  ylim = c(0, 60),
-  xlab = 'Donuts',
-  ylab = 'Non-Alcoholic Beer',
-  col = 'red', 
-  main = 'Non-Alcoholic Beer is a Neutral Good'
-) 
-segments(
-  x0 = 20, 
-  x1 = 20, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'orange'
-)
-segments(
-  x0 = 30, 
-  x1 = 30, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'yellow'
-)
-segments(
-  x0 = 40, 
-  x1 = 40, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'green'
-)
-segments(
-  x0 = 50, 
-  x1 = 50, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'blue'
-)
-segments(
-  x0 = 60, 
-  x1 = 60, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'violet'
-)
-arrows(
-  x0 = 10, 
-  x1 = 60, 
-  y0 = 30, 
-  y1 = 30
-)
+```{r neutralGood-solution, messages = FALSE, warnings = FALSE}
+u = seq(10, 60, 10)
+ggplot() +
+  geom_vline(xintercept = u[1], color = 'red') + 
+  geom_vline(xintercept = u[2], color = 'orange') + 
+  geom_vline(xintercept = u[3], color = 'yellow') + 
+  geom_vline(xintercept = u[4], color = 'green') + 
+  geom_vline(xintercept = u[5], color = 'blue') + 
+  geom_vline(xintercept = u[6], color = 'violet') + 
+  geom_segment(aes(x = 10, xend = 60, y = 30, yend = 30), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,80), y = c(0,80)) +
+  labs(x = "Beer", y = "Donuts", title = "Non-Alchoholic Beer is a Neutral Good")
 ```
 
 ```{r neutralGood-check}
@@ -745,116 +462,35 @@ knitr::include_graphics("images/Pants.jpg")
 ```
 
 ```{r economicBad, exercise = TRUE, fig.height = 5, fig.width = 5}
-plot(
-  x = c(seq(10, 20, 1)),
-  y = c(seq(0, 70, 7)),
-  type = 'l',
-  xlim = c(0, 70),
-  ylim = c(0, 70),
-  xlab = 'Donuts',
-  ylab = 'Pants',
-  col = 'red', 
-  main = 'Pants as an Economic Bad'
-) 
-segments(
-  x0 = 20, 
-  x1 = 30, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'orange'
-)
-segments(
-  x0 = 30, 
-  x1 = 40, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'yellow'
-)
-segments(
-  x0 = 40, 
-  x1 = 50, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'green'
-)
-segments(
-  x0 = 50, 
-  x1 = 60, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'blue'
-)
-segments(
-  x0 = 60, 
-  x1 = 70, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'violet'
-)
-arrows(
-  x0 = 15.7, 
-  x1 = 64.2, 
-  y0 = 40, 
-  y1 = 30
-)
+u = seq(10, 60, 10)
+ggplot() +
+  geom_function(fun = function(x) (-7*u[1]) + 7*x, color = 'red') + 
+  geom_function(fun = function(x) (-7*u[2]) + 7*x, color = 'orange') + 
+  geom_function(fun = function(x) (-7*u[3]) + 7*x, color = 'yellow') + 
+  geom_function(fun = function(x) (-7*u[4]) + 7*x, color = 'green') + 
+  geom_function(fun = function(x) (-7*u[5]) + 7*x, color = 'blue') + 
+  geom_function(fun = function(x) (-7*u[6]) + 7*x, color = 'violet') + 
+  geom_segment(aes(x = 15, xend = 64, y = 35, yend = 27), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,80), y = c(0,80)) +
+  labs(x = "Beer", y = "Donuts", title = "Pants are an Economic Bad")
 ```
 
-```{r economicBad-solution}
-plot(
-  x = c(seq(10, 20, 1)),
-  y = c(seq(0, 70, 7)),
-  type = 'l',
-  xlim = c(0, 70),
-  ylim = c(0, 70),
-  xlab = 'Donuts',
-  ylab = 'Pants',
-  col = 'red', 
-  main = 'Pants as an Economic Bad'
-) 
-segments(
-  x0 = 20, 
-  x1 = 30, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'orange'
-)
-segments(
-  x0 = 30, 
-  x1 = 40, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'yellow'
-)
-segments(
-  x0 = 40, 
-  x1 = 50, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'green'
-)
-segments(
-  x0 = 50, 
-  x1 = 60, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'blue'
-)
-segments(
-  x0 = 60, 
-  x1 = 70, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'violet'
-)
-arrows(
-  x0 = 15.7, 
-  x1 = 64.2, 
-  y0 = 40, 
-  y1 = 30
-)
+```{r economicBad-solution, messages = FALSE, warnings = FALSE}
+u = seq(10, 60, 10)
+ggplot() +
+  geom_function(fun = function(x) (-7*u[1]) + 7*x, color = 'red') + 
+  geom_function(fun = function(x) (-7*u[2]) + 7*x, color = 'orange') + 
+  geom_function(fun = function(x) (-7*u[3]) + 7*x, color = 'yellow') + 
+  geom_function(fun = function(x) (-7*u[4]) + 7*x, color = 'green') + 
+  geom_function(fun = function(x) (-7*u[5]) + 7*x, color = 'blue') + 
+  geom_function(fun = function(x) (-7*u[6]) + 7*x, color = 'violet') + 
+  geom_segment(aes(x = 15, xend = 64, y = 35, yend = 27), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,80), y = c(0,80)) +
+  labs(x = "Beer", y = "Donuts", title = "Pants are an Economic Bad")
 ```
 
 ```{r economicBad-check}
 grade_code()
 ```
-

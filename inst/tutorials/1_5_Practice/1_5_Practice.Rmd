@@ -1,5 +1,5 @@
 ---
-title: "1.5 Comparative Statics"
+title: "1.5 Comparative Statics I: Income Changes"
 editor_options: 
   markdown: 
     wrap: 72
@@ -24,86 +24,258 @@ date: "`r format(Sys.Date(), '%d %b %Y')`"
 ```{r setup, include = FALSE}
 library(learnr)
 library(gradethis)
+library(ggcheck)
 gradethis_setup()
 tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = FALSE)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
 knitr::include_graphics
 ```
 
-## Quasi-Linear Utility
+## In-Kind versus Cash Transfers  
 
-Consider a consumer who initially budgets an income of 100 for consuming goods 1 and 2; faces prices of good 1 and good 2 equal to 1.5 and 1.0, respectively; and exhibits quasi-linear preferences described by the following utility function:  
+Economists claim that cash transfers are more "efficient" than in-kind transfers because there is no dead-weigth utility loss from the fact that the recipient might have spent the money differently.^[I recommend testing this hypothesis with someone in a gift-giving situation like with your significant other on Valentines Day. Don't forget to report your results to the class!]
 
-$$U(x) = x_1^{0.25} + x_2,$$
-$$\text{s.t.: }1.5x_1+x_2 \le 100$$
+### Initial Solution
 
-1. Plot the Engel Curve for this consumer for good 1 by computationally solving and connecting at least 5 points of the curve. You may choose any changes in income you like; the "solution" uses $\pm 5$ and $\pm 10$.
+Consider a consumer with income of 100 ($m = 100$), which they can allocate by consuming necessities (e.g. food, housing) or invseting in capital (e.g. home production, education) at prices price ($p_n = 1$ and $p_k = 2$). Also suppose that the consumer has preferences dictated by a constant elasticity of substitution utility function given by: 
 
-```{r engelComputational, exercise = TRUE}
+$$u(q_n, q_k) = (0.1q_n^{1/2} + 0.9q_k^{1/2})^2$$
+
+This makes the consumer's maximization problem: 
+
+$$max \big\{(0.1q_n^{1/2} + 0.9q_k^{1/2})^2\big\}$$
+subject to: 
+
+$$1q_n + 2q_k \le 100$$
+
+Find the initial solution to the consumer's utility-maximization problem. Print the utility maximizing consumption choice (`pars`) for the solution.  
+
+```{r initialEquilibrium, exercise = TRUE}
 
 ```
 
-```{r engelComputational-solution}
+```{r initialEquilibrium-solution}
+library(MicroWithR)
 library(Rsolnp)
-ux <- function(x) -x[1] ^ (a) + x[2] 
-bc <- function(x) p1 * x[1] + p2 * x[2]
-a = 0.25; p1 = 1.5; p2 = 1; m = 100; dm = 5
-initialEquilibrium <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m, 
-                            LB = c(0, 0), UB = c(Inf, Inf))
-dmEquilibrium1 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m + dm, 
-                            LB = c(0, 0), UB = c(Inf, Inf))
-dmEquilibrium2 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m - dm, 
-                            LB = c(0, 0), UB = c(Inf, Inf))
-dmEquilibrium3 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m + 2*dm, 
-                            LB = c(0, 0), UB = c(Inf, Inf))
-dmEquilibrium4 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m - 2*dm, 
-                            LB = c(0, 0), UB = c(Inf, Inf))
-x1 <- c(initialEquilibrium$pars[1], dmEquilibrium1$pars[1], dmEquilibrium2$pars[1],
-        dmEquilibrium3$pars[1], dmEquilibrium4$pars[1])
-m1 <- c(initialEquilibrium$ineqx0, dmEquilibrium1$ineqx0, dmEquilibrium2$ineqx0,
-        dmEquilibrium3$ineqx0, dmEquilibrium4$ineqx0)
-plot(m1, x1, xlim = c(0,120), ylim = c(0, 100))
-segments(m1[1], x1[1], m1[2], x1[2])
-segments(m1[2], x1[2], m1[3], x1[3])
-segments(m1[3], x1[3], m1[4], x1[4])
-segments(m1[4], x1[4], m1[5], x1[5])
+m = 100
+pn = 1
+pk = 2
+r = 0.5
+a = 0.1
+control = list(trace = 0)
+ux <- function(x)
+  (a * x[1] ^ (r) + (1 - a) * x[2] ^ (r)) ^ (1 / r)
+bc <- function(x)
+  pn * x[1] + pk * x[2]
+eq <- solnp2(
+  c(1, 1),
+  ux,
+  ineqfun = bc,
+  ineqLB = 0,
+  ineqUB = m,
+  LB = c(0, 0),
+  UB = c(Inf, Inf),
+  max = TRUE
+)
 ```
 
-```{r engelComputational-check}
+```{r initialEquilibrium-check}
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(.result$pars, 2) != c(11.11, 44.44)) { 
+    fail("The optimal amount of goods one and two after the change should be 11.11 and 44.44") }
+  pass()
+})
+```
+
+### In-Kind Transfers
+
+Suppose that the government offers this household an in-kind transfer of necessities, such as food stamps or housing assistance equal to \$15 but that the consumer can only redeem for necessities ($q_n$). Find the new quilibrium. Print the utility maximizing consumption choice (`pars`) for the solution.  
+
+```{r inkindEquilibrium, exercise = TRUE}
 
 ```
 
-2. Plot the Demand Function for $x_1$. for this consumer for good 1 by computationally solving and connecting at least 5 points of the curve. You may choose any changes in price you like; the "solution" uses $\pm 0.5$ and $\pm 1.0$.
+```{r inkindEquilibrium-hint}
+# The solution is nearly the same as the previous example, except you add 20 to the budget AND cap expenditures on capital investments at m/pk by setting an upper bound (UB) option. 
+```
 
-```{r demandComputational, exercise = TRUE}
+```{r inkindEquilibrium-setup}
+library(MicroWithR)
+library(Rsolnp)
+m = 100
+pn = 1
+pk = 2
+r = 0.5
+a = 0.1
+control = list(trace = 0)
+ux <- function(x)
+  (a * x[1] ^ (r) + (1 - a) * x[2] ^ (r)) ^ (1 / r)
+bc <- function(x)
+  pn * x[1] + pk * x[2]
+eq <- solnp2(
+  c(1, 1),
+  ux,
+  ineqfun = bc,
+  ineqLB = 0,
+  ineqUB = m,
+  LB = c(0, 0),
+  UB = c(Inf, Inf),
+  max = TRUE
+)
+```
+
+```{r inkindEquilibrium-solution}
+sn = 10
+inkindEq <- solnp2(
+  c(1, 1),
+  ux,
+  ineqfun = bc,
+  ineqLB = 0,
+  ineqUB = m + sn,
+  LB = c(0, 0),
+  UB = c(Inf, m/pk),
+  max = TRUE
+)
+inkindEq$pars
+```
+
+```{r inkindEquilibrium-check}
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (.result$pars != c(20, 50)) { 
+    fail("The optimal amount of goods one and two after the change should be 15 and 50") }
+  pass()
+})
+```
+
+### Cash Transfers
+
+Suppose that the government offers this household an in-kind transfer of necessities, such as food stamps or housing assistance equal to \$15 but that the consumer can only redeem for necessities ($q_n$). Find the new quilibrium. Print the utility maximizing consumption choice (`pars`) for the solution.  
+
+```{r cashEquilibrium, exercise = TRUE}
 
 ```
 
-```{r demandComputational-solution}
-dp1 = 0.5
-bcLowP1  <- function(x) (p1 - dp1) * x[1] + p2 * x[2]
-bcHighP1 <- function(x) (p1 + dp1) * x[1] + p2 * x[2]
-bcLowP2  <- function(x) (p1 - 2*dp1) * x[1] + p2 * x[2]
-bcHighP2 <- function(x) (p1 + 2*dp1) * x[1] + p2 * x[2]
-lowPEquilibrium1 <- solnp(c(1, 1), ux, ineqfun = bcLowP1, ineqLB = 0, ineqUB = m,
-    LB = c(0, 0), UB = c(Inf, Inf))
-highPEquilibrium1 <- solnp(c(1, 1), ux, ineqfun = bcHighP1, ineqLB = 0, ineqUB = m,
-    LB = c(0, 0), UB = c(Inf, Inf))
-lowPEquilibrium2 <- solnp(c(1, 1), ux, ineqfun = bcLowP2, ineqLB = 0, ineqUB = m,
-    LB = c(0, 0), UB = c(Inf, Inf))
-highPEquilibrium2 <- solnp(c(1, 1), ux, ineqfun = bcHighP2, ineqLB = 0, ineqUB = m,
-    LB = c(0, 0), UB = c(Inf, Inf))
-p1 <- c(p1-2*dp1, p1-dp1, p1, p1+dp1, p1+2*dp1)
-x1 <- c(lowPEquilibrium2$pars[1], lowPEquilibrium1$pars[1], 
-        initialEquilibrium$pars[1], highPEquilibrium1$pars[1], 
-        highPEquilibrium2$pars[1])
-plot(x1, p1, xlim = c(0, 200), ylim = c(0, 2.5))
-segments(x1[1], p1[1], x1[2], p1[2])
-segments(x1[2], p1[2], x1[3], p1[3])
-segments(x1[3], p1[3], x1[4], p1[4])
-segments(x1[4], p1[4], x1[5], p1[5])
+```{r cashEquilibrium-hint}
+# The solution is nearly the same as the previous example, except you add 20 to the budget WITHOUT capping expenditures on capital investments. 
 ```
 
-```{r demandComputational-check}
+```{r cashEquilibrium-setup}
+library(MicroWithR)
+library(Rsolnp)
+m = 100
+pn = 1
+pk = 2
+r = 0.5
+a = 0.1
+control = list(trace = 0)
+ux <- function(x)
+  (a * x[1] ^ (r) + (1 - a) * x[2] ^ (r)) ^ (1 / r)
+bc <- function(x)
+  pn * x[1] + pk * x[2]
+eq <- solnp2(
+  c(1, 1),
+  ux,
+  ineqfun = bc,
+  ineqLB = 0,
+  ineqUB = m,
+  LB = c(0, 0),
+  UB = c(Inf, Inf),
+  max = TRUE
+)
+sn = 10
+inkindEq <- solnp2(
+  c(1, 1),
+  ux,
+  ineqfun = bc,
+  ineqLB = 0,
+  ineqUB = m + sn,
+  LB = c(0, 0),
+  UB = c(Inf, m/pk),
+  max = TRUE
+)
+```
 
+```{r cashEquilibrium-solution}
+cashEq <- solnp2(
+  c(1, 1),
+  ux,
+  ineqfun = bc,
+  ineqLB = 0,
+  ineqUB = m + sn,
+  LB = c(0, 0),
+  UB = c(Inf, Inf),
+  max = TRUE
+)
+cashEq$pars
+```
+
+```{r cashEquilibrium-check}
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(.result$pars, 2) != c(13.33, 53.33)) { 
+    fail("The optimal amount of goods one and two after the change should be 12.78 and 51.11") }
+  pass()
+})
+```
+
+### Graph
+
+Graph all three equilibria (indifference curves and budget lines) on a single `ggplot()`.   
+
+```{r inKindGraph, exercise = TRUE}
+```
+
+```{r inKindGraph-setup}
+```
+
+```{r inKindGraph-solution}
+ggplot() +
+  geom_function(
+    fun = function(x)
+      m / pk - pn * x / pk
+  ) +
+  geom_segment(aes(
+    x = 0,
+    xend = sn,
+    y = m / pk,
+    yend = m / pk
+    ),
+    linetype = 'dashed',
+    color = 'blue') +
+  geom_segment(aes(
+    x = sn,
+    xend = (m + sn) / pn,
+    y = m / pk,
+    yend = 0
+    ),
+    linetype = 'dashed',
+    color = 'blue') +
+  geom_function(
+    fun = function(x)
+      (m + sn) / pk - pn * x / pk,
+    linetype = 'dashed',
+    color = 'green'
+  ) + 
+  geom_function(
+    fun = function(x) 
+      ((ux(eq$pars)^r - a*x^r)/(1-a))^(1/r)
+  ) + 
+  geom_function(
+    fun = function(x) 
+      ((ux(inkindEq$pars)^r - a*x^r)/(1-a))^(1/r), 
+    linetype = 'dashed', color = 'blue'
+  ) + 
+  geom_function(
+    fun = function(x) 
+      ((ux(cashEq$pars)^r - a*x^r)/(1-a))^(1/r), 
+    linetype = 'dashed', color = 'green'
+  ) + 
+  lims(x = c(0, 1.2 * m / pn), y = c(0, 1.2 * m / pk)) + 
+  labs(x = "Consumption of Necessities", y = "Investment in Human/Physical Capital")
+```
+
+```{r inKindGraph-check}
+grade_code() 
 ```

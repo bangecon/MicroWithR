@@ -21,10 +21,11 @@ date: "`r format(Sys.Date(), '%d %b %Y')`"
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
+library(ggcheck)
 library(Deriv)
 library(Ryacas)
 gradethis_setup()
-tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)
+tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = FALSE)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
 knitr::include_graphics
 ```
@@ -37,59 +38,101 @@ $$U(x) = (x_1^{1/2} + x_2^{1/2})^2, $$
 
 so that the elasticity of substitution is $\sigma = \frac{1}{1-r} = 2$. 
 
-1. Graph the indifference curves for this utility function for $U(*) = 10$ and $U(*) = 25$. 
+1. Graph the utility function in 3 dimensions. 
 
-```{r plotCES, exercise=TRUE}
-
-```
-
-```{r plotCES-solution}
+```{r ces, exercise=TRUE, exercise.reveal_solution = TRUE}
 
 ```
 
-```{r simpleUtility-check}
-grade_this({if (!inherits(.result, c("list"))) {
-    fail("Your class of your answer should be a list")}
-  if (.result$y[1] != Inf) { 
-    fail("The y-intercept should approach infinity.") }
+```{r ces-hint}
+# Use seq() define $x$ and $y$ as sequences; and define $z$ as the `outer()` product of $x^{\alpha}$ and $y^{(1-\alpha)}$.
+```
+
+```{r ces-solution, messages = FALSE, warnings = FALSE}
+library(plotly)
+alpha = 0.25
+x <- seq(0, 10, length.out = 101)
+y <- seq(0, 10, length.out = 101)
+z <- outer(x, y, FUN = function(x, y) (x^0.5 + y^0.5)^2)
+plot_ly(z = ~z, type = 'surface') 
+```
+
+```{r ces-check}
+grade_this({
+  if (!inherits(.result, c("plotly"))) {
+    fail("Your class of your answer should be a plotly graph")}
+  if (length(.result) != 8) { 
+    fail("The result should a length of 8") }
   pass()
 })
 ```
 
+2. Graph the indifference curves for this utility function for $U(*) = 10$ and $U(*) = 25$. 
 
-### Marginal Utility
+```{r cesIndifference, exercise=TRUE, exercise.reveal_solution = TRUE}
+
+```
+
+```{r cesIndifference-setup, messages = FALSE, warnings = FALSE}
+library(ggplot2) 
+```
+
+```{r cesIndifference-solution, messages = FALSE, warnings = FALSE}
+ggplot() +
+  geom_function(fun = function(x) (10^0.5 - x^0.5)^2, color = 'red') + 
+  geom_function(fun = function(x) (25^0.5 - x^0.5)^2, color = 'violet') + 
+  lims(x = c(0,10), y = c(0, 10)) + 
+  labs(x = "Good 1", y = "Good 2")
+```
+
+```{r cesIndifference-check}
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1) & ith_geom_is(.result, "function", i = 2)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
+
+## Marginal Utility
 
 The *marginal utility* of each good is the amount that utility changes as a result of a (very small?) change in the amount of that good. Mathematically, for *inifinitesimal* changes, marginal utility is the *derivative* of $u(x)$ with respect to $x_i$, or: 
 $$MU_i = \frac{d}{dx_i}u(x_1, x_2, ...,x_n)$$
 
-2. Find the marginal utility functions with respect to goods 1 and 2. 
+3. Run the following exercise that finds the marginal utility functions with respect to goods 1 and 2. 
 
 ```{r marginalUtility, exercise = TRUE}
-
+u <- ysym('(x1^0.5 + x2^0.5)^2')
+MU <- deriv(u, c('x1', 'x2'))
+MU
 ```
 
-```{r marginalUtility-solution}
+```{r marginalUtility-solution, messages = FALSE, warnings = FALSE}
+u <- ysym('(x1^0.5 + x2^0.5)^2')
+MU <- deriv(u, c('x1', 'x2'))
+MU
+```
+
+```{r marginalUtility-check}
+grade_code()
+```
+
+4. Run this exercise that finds $MRS_{12} = \frac{MU_1}{MU_2}$ and simplifies the result. 
+
+```{r marginalRateOfSubstitution, exercise = TRUE}
+MRS <- (MU[1]/MU[2]) |>
+  yac_str() |> 
+  Simplify() |>
+  ysym()
+MRS
+```
+
+```{r marginalRateOfSubstitution-setup, messages = FALSE, warnings = FALSE}
 u <- ysym('(x1^0.5 + x2^0.5)^2')
 MU <- deriv(u, c('x1', 'x2'))
 ```
 
-```{r marginalUtility-check}
-grade_this({if (!inherits(.result, c("yac_symbol"))) {
-    fail("Your class of your answer should be a yac_symbol")}
-  if (.result != "{x1^(-0.5)*(x1^0.5+x2^0.5), x2^(-0.5)*(x1^0.5+x2^0.5)}") { 
-    fail("The marginal utilities should be x1^(-0.5)*(x1^0.5+x2^0.5) and
-         x2^(-0.5)*(x1^0.5+x2^0.5).") }
-  pass()
-})
-```
-
-3. Find $MRS_{12} = \frac{MU_1}{MU_2}$. Simplify your result. 
-
-```{r marginalRateOfSubstitution, exercise = TRUE}
-
-```
-
-```{r marginalRateOfSubstitution-solution}
+```{r marginalRateOfSubstitution-solution, messages = FALSE, warnings = FALSE}
 MRS <- (MU[1]/MU[2]) |>
   yac_str() |> 
   Simplify() |>
@@ -98,11 +141,5 @@ MRS
 ```
 
 ```{r marginalRateOfSubstitution-check}
-grade_this({if (!inherits(.result, c("yac_symbol"))) {
-    fail("Your class of your answer should be a yac_symbol")}
-  if (.result$yacas_cmd != "sqrt(x2)/sqrt(x1)") { 
-    fail("The MRS should be sqrt(x2)/sqrt(x1)") }
-  pass()
-})
+grade_code()
 ```
-

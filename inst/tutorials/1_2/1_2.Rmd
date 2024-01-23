@@ -26,11 +26,12 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
+library(ggcheck)
 library(Ryacas)
 library(Deriv)
 gradethis_setup()
 tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)
-knitr::opts_chunk$set(echo = FALSE, fig.align = "center")
+knitr::opts_chunk$set(echo = FALSE, fig.align = "center", warning=FALSE, message = FALSE)
 knitr::include_graphics
 ```
 
@@ -63,234 +64,131 @@ When we represent preferences by a *utility function* and graph them using *indi
 
 ### Graphs of Indifference Curves
 
-Run the following code to plot indifference curves for succssive levels of satisfaction.
+An indifference curve (hypersurface?) plots all of the bundles of goods that the consumer is 
+*indifferent* between ($x \sim x'$). 
 
-```{r indifferenceCurves, exercise = TRUE, fig.height = 5, fig.width = 5}
-curve(
-  100 / x,
-  from = 1,
-  to = 100,
-  xlim = c(0, 50),
-  ylim = c(0, 50),
-  col = 'red',
-  xlab = 'Donuts',
-  ylab = 'Beer'
-)
-curve(
-  200 / x,
-  from = 1,
-  to = 100,
-  col = 'orange',
-  add = TRUE
-)
-curve(
-  300 / x,
-  from = 1,
-  to = 100,
-  col = 'yellow',
-  add = TRUE
-)
-curve(
-  400 / x,
-  from = 1,
-  to = 100,
-  col = 'green',
-  add = TRUE
-)
-curve(
-  500 / x,
-  from = 1,
-  to = 100,
-  col = 'blue',
-  add = TRUE
-)
-curve(
-  600 / x,
-  from = 1,
-  to = 100,
-  col = 'violet',
-  add = TRUE
-)
-arrows(
-  x0 = 10,
-  x1 = 25,
-  y0 = 10,
-  y1 = 25,
-  col = 'black'
-)
+```{r indifferenceCurves, fig.height = 5, fig.width = 5}
+library(ggplot2)
+u = seq(100, 600, 100) 
+ux = function(x) x[1]*x[2]
+ggplot() + 
+  geom_function(fun = function(x) u[1]/x, color = 'red') + 
+  geom_function(fun = function(x) u[2]/x, color = 'orange') + 
+  geom_function(fun = function(x) u[3]/x, color = 'yellow') + 
+  geom_function(fun = function(x) u[4]/x, color = 'green') + 
+  geom_function(fun = function(x) u[5]/x, color = 'blue') + 
+  geom_function(fun = function(x) u[6]/x, color = 'violet') + 
+  geom_segment(aes(x = 10, xend = 25, y = 10, yend = 25), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,50), y = c(0,50)) + 
+  labs(x = "Beer", y = "Donuts")
 ```
 
-```{r indifferenceCurves-solution}
-curve(
-  100 / x,
-  from = 1,
-  to = 100,
-  xlim = c(0, 50),
-  ylim = c(0, 50),
-  col = 'red',
-  xlab = 'Donuts',
-  ylab = 'Beer'
-)
-curve(
-  200 / x,
-  from = 1,
-  to = 100,
-  col = 'orange',
-  add = TRUE
-)
-curve(
-  300 / x,
-  from = 1,
-  to = 100,
-  col = 'yellow',
-  add = TRUE
-)
-curve(
-  400 / x,
-  from = 1,
-  to = 100,
-  col = 'green',
-  add = TRUE
-)
-curve(
-  500 / x,
-  from = 1,
-  to = 100,
-  col = 'blue',
-  add = TRUE
-)
-curve(
-  600 / x,
-  from = 1,
-  to = 100,
-  col = 'violet',
-  add = TRUE
-)
-arrows(
-  x0 = 10,
-  x1 = 25,
-  y0 = 10,
-  y1 = 25,
-  col = 'black'
-)
+<details style="line-height:105%">
+<summary>Click here to see the code for the graph.<p></p></summary>
+```{r, fig.height = 5, fig.width = 5, echo = TRUE, results = 'hide', fig.show = 'hide'}
+library(ggplot2)
+u = seq(100, 600, 100) 
+ux = function(x) x[1]*x[2]
+i <- ggplot() + 
+  geom_function(fun = function(x) u[1]/x, color = 'red') + 
+  geom_function(fun = function(x) u[2]/x, color = 'orange') + 
+  geom_function(fun = function(x) u[3]/x, color = 'yellow') + 
+  geom_function(fun = function(x) u[4]/x, color = 'green') + 
+  geom_function(fun = function(x) u[5]/x, color = 'blue') + 
+  geom_function(fun = function(x) u[6]/x, color = 'violet') + 
+  geom_segment(aes(x = 10, xend = 25, y = 10, yend = 25), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,50), y = c(0,50)) + 
+  labs(x = "Beer", y = "Donuts")
 ```
+<br>
+</details>
 
-```{r indifferenceCurves-check}
-grade_code()
-```
-
-For each different-colored curve above , the consumer whose preferences they describe is *indifferent* between any two points on the same curve: they like all of these points equally.
+For each different-colored curve above , the consumer whose preferences they describe is *indifferent* between any two points on the same curve: they like all of these points equally; they receive the same level of utility from all points on that curve. The level of utility increases moving from those close to the origin (in <span style="color: red;">red</span>) to those farther from the origin (in <span style="color: violet;">violet</span>).
 
 ### The Preferred Set
 
-This set of points that a consumer *strictly prefers* to any bundle, $x$ is sometimes called the *(strictly) preferred set*, $P(x)$. The preferred set lies to the top-left of $x$. The boundary of the strictly preferred set - which is not included in the set - is the indifference curve on which $x$ lies. The set that includes bundles that a consumer *weakly prefers* to $x$ is called the *weakly preferred set* and includes the strictly preferred set as well as the indifference curve on which $x$ lies.
+This set of points that a consumer *strictly prefers* to any bundle, $x$, ($x' \succ x$) is sometimes called the *(strictly) preferred set*, $P(x)$. The preferred set lies to the top-left of $x$. The boundary of the strictly preferred set - which is not included in the set - is the indifference curve on which $x$ lies. The set that includes bundles that a consumer *weakly prefers* to $x$ ($x' \succsim x$) is called the *weakly preferred set* and includes the strictly preferred set as well as the indifference curve on which $x$ lies.
 
 ```{r, fig.height = 5, fig.width = 5}
-x <- seq(1, 55, 0.01)
-u_0 <- 100 / x
-top <- 55 + 0 * x
-plot(
-  x,
-  u_0,
-  type = 'l',
-  xlim = c(0, 50),
-  ylim = c(0, 50),
-  xlab = 'Donuts',
-  ylab = 'Beer', 
-  col = 'red'
-)
-polygon(
-  x = c(x, rev(x)),
-  y = c(top, rev(u_0)),
-  col = 'pink',
-  lty = 0
-)
-lines(
-  x,
-  u_0,
-  type = 'l',
-  xlim = c(0, 50),
-  ylim = c(0, 50),
-  col = 'red'
-)
-points(x = 10, y = 10, pch = 20)
-text(x = 9.5, y = 9.5, "x")
-text(x = 20, y = 20, "P(x)\n(Preferred Set to x)")
+library(ggplot2)
+u = 100
+x1 <- seq(2, 50, by = 0.01)
+i0 <- u/x1
+ggplot() + 
+  geom_function(fun = function(x) u/x, color = 'blue') + 
+  geom_polygon(aes(x = c(x1, tail(x1,1), u/tail(i0,1)), 
+                   y = c(i0, head(i0,1), head(i0,1))), fill = alpha('lightblue', 0.3)) + 
+  geom_point(aes(x = 10, y = 10)) +
+  geom_text(aes(x = 10, y = 10), label = 'x', hjust = 1, vjust = 1) + 
+  geom_text(aes(x = 25, y = 25), label = "P(x)\n(Preferred Set to x)") + 
+  lims(x = c(0,50), y = c(0,50)) + 
+  labs(x = "Beer", y = "Donuts") 
 ```
 
-<details style="line-height:105%"><summary>Click here to see the code for the graph.<p></p></summary>
-`x = seq(1, 55, 0.01)`
-`u_0 = 100/x`
-`top = 55 + 0*x`
-`plot(x, u_0, type = 'l', xlim = c(0, 50), ylim = c(0, 50),`
-&nbsp;&nbsp;`xlab = 'Donuts', ylab = 'Beer',  col = 'red')`
-`polygon(x=c(x, rev(x)), y = c(top, rev(u_0)), col = 'pink', lty = 0)`
-`lines(x, u_0, type = 'l', xlim = c(0, 50), ylim = c(0, 50), col = 'red')`
-`points(x = 10, y = 10, pch = 20)`
-`text(x = 9.5, y = 9.5, "x")`
-`text(x = 20, y = 20, "P(x)\n(Preferred Set to x)")`<br>
+<details style="line-height:105%">
+<summary>Click here to see the code for the graph.<p></p></summary>
+```{r, fig.height = 5, fig.width = 5, echo = TRUE, results = 'hide', fig.show = 'hide'}
+u = 100
+x1 <- seq(2, 50, by = 0.01)
+i0 <- u/x1
+ggplot() + 
+  geom_function(fun = function(x) u/x, color = 'blue') + 
+  geom_polygon(aes(x = c(x1, tail(x1,1), u/tail(i0,1)), 
+                   y = c(i0, head(i0,1), head(i0,1))), 
+                   fill = alpha('lightblue', 0.3)) + 
+  geom_point(aes(x = 10, y = 10)) +
+  geom_text(aes(x = 10, y = 10), label = 'x', hjust = 1, vjust = 1) + 
+  geom_text(aes(x = 25, y = 25), label = "P(x)\n(Preferred Set to x)") + 
+  lims(x = c(0,50), y = c(0,50)) + 
+  labs(x = "Beer", y = "Donuts") 
+```
+<br>
 </details>
 
 ### Properties of Indifference Curves
 
-Based on the preference axioms introduced earlier, we can derive three properties for indifference curves.
+Based on the preference axioms introduced earlier, we can derive three properties for indifference curves.  
 
-1.  Indifference curves slope *downward* (monotonicity - more is better);
-2.  Indifference curves *do not cross* (transitivity - preferences are consistent);
-3.  Indifference curves are *bowed inward* (convexity - love of variety).
+1.  Indifference curves slope *downward* (monotonicity - more is better);  
+2.  Indifference curves *do not cross* (transitivity - preferences are consistent);  
+3.  Indifference curves are *bowed inward* (convexity - love of variety; diminishing returns).  
 
 ## Marginal Rate of Substitution (MRS)
 
 At any point along an indifference curve, the *slope* of the curve represents the consumer's willingness to trade one good for the other and remain equally happy (indifferent). 
 
 ```{r, fig.height=6, fig.width=6}
-x <- seq(1, 55, 0.01)
-u_0 <- 100 / x
-top <- 55 + 0 * x
-plot(
-  x,
-  u_0,
-  type = 'l',
-  xlim = c(0, 50),
-  ylim = c(0, 50),
-  xlab = 'Donuts',
-  ylab = 'Beer', 
-  col = 'red'
-)
-points(x = 10, y = 10, pch = 20)
-segments(
-  x0 = 7.5,
-  x1 = 12.5,
-  y0 = 12.5,
-  y1 = 7.5
-)
-segments(
-  x0 = 7.5,
-  x1 = 7.5,
-  y0 = 12.5, 
-  y1 = 7.5
-)
-segments(
-  x0 = 7.5,
-  x1 = 12.5,
-  y0 = 7.5, 
-  y1 = 7.5
-)
-text(x = 11, y = 11, "x")
-text(x = 4, y = 10, expression(paste(Delta, "Beer")))
-text(x = 10, y = 6, expression(paste(Delta, "Donuts")))
+u = 100
+x1 <- seq(2, 50, by = 0.01)
+i0 <- u/x1
+ggplot() + 
+  geom_function(fun = function(x) u/x, color = 'blue') + 
+  geom_point(aes(x = 10, y = 10)) +
+  geom_polygon(aes(x = c(7.5, 7.5, 12.5), y = c(12.5, 7.5, 7.5)), color = 'black', fill = NA) + 
+  geom_text(aes(x = 10, y = 10), label = 'x', hjust = 1, vjust = 1) + 
+  geom_text(aes(x = 5, y = 10), label = expression(paste(Delta, "Beer"))) + 
+  geom_text(aes(x = 10, y = 6.5), label = expression(paste(Delta, "Donuts"))) + 
+  lims(x = c(0,50), y = c(0,50)) + 
+  labs(x = "Beer", y = "Donuts") 
 ```
 
 <details style="line-height:105%"><summary>Click here to see the code for the graph.<p></p></summary>
-`plot(x, u_0, type = 'l', xlim = c(0, 50), ylim = c(0, 50),`
-&nbsp;&nbsp;`xlab = 'Donuts', ylab = 'Beer', col = 'red')`
-`points(x = 10, y = 10, pch = 20)`
-`segments(x0 = 7.5, x1 = 12.5, y0 = 12.5, y1 = 7.5)`
-`segments(x0 = 7.5, x1 = 7.5, y0 = 12.5,  y1 = 7.5)`
-`segments(x0 = 7.5, x1 = 12.5, y0 = 7.5,  y1 = 7.5)`
-`text(x = 9.5, y = 9.5, "x")`
-`text(x = 5.5, y = 10, expression(paste(Delta, "Beer")))`
-`text(x = 10, y = 6.5, expression(paste(Delta, "Donuts")))`<br><br>
+```{r, fig.height = 5, fig.width = 5, echo = TRUE, results = 'hide', fig.show = 'hide'}
+u = 100
+x1 <- seq(2, 50, by = 0.01)
+i0 <- u/x1
+ggplot() + 
+  geom_function(fun = function(x) u/x, color = 'blue') + 
+  geom_point(aes(x = 10, y = 10)) +
+  geom_polygon(aes(x = c(7.5, 7.5, 12.5), y = c(12.5, 7.5, 7.5)), color = 'black', fill = NA) + 
+  geom_text(aes(x = 10, y = 10), label = 'x', hjust = 1, vjust = 1) + 
+  geom_text(aes(x = 5, y = 10), label = expression(paste(Delta, "Beer"))) + 
+  geom_text(aes(x = 10, y = 6.5), label = expression(paste(Delta, "Donuts"))) + 
+  lims(x = c(0,50), y = c(0,50)) + 
+  labs(x = "Beer", y = "Donuts") 
+```
 </details>
 
 This willingness to trade off one good for another is called the *marginal rate of substitution*. 
@@ -300,187 +198,83 @@ This willingness to trade off one good for another is called the *marginal rate 
 ### Perfect Substitutes
 
 ```{r, fig.height = 5, fig.width = 5}
-curve(
-  10 - x,
-  from = 0,
-  to = 10,
-  xlim = c(0, 60),
-  ylim = c(0, 60),
-  col = 'red',
-  xlab = 'Donuts',
-  ylab = 'Beer', 
-  main = 'Beer and Donuts are Perfect Substitutes'
-)
-curve(
-  20 - x,
-  from = 0,
-  to = 20,
-  col = 'orange',
-  add = TRUE
-)
-curve(
-  30 - x,
-  from = 0,
-  to = 30,
-  col = 'yellow',
-  add = TRUE
-)
-curve(
-  40 - x,
-  from = 0,
-  to = 40,
-  col = 'green',
-  add = TRUE
-)
-curve(
-  50 - x,
-  from = 0,
-  to = 50,
-  col = 'blue',
-  add = TRUE
-)
-curve(
-  60 - x,
-  from = 0,
-  to = 60,
-  col = 'violet',
-  add = TRUE
-)
-arrows(
-  x0 = 5,
-  x1 = 30,
-  y0 = 5,
-  y1 = 30,
-  col = 'black'
-)
+u = seq(10, 60, 10)
+ggplot() +
+  geom_function(fun = function(x) u[1] - x, color = 'red') + 
+  geom_function(fun = function(x) u[2] - x, color = 'orange') + 
+  geom_function(fun = function(x) u[3] - x, color = 'yellow') + 
+  geom_function(fun = function(x) u[4] - x, color = 'green') + 
+  geom_function(fun = function(x) u[5] - x, color = 'blue') + 
+  geom_function(fun = function(x) u[6] - x, color = 'violet') + 
+  geom_segment(aes(x = 5, xend = 30, y = 5, yend = 30), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,60), y = c(0,60)) +
+  labs(x = "Beer", y = "Donuts", title = "Beer and Donuts are Perfect Substitutes")
 ```
 
-<details style="line-height:105%"><summary>Click here to see the code for the graph.<p></p></summary>
-`curve(10 - x, from=0, to=10, xlim=c(0, 60), ylim=c(0, 60), col='red',` 
-&nbsp;&nbsp;`xlab='Donuts', ylab='Beer',  main='Beer and Donuts are Perfect Substitutes')`
-`curve(20 - x, from=0, to=20, col='orange', add=TRUE)`
-`curve(30 - x, from=0, to=30, col='yellow', add=TRUE)`
-`curve(40 - x, from=0, to=30, col='green', add=TRUE)`
-`curve(50 - x, from=0, to=30, col='blue', add=TRUE)`
-`curve(60 - x, from=0, to=30, col='violet', add=TRUE)`
-`arrows(x0=5, x1=30, y0=5, y1=30, col='black')`<br><br>
+<details style="line-height:105%">
+<summary>Click here to see the code for the graph.<p></p></summary>
+```{r, fig.height = 5, fig.width = 5, echo = TRUE, results = 'hide', fig.show = 'hide'}
+u = seq(10, 60, 10)
+ggplot() +
+  geom_function(fun = function(x) u[1] - x, color = 'red') + 
+  geom_function(fun = function(x) u[2] - x, color = 'orange') + 
+  geom_function(fun = function(x) u[3] - x, color = 'yellow') + 
+  geom_function(fun = function(x) u[4] - x, color = 'green') + 
+  geom_function(fun = function(x) u[5] - x, color = 'blue') + 
+  geom_function(fun = function(x) u[6] - x, color = 'violet') + 
+  geom_segment(aes(x = 5, xend = 30, y = 5, yend = 30), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,60), y = c(0,60)) +
+  labs(x = "Beer", y = "Donuts", title = "Beer and Donuts are Perfect Substitutes")
+```
+<br>
 </details>
 
 ### Perfect Complements
 
 ```{r, fig.height = 5, fig.width = 5}
-plot(
-  x = c(rep(10, 11)),
-  y = c(seq(10, 80, 7)),
-  type = 'l',
-  xlim = c(0, 80),
-  ylim = c(0, 80),
-  xlab = 'Donuts',
-  ylab = 'Beer',
-  col = 'red', 
-  main = 'Beer and Donuts are Perfect Complements'
-) 
-segments(
-  x0 = 10, 
-  x1 = 80, 
-  y0 = 10, 
-  y1 = 10, 
-  col = 'red'
-)
-segments(
-  x0 = 20, 
-  x1 = 20, 
-  y0 = 20, 
-  y1 = 80, 
-  col = 'orange'
-)
-segments(
-  x0 = 20, 
-  x1 = 80, 
-  y0 = 20, 
-  y1 = 20, 
-  col = 'orange'
-)
-segments(
-  x0 = 30, 
-  x1 = 30, 
-  y0 = 30, 
-  y1 = 80, 
-  col = 'yellow'
-)
-segments(
-  x0 = 30, 
-  x1 = 80, 
-  y0 = 30, 
-  y1 = 30, 
-  col = 'yellow'
-)
-segments(
-  x0 = 40, 
-  x1 = 40, 
-  y0 = 40, 
-  y1 = 80, 
-  col = 'green'
-)
-segments(
-  x0 = 40, 
-  x1 = 80, 
-  y0 = 40, 
-  y1 = 40, 
-  col = 'green'
-)
-segments(
-  x0 = 50, 
-  x1 = 50, 
-  y0 = 50, 
-  y1 = 80, 
-  col = 'blue'
-)
-segments(
-  x0 = 50, 
-  x1 = 80, 
-  y0 = 50, 
-  y1 = 50, 
-  col = 'blue'
-)
-segments(
-  x0 = 60, 
-  x1 = 60, 
-  y0 = 60, 
-  y1 = 80, 
-  col = 'violet'
-)
-segments(
-  x0 = 60, 
-  x1 = 80, 
-  y0 = 60, 
-  y1 = 60, 
-  col = 'violet'
-)
-arrows(
-  x0 = 10,
-  x1 = 60,
-  y0 = 10,
-  y1 = 60,
-  col = 'black'
-)
+ggplot() + 
+  geom_segment(aes(x = 10, xend = 10, y = 10, yend = 80), color = 'red') +
+  geom_segment(aes(x = 10, xend = 80, y = 10, yend = 10), color = 'red') +
+  geom_segment(aes(x = 20, xend = 20, y = 20, yend = 80), color = 'orange') +
+  geom_segment(aes(x = 20, xend = 80, y = 20, yend = 20), color = 'orange') +
+  geom_segment(aes(x = 30, xend = 30, y = 30, yend = 80), color = 'yellow') +
+  geom_segment(aes(x = 30, xend = 80, y = 30, yend = 30), color = 'yellow') +
+  geom_segment(aes(x = 40, xend = 40, y = 40, yend = 80), color = 'green') +
+  geom_segment(aes(x = 40, xend = 80, y = 40, yend = 40), color = 'green') +
+  geom_segment(aes(x = 50, xend = 50, y = 50, yend = 80), color = 'blue') +
+  geom_segment(aes(x = 50, xend = 80, y = 50, yend = 50), color = 'blue') +
+  geom_segment(aes(x = 60, xend = 60, y = 60, yend = 80), color = 'violet') +
+  geom_segment(aes(x = 60, xend = 80, y = 60, yend = 60), color = 'violet') +
+  geom_segment(aes(x = 10, xend = 60, y = 10, yend = 60), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,80), y = c(0,80)) +
+  labs(x = "Beer", y = "Donuts", title = "Beer and Donuts are Perfect Complements")
 ```
 
-<details style="line-height:105%"><summary>Click here to see the code for the graph.<p></p></summary>
-`plot(x=c(rep(10, 11)), y=c(seq(10, 80, 7)), type='l', xlim=c(0, 80), ylim=c(0, 80), col='red',`
-&nbsp;&nbsp;`xlab='Donuts', ylab='Beer', main='Beer and Donuts are Perfect Complements')` 
-`segments(x0=10, x1=80, y0=10, y1=10, col='red')`
-`segments(x0=20, x1=20, y0=20, y1=80, col='orange')`
-`segments(x0=20, x1=80, y0=20, y1=20, col='orange')`
-`segments(x0=30, x1=30, y0=30, y1=80, col='yellow')`
-`segments(x0=30, x1=80, y0=30, y1=30, col='yellow')`
-`segments(x0=40, x1=40, y0=40, y1=80, col='green')`
-`segments(x0=40, x1=80, y0=40, y1=40, col='green')`
-`segments(x0=50, x1=50, y0=50, y1=80, col='blue')`
-`segments(x0=50, x1=80, y0=50, y1=50, col='blue')`
-`segments(x0=60, x1=60, y0=60, y1=80, col='violet')`
-`segments(x0=60, x1=80, y0=60, y1=60, col='violet')`
-`arrows(x0=10, x1=60, y0=10, y1=60, col='black')`<br><br>
+<details style="line-height:105%">
+<summary>Click here to see the code for the graph.<p></p></summary>
+```{r, fig.height = 5, fig.width = 5, echo = TRUE, results = 'hide', fig.show = 'hide'}
+ggplot() + 
+  geom_segment(aes(x = 10, xend = 10, y = 10, yend = 80), color = 'red') +
+  geom_segment(aes(x = 10, xend = 80, y = 10, yend = 10), color = 'red') +
+  geom_segment(aes(x = 20, xend = 20, y = 20, yend = 80), color = 'orange') +
+  geom_segment(aes(x = 20, xend = 80, y = 20, yend = 20), color = 'orange') +
+  geom_segment(aes(x = 30, xend = 30, y = 30, yend = 80), color = 'yellow') +
+  geom_segment(aes(x = 30, xend = 80, y = 30, yend = 30), color = 'yellow') +
+  geom_segment(aes(x = 40, xend = 40, y = 40, yend = 80), color = 'green') +
+  geom_segment(aes(x = 40, xend = 80, y = 40, yend = 40), color = 'green') +
+  geom_segment(aes(x = 50, xend = 50, y = 50, yend = 80), color = 'blue') +
+  geom_segment(aes(x = 50, xend = 80, y = 50, yend = 50), color = 'blue') +
+  geom_segment(aes(x = 60, xend = 60, y = 60, yend = 80), color = 'violet') +
+  geom_segment(aes(x = 60, xend = 80, y = 60, yend = 60), color = 'violet') +
+  geom_segment(aes(x = 10, xend = 60, y = 10, yend = 60), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,80), y = c(0,80)) +
+  labs(x = "Beer", y = "Donuts", title = "Beer and Donuts are Perfect Complements")
+```
+<br>
 </details>
 
 ### Neutral Goods
@@ -490,69 +284,37 @@ knitr::include_graphics("images/NonAlcoholicBeer.jpg")
 ```
 
 ```{r, fig.height = 5, fig.width = 5}
-plot(
-  x = c(rep(10, 11)),
-  y = c(seq(0, 60, 6)),
-  type = 'l',
-  xlim = c(0, 60),
-  ylim = c(0, 60),
-  xlab = 'Donuts',
-  ylab = 'Non-Alcoholic Beer',
-  col = 'red', 
-  main = 'Non-Alcoholic Beer is a Neutral Good'
-) 
-segments(
-  x0 = 20, 
-  x1 = 20, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'orange'
-)
-segments(
-  x0 = 30, 
-  x1 = 30, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'yellow'
-)
-segments(
-  x0 = 40, 
-  x1 = 40, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'green'
-)
-segments(
-  x0 = 50, 
-  x1 = 50, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'blue'
-)
-segments(
-  x0 = 60, 
-  x1 = 60, 
-  y0 = 0, 
-  y1 = 60, 
-  col = 'violet'
-)
-arrows(
-  x0 = 10, 
-  x1 = 60, 
-  y0 = 30, 
-  y1 = 30
-)
+u = seq(10, 60, 10)
+ggplot() +
+  geom_vline(xintercept = u[1], color = 'red') + 
+  geom_vline(xintercept = u[2], color = 'orange') + 
+  geom_vline(xintercept = u[3], color = 'yellow') + 
+  geom_vline(xintercept = u[4], color = 'green') + 
+  geom_vline(xintercept = u[5], color = 'blue') + 
+  geom_vline(xintercept = u[6], color = 'violet') + 
+  geom_segment(aes(x = 10, xend = 60, y = 30, yend = 30), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,80), y = c(0,80)) +
+  labs(x = "Beer", y = "Donuts", title = "Non-Alchoholic Beer is a Neutral Good")
 ```
 
-<details style="line-height:105%"><summary>Click here to see the code for the graph.<p></p></summary>
-`plot(x=c(rep(10, 11)), y=c(seq(0, 60, 6)), type='l', xlim=c(0, 60), ylim=c(0, 60), col='red',`
-&nbsp;&nbsp;`xlab='Donuts', ylab='Non-Alcoholic Beer', main='Non-Alcoholic Beer is a Neutral Good')`
-`segments(x0=20, x1=20, y0=0, y1=60, col='orange')`
-`segments(x0=30, x1=30, y0=0, y1=60, col='yellow')`
-`segments(x0=40, x1=40, y0=0, y1=60, col='green')`
-`segments(x0=50, x1=50, y0=0, y1=60, col='blue')`
-`segments(x0=60, x1=60, y0=0, y1=60, col='violet')`
-`arrows(x0=10, x1=60, y0=30, y1=30)`<br><br>
+<details style="line-height:105%">
+<summary>Click here to see the code for the graph.<p></p></summary>
+```{r, fig.height = 5, fig.width = 5, echo = TRUE, results = 'hide', fig.show = 'hide'}
+u = seq(10, 60, 10)
+ggplot() +
+  geom_vline(xintercept = u[1], color = 'red') + 
+  geom_vline(xintercept = u[2], color = 'orange') + 
+  geom_vline(xintercept = u[3], color = 'yellow') + 
+  geom_vline(xintercept = u[4], color = 'green') + 
+  geom_vline(xintercept = u[5], color = 'blue') + 
+  geom_vline(xintercept = u[6], color = 'violet') + 
+  geom_segment(aes(x = 10, xend = 60, y = 30, yend = 30), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,80), y = c(0,80)) +
+  labs(x = "Beer", y = "Donuts", title = "Non-Alchoholic Beer is a Neutral Good")
+```
+<br>
 </details>
 
 ### Economic Bads
@@ -562,67 +324,35 @@ knitr::include_graphics("images/Pants.jpg")
 ```
 
 ```{r, fig.height = 5, fig.width = 5}
-plot(
-  x = c(seq(10, 20, 1)),
-  y = c(seq(0, 70, 7)),
-  type = 'l',
-  xlim = c(0, 70),
-  ylim = c(0, 70),
-  xlab = 'Donuts',
-  ylab = 'Pants',
-  col = 'red', 
-  main = 'Pants as an Economic Bad'
-) 
-segments(
-  x0 = 20, 
-  x1 = 30, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'orange'
-)
-segments(
-  x0 = 30, 
-  x1 = 40, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'yellow'
-)
-segments(
-  x0 = 40, 
-  x1 = 50, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'green'
-)
-segments(
-  x0 = 50, 
-  x1 = 60, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'blue'
-)
-segments(
-  x0 = 60, 
-  x1 = 70, 
-  y0 = 0, 
-  y1 = 70, 
-  col = 'violet'
-)
-arrows(
-  x0 = 15.7, 
-  x1 = 64.2, 
-  y0 = 40, 
-  y1 = 30
-)
+u = seq(10, 60, 10)
+ggplot() +
+  geom_function(fun = function(x) (-7*u[1]) + 7*x, color = 'red') + 
+  geom_function(fun = function(x) (-7*u[2]) + 7*x, color = 'orange') + 
+  geom_function(fun = function(x) (-7*u[3]) + 7*x, color = 'yellow') + 
+  geom_function(fun = function(x) (-7*u[4]) + 7*x, color = 'green') + 
+  geom_function(fun = function(x) (-7*u[5]) + 7*x, color = 'blue') + 
+  geom_function(fun = function(x) (-7*u[6]) + 7*x, color = 'violet') + 
+  geom_segment(aes(x = 15, xend = 64, y = 35, yend = 27), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,80), y = c(0,80)) +
+  labs(x = "Beer", y = "Donuts", title = "Pants are an Economic Bad")
 ```
 
-<details style="line-height:105%"><summary>Click here to see the code for the graph.<pr></p></summary>
-`plot(x=c(seq(10, 20, 1)), y=c(seq(0, 70, 7)), type='l', xlim=c(0, 70), ylim=c(0, 70),`
-&nbsp;&nbsp;`col='red', xlab='Donuts', ylab='Pants', main='Pants as an Economic Bad')`
-`segments(x0=20, x1=30, y0=0, y1=70, col='orange')`
-`segments(x0=30, x1=40, y0=0, y1=70, col='yellow')`
-`segments(x0=40, x1=50, y0=0, y1=70, col='green')`
-`segments(x0=50, x1=60, y0=0, y1=70, col='blue')`
-`segments(x0=60, x1=70, y0=0, y1=70, col='violet')`
-`arrows(x0=10, x1=70, y0=40, y1=30)`<br><br>
+<details style="line-height:105%">
+<summary>Click here to see the code for the graph.<p></p></summary>
+```{r, fig.height = 5, fig.width = 5, echo = TRUE, results = 'hide', fig.show = 'hide'}
+u = seq(10, 60, 10)
+ggplot() +
+  geom_function(fun = function(x) (-7*u[1]) + 7*x, color = 'red') + 
+  geom_function(fun = function(x) (-7*u[2]) + 7*x, color = 'orange') + 
+  geom_function(fun = function(x) (-7*u[3]) + 7*x, color = 'yellow') + 
+  geom_function(fun = function(x) (-7*u[4]) + 7*x, color = 'green') + 
+  geom_function(fun = function(x) (-7*u[5]) + 7*x, color = 'blue') + 
+  geom_function(fun = function(x) (-7*u[6]) + 7*x, color = 'violet') + 
+  geom_segment(aes(x = 15, xend = 64, y = 35, yend = 27), 
+               arrow = arrow(length = unit(0.4, 'cm'))) +
+  lims(x = c(0,80), y = c(0,80)) +
+  labs(x = "Beer", y = "Donuts", title = "Pants are an Economic Bad")
+```
+<br>
 </details>

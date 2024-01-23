@@ -26,12 +26,10 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
+library(ggcheck)
 gradethis_setup()
 tutorial_options(exercise.reveal_solution = TRUE, exercise.eval = FALSE, exercise.checker = gradethis_exercise_checker)
-new_recorder <- function(tutorial_id, tutorial_version, user_id, event, data) {
-    cat(tutorial_id, " (", tutorial_version, "): ", user_id, ", ", event, ", ", data$label, ", ", data$answers, ", ", data$correct, "\n", sep = "")
-}
-options(tutorial.event_recorder = new_recorder)
+options(tutorial.event_recorder = learnr:::debug_event_recorder)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6.5, fig.width = 8.5)
 ```
 
@@ -41,31 +39,34 @@ knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6.5, fig.
 
 The outer boundary of the budget constraint is sometimes called the budget *line*. The equation for this line is:
 $$p_1x_1 + p_2x_2 = m$$
-Graph a budget line for the quantity of beer, $q_b$, and the quantity of donuts, $q_d$, with $p_b = 2$, $p_d = 1$, and $m = 20$. Use objects to define the parameters. Orient the graph with beer on the x-axis and donuts on the y-axis.
+Use `ggplot()` to graph a budget line for the quantity of beer, $q_b$, and the quantity of donuts, $q_d$, with $p_b = 2$, $p_d = 1$, and $m = 20$.  
+
+Use objects to define the parameters. Orient the graph with beer on the x-axis and donuts on the y-axis, label the axes "Beer" and "Donuts," and set the limits for the axes from zero to the x and y intercepts of the budget line.  
+
+Assign the plot to an object named `b` so that you can add more features. 
 
 ```{r budgetLine, exercise = TRUE}
 
 ```
 
-```{r budgetLine-solution}
+```{r budgetLine-solution, warning=FALSE, message = FALSE}
+library(ggplot2)
 m = 20
 p_d = 1
 p_b = 2
-curve(
-  m / p_d - p_b * x / p_d,
-  from = 0,
-  to = m / p_b,
-  xlab = "Beer",
-  ylab = "Donuts"
-)
+b <- ggplot() + 
+  geom_function(fun = function(x) m / p_d - p_b * x / p_d) + 
+  lims(x = c(0, m/p_b), y = c(0, m/p_d)) + 
+  labs(x = "Beer", y = "Donuts")
+b
 ```
 
 ```{r budgetLine-check}
-grade_this({if (!inherits(.result, c("list"))) {
-    fail("Your class of your answer should be a list")}
-  if (.result$y[1] != 20) { 
-    fail("The y-intercept should equal 20.") }
-  pass()
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
 })
 ```
 
@@ -74,32 +75,38 @@ grade_this({if (!inherits(.result, c("list"))) {
 The entire set of affordable options is sometimes called the budget *set*. This set is defined by the region *under* the budget line with the inequality:
 $$p_1x_1 + p_2x_2 \le m$$
 
-Re-plot the budget line from the previous example. Then use the `polygon` function to add the budget *set* for the budget line you graphed in the previous exercise. Use light blue as your fill color. (Hint: specify the x-coordinates of the triangle enclosed by the budget set followed by the corresponding y-coordinates.)
+Re-plot the budget line from the previous example. Then use the `geom_polygon` function to add the budget *set* for the budget line you graphed in the previous exercise. Specify the `aes()` aesthetics with x and y equal to the vertices of the triangle enclosed by the budget set. Use light blue as your `fill` color. You can further jazz up the fill using the `alpha(color, proportion)` function for the fill to make the fill semi-transparent.
+
+You do not need to store the new layer as part of `b`. We will want to add other things to `b` and it might be useful to
 
 ```{r budgetSet, exercise = TRUE}
-curve(
-  m / p_d - p_b * x / p_d,
-  from = 0,
-  to = m / p_b,
-  xlab = "Beer",
-  ylab = "Donuts"
-)
-# Add polygon function here.
+
 ```
 
-```{r budgetSet-solution}
-curve(
-  m / p_d - p_b * x / p_d,
-  from = 0,
-  to = m / p_b,
-  xlab = "Beer",
-  ylab = "Donuts"
-)
-polygon(x = c(0, 0, m/p_b), y = c(m/p_d, 0, 0), col = 'lightblue')
+```{r budgetSet-setup, warning=FALSE, message = FALSE}
+library(ggplot2)
+m = 20
+p_d = 1
+p_b = 2
+b <- ggplot() + 
+  geom_function(fun = function(x) m / p_d - p_b * x / p_d) + 
+  lims(x = c(0, m/p_b), y = c(0, m/p_d)) + 
+  labs(x = "Beer", y = "Donuts")
+```
+
+```{r budgetSet-solution, warning=FALSE, message = FALSE}
+b + 
+  geom_polygon(aes(x = c(0, 0, m/p_b), y = c(0, m/p_d, 0)), 
+               fill = alpha('pink', 0.3))
 ```
 
 ```{r budgetSet-check}
-grade_code() 
+grade_this({
+  if (ith_geom_is(.result, "polygon", i = 2)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
 ```
 
 Note: there is an implicit constraint that the quantities of beer and donuts are both greater than zero. In most cases we are able to ignore these constraints, but some problems lead to "corner solutions" in which consumers only consume one good and would consume negative amounts of the other good (in other words sell?) if possible. 
@@ -119,36 +126,37 @@ question(
 )
 ```
 
-Plot the old budget line, and add the new budget line for an increase in the price of donuts to $2 (p_d_new = 2) in <span style="color: red;">red</span>.
+Add the new budget line for an increase in the price of donuts to $2 in <span style="color: red;">red</span>.
+
+Do not store the new layer in `p`; just print the graph.
 
 ```{r priceIncrease, exercise = TRUE}
 
 ```
 
-```{r priceIncrease-solution}
+```{r priceIncrease-setup, warning=FALSE, message = FALSE}
+library(ggplot2)
+m = 20
+p_d = 1
+p_b = 2
+b <- ggplot() + 
+  geom_function(fun = function(x) m / p_d - p_b * x / p_d) + 
+  lims(x = c(0, m/p_b), y = c(0, m/p_d)) + 
+  labs(x = "Beer", y = "Donuts")
+```
+
+```{r priceIncrease-solution, warning=FALSE, message = FALSE}
 p_b_new = 2.5
-curve(
-  m / p_d - p_b * x / p_d,
-  from = 0,
-  to = m / p_b,
-  xlab = "Beer",
-  ylab = "Donuts"
-)
-curve(
-  m / p_d - p_b_new * x / p_d,
-  from = 0,
-  to = m / p_b_new,
-  add = TRUE,
-  col = 'red'
-)
+b + 
+  geom_function(fun = function(x) m/p_d - p_b_new*x/p_d, color = 'red') 
 ```
 
 ```{r priceIncrease-check}
-grade_this({if (!inherits(.result, c("list"))) {
-    fail("Your class of your answer should be a list")}
-  if (.result$x[101] != 20) { 
-    fail("The new x-intercept should equal 8.") }
-  pass()
+grade_this({
+  if (ith_geom_is(.result, "function", i = 2)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
 })
 ```
 
@@ -171,30 +179,29 @@ Plot the old budget line, and add the new budget line for an decrease in income 
 
 ```
 
-```{r incomeDecrease-solution}
+```{r incomeDecrease-setup, warning=FALSE, message = FALSE}
+library(ggplot2)
+m = 20
+p_d = 1
+p_b = 2
+b <- ggplot() + 
+  geom_function(fun = function(x) m / p_d - p_b * x / p_d) + 
+  lims(x = c(0, m/p_b), y = c(0, m/p_d)) + 
+  labs(x = "Beer", y = "Donuts")
+```
+
+```{r incomeDecrease-solution, warning=FALSE, message = FALSE}
 m_new = 15
-curve(
-  m / p_d - p_b * x / p_d,
-  from = 0,
-  to = m / p_b,
-  xlab = "Beer",
-  ylab = "Donuts"
-)
-curve(
-  m_new / p_d - p_b * x / p_d,
-  from = 0,
-  to = m_new / p_b,
-  add = TRUE,
-  col = 'red'
-)
+b + 
+  geom_function(fun = function(x) m_new/p_d - p_b*x/p_d, color = 'red') 
 ```
 
 ```{r incomeDecrease-check}
-grade_this({if (!inherits(.result, c("list"))) {
-    fail("Your class of your answer should be a list")}
-  if (.result$y[1] != 20) { 
-    fail("The new y-intercept should equal 15.") }
-  pass()
+grade_this({
+  if (ith_geom_is(.result, "function", i = 2)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
 })
 ```
 
@@ -205,109 +212,87 @@ grade_this({if (!inherits(.result, c("list"))) {
 Suppose that the donut shop has a pricing schedule of \$1 per donut for the first dozen and $0.75 thereafter. Graph the budget line for this consumer using the original parameters. (Hint: This budget line will have multiple segments and you will have to think carefully about how to define each one.) Run the following code to plot this budget line in <span style="color: green;">green</span>. 
 
 ```{r volumeDiscount, exercise = TRUE}
-m = 20
-p_d = 1       # The low-volume price of a donut
 q_d_v = 12    # The donut threshold for a volume discount
 p_d_v = 0.75  # The volume-discounted price of a donut
-p_b = 2       # The price of beer
-curve(
-  m / p_d_v - q_d_v * ((p_d - p_d_v) / p_d_v) - p_b * x / p_d_v,
-  from = 0,
-  to = (m - p_d * q_d_v) / p_b,
-  xlab = "Beer",
-  ylab = "Donuts",
-  xlim = c(0, m / p_b),
-  ylim = c(0, m / p_d_v)
-)
-segments(
-  x0 = (m - p_d * q_d_v) / p_b,
-  x1 = m / p_b,
-  y0 = q_d_v,
-  y1 = 0
-)
+ggplot() + 
+  geom_function(
+    fun = function(x) m / p_d_v - q_d_v * ((p_d - p_d_v) / p_d_v) - p_b * x / p_d_v, 
+    xlim = c(0, (m - p_d*q_d_v)/p_b)) + 
+  geom_function(
+    fun = function(x) m / p_d - p_b * x / p_d, 
+    xlim = c((m - p_d*q_d_v)/p_b, m/p_b)) + 
+  lims(x = c(0, m/p_b), y = c(0, m / p_d_v - q_d_v * ((p_d - p_d_v) / p_d_v))) + 
+  labs(x = "Beer", y = "Donuts")
 ```
 
-```{r volumeDiscount-solution}
+```{r volumeDiscount-setup, warning=FALSE, message = FALSE}
+library(ggplot2)
 m = 20
 p_d = 1       # The low-volume price of a donut
+p_b = 2       # The price of beer
+```
+
+```{r volumeDiscount-solution, warning=FALSE, message = FALSE}
 q_d_v = 12    # The donut threshold for a volume discount
 p_d_v = 0.75  # The volume-discounted price of a donut
-p_b = 2       # The price of beer
-curve(
-  m / p_d_v - q_d_v * ((p_d - p_d_v) / p_d_v) - p_b * x / p_d_v,
-  from = 0,
-  to = (m - p_d * q_d_v) / p_b,
-  xlab = "Beer",
-  ylab = "Donuts",
-  xlim = c(0, m / p_b),
-  ylim = c(0, m / p_d_v)
-)
-segments(
-  x0 = (m - p_d * q_d_v) / p_b,
-  x1 = m / p_b,
-  y0 = q_d_v,
-  y1 = 0
-)
+ggplot() + 
+  geom_function(
+    fun = function(x) m / p_d_v - q_d_v * ((p_d - p_d_v) / p_d_v) - p_b * x / p_d_v, 
+    xlim = c(0, (m - p_d*q_d_v)/p_b)) + 
+  geom_function(
+    fun = function(x) m / p_d - p_b * x / p_d, 
+    xlim = c((m - p_d*q_d_v)/p_b, m/p_b)) + 
+  lims(x = c(0, m/p_b), y = c(0, m / p_d_v - q_d_v * ((p_d - p_d_v) / p_d_v))) + 
+  labs(x = "Beer", y = "Donuts")
+```
+
+```{r volumeDiscount-check}
+grade_code() 
 ```
 
 What would it look like if the volume discount applied to the *entire* purchase greater than 12? 
 
 ```{r volumeDiscount2, exercise = TRUE}
-m = 20
-p_d = 1       # The low-volume price of a donut
-q_d_v = 12    # The donut threshold for a volume discount
-p_d_v = 0.75  # The volume-discounted price of a donut
-p_b = 2       # The price of beer
-curve(
-  m / p_d_v - p_b * x / p_d_v,
-  from = 0,
-  to = (m - p_d * q_d_v) / p_b,
-  xlab = "Beer",
-  ylab = "Donuts",
-  xlim = c(0, m / p_b),
-  ylim = c(0, m / p_d_v)
-)
-segments(
-  x0 = (m - p_d * q_d_v) / p_b,
-  x1 = (m - p_d * q_d_v) / p_b,
-  y0 = q_d_v,
-  y1 = q_d_v * p_d/p_d_v
-)
-segments(
-  x0 = (m - p_d * q_d_v) / p_b,
-  x1 = m / p_b,
-  y0 = q_d_v,
-  y1 = 0
-)
+ggplot() + 
+  geom_function(
+    fun = function(x) m / p_d_v - p_b * x / p_d_v, 
+    xlim = c(0, m/p_b - p_d*q_d_v/p_b)) +
+  geom_function(
+    fun = function(x) m / p_d - p_b * x / p_d, 
+    xlim = c((m - p_d*q_d_v)/p_b, m/p_b)) + 
+  geom_segment(
+    aes(x = m/p_b - p_d*q_d_v/p_b, xend = m/p_b - p_d*q_d_v/p_b, 
+        y = q_d_v, yend = q_d_v*p_d/p_d_v)) +
+  lims(x = c(0, m/p_b), y = c(0, m/p_d_v)) +
+  labs(x = "Beer", y = "Donuts")
 ```
 
-```{r volumeDiscount2-solution}
+```{r volumeDiscount2-setup, warning=FALSE, message = FALSE}
+library(ggplot2)
 m = 20
 p_d = 1       # The low-volume price of a donut
+p_b = 2       # The price of beer
 q_d_v = 12    # The donut threshold for a volume discount
 p_d_v = 0.75  # The volume-discounted price of a donut
-p_b = 2       # The price of beer
-curve(
-  m / p_d_v - p_b * x / p_d_v,
-  from = 0,
-  to = (m - p_d * q_d_v) / p_b,
-  xlab = "Beer",
-  ylab = "Donuts",
-  xlim = c(0, m / p_b),
-  ylim = c(0, m / p_d_v)
-)
-segments(
-  x0 = (m - p_d * q_d_v) / p_b,
-  x1 = (m - p_d * q_d_v) / p_b,
-  y0 = q_d_v,
-  y1 = q_d_v * p_d/p_d_v
-)
-segments(
-  x0 = (m - p_d * q_d_v) / p_b,
-  x1 = m / p_b,
-  y0 = q_d_v,
-  y1 = 0
-)
+```
+
+```{r volumeDiscount2-solution, warning=FALSE, message = FALSE}
+ggplot() + 
+  geom_function(
+    fun = function(x) m / p_d_v - p_b * x / p_d_v, 
+    xlim = c(0, m/p_b - p_d*q_d_v/p_b)) +
+  geom_function(
+    fun = function(x) m / p_d - p_b * x / p_d, 
+    xlim = c((m - p_d*q_d_v)/p_b, m/p_b)) + 
+  geom_segment(
+    aes(x = m/p_b - p_d*q_d_v/p_b, xend = m/p_b - p_d*q_d_v/p_b, 
+        y = q_d_v, yend = q_d_v*p_d/p_d_v)) +
+  lims(x = c(0, m/p_b), y = c(0, m/p_d_v)) +
+  labs(x = "Beer", y = "Donuts")
+```
+
+```{r volumeDiscount2-check}
+grade_code() 
 ```
 
 ### BOGO Pricing
@@ -317,128 +302,74 @@ Suppose that the donut shop has a pricing schedule of \$1 per single donut or a 
 ```{r bogo, exercise = TRUE}
 bo <- 5
 go <- 1
-curve(
-  m / p_d - p_b * x / p_d,
-  from = m / p_b - p_d * bo / p_b,
-  to = m / p_b,
-  xlab = "Beer",
-  ylab = "Donuts",
-  col = "green",
-  xlim = c(0, m / p_b), 
-  ylim = c(0, floor((m/p_d)/bo) + m / p_d)
-)
-segments(
-  x0 = m / p_b - p_d * bo / p_b,
-  x1 = m / p_b - p_d * bo / p_b, 
-  y0 = bo,
-  y1 = bo + go,
-  col = "green"
-)
-segments(
-  x0 = m / p_b - p_d * bo / p_b, 
-  x1 = m / p_b - p_d * 2*bo / p_b,
-  y0 = bo + go,
-  y1 = 2*bo + go, 
-  col = "green"
-)
-segments(
-  x0 = m / p_b - p_d * 2*bo / p_b,
-  x1 = m / p_b - p_d * 2*bo / p_b, 
-  y0 = 2*bo + go,
-  y1 = 2*(bo + go),
-  col = "green"
-)
-segments(
-  x0 = m / p_b - p_d * 2*bo / p_b, 
-  x1 = m / p_b - p_d * 3*bo / p_b,
-  y0 = 2*(bo + go),
-  y1 = 3*bo + 2*go, 
-  col = "green"
-)
-segments(
-  x0 = m / p_b - p_d * 3*bo / p_b,
-  x1 = m / p_b - p_d * 3*bo / p_b, 
-  y0 = 3*bo + 2*go,
-  y1 = 3*(bo + go),
-  col = "green"
-)
-segments(
-  x0 = m / p_b - p_d * 3*bo / p_b, 
-  x1 = m / p_b - p_d * 4*bo / p_b,
-  y0 = 3*(bo + go),
-  y1 = 4*bo + 3*go, 
-  col = "green"
-)
-segments(
-  x0 = m / p_b - p_d * 4*bo / p_b,
-  x1 = m / p_b - p_d * 4*bo / p_b, 
-  y0 = 4*bo + 3*go,
-  y1 = 4*(bo + go),
-  col = "green"
-)
+ggplot() + 
+  geom_function(
+    fun = function(x) m / p_d - p_b * x / p_d, color = 'green', 
+    xlim = c(m / p_b - p_d * bo / p_b, m / p_b)) + 
+  geom_function(
+    fun = function(x) go + m / p_d - p_b * x / p_d, color = 'green', 
+    xlim = c(m / p_b - p_d * 2*bo / p_b, m / p_b - p_d * bo / p_b)) + 
+  geom_function(
+    fun = function(x) 2*go + m / p_d - p_b * x / p_d, color = 'green', 
+    xlim = c(m / p_b - p_d * 3*bo / p_b, m / p_b - p_d * 2*bo / p_b)) + 
+  geom_function(
+    fun = function(x) 3*go + m / p_d - p_b * x / p_d, color = 'green', 
+    xlim = c(m / p_b - p_d * 4*bo / p_b, m / p_b - p_d * 3*bo / p_b)) + 
+  geom_segment(
+    aes(x = m / p_b - p_d * bo / p_b, xend =  m / p_b - p_d * bo / p_b,
+        y = bo), yend = bo + go, color = 'green') + 
+  geom_segment(
+    aes(x = m / p_b - p_d * 2*bo / p_b, xend =  m / p_b - p_d * 2*bo / p_b,
+        y = 2*bo + go), yend = 2*(bo + go), color = 'green') + 
+  geom_segment(
+    aes(x = m / p_b - p_d * 3*bo / p_b, xend =  m / p_b - p_d * 3*bo / p_b,
+        y = 3*bo + 2*go), yend = 3*(bo + go), color = 'green') + 
+  geom_segment(
+    aes(x = m / p_b - p_d * 4*bo / p_b, xend =  m / p_b - p_d * 4*bo / p_b,
+        y = 4*bo + 3*go), yend = 4*(bo + go), color = 'green') + 
+  lims(x = c(0, m/p_b), y = c(0, m/(p_d*bo) + m/p_d)) +
+  labs(x = "Beer", y = "Donuts")
 ```
 
-```{r bogo-solution}
+```{r bogo-setup, warning=FALSE, message = FALSE}
+library(ggplot2)
+m = 20
+p_d = 1       # The low-volume price of a donut
+p_b = 2       # The price of beer
+```
+
+```{r bogo-solution, warning=FALSE, message = FALSE}
 bo <- 5
 go <- 1
-curve(
-  m / p_d - p_b * x / p_d,
-  from = m / p_b - p_d * bo / p_b,
-  to = m / p_b,
-  xlab = "Beer",
-  ylab = "Donuts",
-  col = "green",
-  xlim = c(0, m / p_b), 
-  ylim = c(0, floor((m/p_d)/bo) + m / p_d)
-)
-segments(
-  x0 = m / p_b - p_d * bo / p_b,
-  x1 = m / p_b - p_d * bo / p_b, 
-  y0 = bo,
-  y1 = bo + go,
-  col = "green"
-)
-segments(
-  x0 = m / p_b - p_d * bo / p_b, 
-  x1 = m / p_b - p_d * 2*bo / p_b,
-  y0 = bo + go,
-  y1 = 2*bo + go, 
-  col = "green"
-)
-segments(
-  x0 = m / p_b - p_d * 2*bo / p_b,
-  x1 = m / p_b - p_d * 2*bo / p_b, 
-  y0 = 2*bo + go,
-  y1 = 2*(bo + go),
-  col = "green"
-)
-segments(
-  x0 = m / p_b - p_d * 2*bo / p_b, 
-  x1 = m / p_b - p_d * 3*bo / p_b,
-  y0 = 2*(bo + go),
-  y1 = 3*bo + 2*go, 
-  col = "green"
-)
-segments(
-  x0 = m / p_b - p_d * 3*bo / p_b,
-  x1 = m / p_b - p_d * 3*bo / p_b, 
-  y0 = 3*bo + 2*go,
-  y1 = 3*(bo + go),
-  col = "green"
-)
-segments(
-  x0 = m / p_b - p_d * 3*bo / p_b, 
-  x1 = m / p_b - p_d * 4*bo / p_b,
-  y0 = 3*(bo + go),
-  y1 = 4*bo + 3*go, 
-  col = "green"
-)
-segments(
-  x0 = m / p_b - p_d * 4*bo / p_b,
-  x1 = m / p_b - p_d * 4*bo / p_b, 
-  y0 = 4*bo + 3*go,
-  y1 = 4*(bo + go),
-  col = "green"
-)
+ggplot() + 
+  geom_function(
+    fun = function(x) m / p_d - p_b * x / p_d, color = 'green', 
+    xlim = c(m / p_b - p_d * bo / p_b, m / p_b)) + 
+  geom_function(
+    fun = function(x) go + m / p_d - p_b * x / p_d, color = 'green', 
+    xlim = c(m / p_b - p_d * 2*bo / p_b, m / p_b - p_d * bo / p_b)) + 
+  geom_function(
+    fun = function(x) 2*go + m / p_d - p_b * x / p_d, color = 'green', 
+    xlim = c(m / p_b - p_d * 3*bo / p_b, m / p_b - p_d * 2*bo / p_b)) + 
+  geom_function(
+    fun = function(x) 3*go + m / p_d - p_b * x / p_d, color = 'green', 
+    xlim = c(m / p_b - p_d * 4*bo / p_b, m / p_b - p_d * 3*bo / p_b)) + 
+  geom_segment(
+    aes(x = m / p_b - p_d * bo / p_b, xend =  m / p_b - p_d * bo / p_b,
+        y = bo), yend = bo + go, color = 'green') + 
+  geom_segment(
+    aes(x = m / p_b - p_d * 2*bo / p_b, xend =  m / p_b - p_d * 2*bo / p_b,
+        y = 2*bo + go), yend = 2*(bo + go), color = 'green') + 
+  geom_segment(
+    aes(x = m / p_b - p_d * 3*bo / p_b, xend =  m / p_b - p_d * 3*bo / p_b,
+        y = 3*bo + 2*go), yend = 3*(bo + go), color = 'green') + 
+  geom_segment(
+    aes(x = m / p_b - p_d * 4*bo / p_b, xend =  m / p_b - p_d * 4*bo / p_b,
+        y = 4*bo + 3*go), yend = 4*(bo + go), color = 'green') + 
+  lims(x = c(0, m/p_b), y = c(0, m/(p_d*bo) + m/p_d)) +
+  labs(x = "Beer", y = "Donuts")
 ```
 
+```{r bogo-check}
+grade_code() 
+```

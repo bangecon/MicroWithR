@@ -11,11 +11,23 @@ author:
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 ---
 
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.66em;
+}
+</style>
+
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
 library(ggcheck)
-gradethis_setup(exercise.reveal_solution = FALSE, exercise.eval = TRUE)
+gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
 ```
 
@@ -35,11 +47,11 @@ Replicate the approach I demonstrated in the tutorial to get the demand for *goo
 
 ```
 
-```{r individualDemand-setup, message=FALSE, warning=FALSE}
+```{r individualDemand-setup}
 
 ```
 
-```{r individualDemand-solution, message=FALSE, warning=FALSE}
+```{r individualDemand-solution}
 library(MicroWithR)
 a = 0.25
 p1 = 1.5 
@@ -73,9 +85,9 @@ head(c2)
 ```
 
 ```{r individualDemand-check}
-grade_this({
-  pass_if(round(.result[2], 1) == 75) 
-  fail()
+grade_this({if (.result[1:2] != c(90, 75)) { 
+    fail("The utility-maximizing bundle is 5 units of good 1 and 22.5 units of good 2.") }
+  pass()
 })
 ```
 
@@ -85,7 +97,7 @@ Plot the graph of the consumer's demand for good 2 (stored as `c2` in the setup)
 
 ```
 
-```{r individualDemandCurve-setup, message=FALSE, warning=FALSE}
+```{r individualDemandCurve-setup}
 library(MicroWithR)
 a = 0.25
 p1 = 1.5 
@@ -121,7 +133,7 @@ for (i in 1:length(p2)) {
 # In the computational solution we defined numerical vectors containing the values for the prices of good 2 ranging from 0.25 to 2 (`p2`) and the corresponding consumption levels of good 2 (`c2`). All you need to do is plot the connection of these points using `geom_line`. 
 ```
 
-```{r individualDemandCurve-solution, message=FALSE, warning=FALSE}
+```{r individualDemandCurve-solution}
 library(ggplot2)
 ggplot() + 
   geom_line(aes(x = c2, y = p2, color = "D")) + 
@@ -132,7 +144,9 @@ ggplot() +
 
 ```{r individualDemandCurve-check}
 grade_this({
-  pass_if (ith_geom_is(.result, "line", 1)) 
+  if (uses_geoms(.result, "line")) {
+    pass(random_praise())
+  }
   fail(random_encouragement())
 })
 ```
@@ -169,7 +183,7 @@ Plot the market demand curve for *good 2* for a market with 200,000 consumers wh
 ```{r marketDemand, exercise = TRUE}
 ```
 
-```{r marketDemand-setup, message=FALSE, warning=FALSE}
+```{r marketDemand-setup}
 library(ggplot2)
 ```
 
@@ -178,7 +192,7 @@ library(ggplot2)
 # Never mind the fact that price isn't really the dependent variable that the consumer chooses. Blame Marshall!
 ```
 
-```{r marketDemand-solution, message=FALSE, warning=FALSE}
+```{r marketDemand-solution}
 ggplot() + 
   geom_function(fun = function(x) 4.5e6/x, aes(color = "D")) + 
   lims(x = c(0,9e6), y = c(0, 2)) +
@@ -188,7 +202,9 @@ ggplot() +
 
 ```{r marketDemand-check}
 grade_this({
-  pass_if (ith_geom_is(.result, "function", 1))
+  if (uses_geoms(.result, "function") | uses_geoms(.result, "line")) {
+    pass(random_praise())
+  }
   fail(random_encouragement())
 })
 ```

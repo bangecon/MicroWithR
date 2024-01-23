@@ -83,11 +83,7 @@ ggplot() +
 ```
 
 ```{r naturalMonopoly-check}
-grade_this({
-  pass_if(ith_geom_is(.result, "function", i = 1) & 
-      ith_geom_is(.result, "function", i = 4))
-  fail(random_encouragement())
-  })
+
 ```
 
 ```{r longRun}

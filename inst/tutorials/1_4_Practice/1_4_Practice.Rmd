@@ -1,5 +1,5 @@
 ---
-title: "1.4 Rational Consumer Choice"
+title: "1.4 Application: Insurance"
 output: 
   learnr::tutorial: 
     progressive: true
@@ -21,90 +21,211 @@ date: "`r format(Sys.Date(), '%d %b %Y')`"
 ```{r setup, include = FALSE}
 library(learnr)
 library(gradethis)
-library(Ryacas)
-library(Deriv)
-library(Rsolnp)
+library(ggcheck)
 gradethis_setup()
-tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = FALSE)
+tutorial_options(exercise.reveal_solution = FALSE)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
 knitr::include_graphics
 ```
 
-## Constant Elasticity of Substitution
+## Insurance and Risk Premia
 
-Suppose that we can describe a consumer's preferences between two goods using a constant elasticity of substitution utility function with $r = 1/2$: 
+### Overview
 
-$$U(x) = (x_1^{1/2} + x_2^{1/2})^2, $$ 
+Choice under uncertainty involves maximizing utility over different *states* or outcomes of some random event. A simple way of formulating this problem is to consider two possible states: a bad outcome in which the consumer suffers some loss of assets and occurs with probability $\pi$; and a good outcome in which the consumer keeps their entire asset endowment and occurs with probablity $1-\pi$. 
 
-so that the elasticity of substitution is $\sigma = \frac{1}{1-r} = 2$. 
+The consumer starts with an initial endowment of assets, $E$. They may choose to insure as much of that endowment against a fixed loss ($L < E$) as they want at price, or *premium*, of $p$. Without insurance, the consumer only enjoys $E - L$ (with probability $\pi$) if the bad outcome occurs; they enjoy $E$ fully (with probability $1-\pi$) if there is no loss. 
 
-Suppose as well that the consumer has income of \$100 and that the prices of good one and good two are \$2 and \$1, respectively. 
+The consumer may "buy" additional units of bad-state consumption by insuring the losses at price, $p$ for each dollar of bad-state consumption they choose to insure. The consumer chooses the amount of insurance, $I$ before observing the uncertain state outcome. 
 
-1. Computational solution. Find the optimal bundle using `solnp`
+To make the problem more concrete, use the following parameter values: 
+1. $E = \$100,000$
+2. $L = \$50,000$
+3. $\pi = 0.2$
+4. $p = 0.2$
 
-```{r computeSolve, exercise = TRUE, exercise.reveal_solution = TRUE}
+### Budget Constraint
+
+The budget constraint for this consumer works out to be: 
+
+$$pc_b + (1-p)c_g \le E(m)$$
+where $E(m)$ is the expected income of the consumer, i.e. $E - pL$.
+
+Plot the entire budget constraint for the consumer. Add points for where the consumer chooses not to insure (fully consuming $E$ in the good state and taking the full loss and consuming only $E-L$ in the bad state) and where they choose to fully insures (consuming $E$ minus the cost of fully insuring $L$ in both states). Include x and y limits to make sure that the plot includes the full budget line from intercept to intercept.
+
+Store your plot with the name `g`. 
+
+```{r insuranceBC, exercise = TRUE}
 
 ```
 
-```{r computeSolve-solution}
-r = 0.5
-p1 = 2
-p2 = 1
-m = 100
-ux <- function(x) {
-  - (x[1]^r + x[2] ^ r) ^ (1/r)
+```{r insuranceBC-solution, messages = FALSE, warnings = FALSE}
+library(ggplot2) 
+E  = 100000
+L  =  50000
+pi =  0.2
+p  =  0.2
+g <- ggplot() + 
+  geom_function(fun = function(x) (E - pi * L) / (1 - p) - (p / (1 - p)) * x,
+                color = 'red') + 
+  geom_point(aes(x = E - L, y = E), color = 'blue') + 
+  geom_point(aes(x = E - p*L, y = E - p*L), color = 'blue') + 
+  lims(x = c(0, (E - pi*L)/p), y = c(0, (E - pi*L)/(1-p))) + 
+  labs(x = "Consumption in the 'Bad' State", y = "Consumption in the 'Good' State")
+g
+```
+
+```{r insuranceBC-check}
+grade_this({
+  if (
+    ith_geom_is(.result, "function", 1) &
+    ith_geom_is(.result, "point", 2) &
+    ith_geom_is(.result, "point", 3)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
+
+Add a `lims()` layer to plot the *relevant* budget constraint for the consumer between the choice not to insure and fully insuring. 
+
+```{r insuranceBC2, exercise = TRUE}
+
+```
+
+```{r insuranceBC2-setup, messages = FALSE, warnings = FALSE}
+library(ggplot2) 
+E  = 100000
+L  =  50000
+pi =  0.2
+p  =  0.2
+g <- ggplot() + 
+  geom_function(fun = function(x) (E - pi * L) / (1 - p) - (p / (1 - p)) * x,
+                color = 'red') + 
+  geom_point(aes(x = E - L, y = E), color = 'blue') + 
+  geom_point(aes(x = E - p*L, y = E - p*L), color = 'blue') + 
+  lims(x = c(0, (E - pi*L)/p), y = c(0, (E - pi*L)/(1-p))) + 
+  labs(x = "Consumption in the 'Bad' State", y = "Consumption in the 'Good' State")
+```
+
+```{r insuranceBC2-solution, messages = FALSE, warnings = FALSE}
+g <- g +
+  lims(x = c(E - L, E - p*L), y = c(E - p*L, E)) 
+g
+```
+
+```{r insuranceBC2-check}
+grade_this({
+  pass_if(
+    layer_scales(.result)$x$range$range[1] == 50000 & 
+    layer_scales(.result)$x$range$range[2] == 90000 & 
+    layer_scales(.result)$y$range$range[1] == 90000 & 
+    layer_scales(.result)$y$range$range[2] == 100000)
+  fail(random_encouragement())
+})
+```
+
+### Preferences
+
+Suppose that the consumer has preferences that we can express as the square root of good and bad state consumption levels, and that the overall level of utility is based on the *expected value* of whichever state we observe.
+
+$$E[u(c_b, c_g)] = \pi\sqrt{c_b} + (1-\pi)\sqrt{c_g}$$
+
+Add layers to the previous plot for the indifference curves for the consumer when they do not insure, and when they fully insure. 
+
+Set x and y limits that correspond to the *relevant* range of the budget constraint from the previous part of the problem. 
+
+Note: to do this you will need to solve for consumption in the good state (the y-variable) as a function of the level of utility (e.g. $u(E-L, E)$) and different levels of consumption in the bad state (the x-variable).  
+
+Does it look like this consumer will fully insure, not insure, or partially insure? 
+
+```{r insuranceUtility, exercise = TRUE}
+
+```
+
+```{r insuranceUtility-hint}
+# I stored the plot up through the previous step of the exercise as `g`.
+# To get the function for the indifference curve at a specific level of utility, evaluate `ux` at that consumption bundle and invert the utility function for x2 as a function of x1. 
+```
+
+```{r insuranceUtility-setup, messages = FALSE, warnings = FALSE}
+library(ggplot2) 
+E  = 100000
+L  =  50000
+pi =  0.2
+p  =  0.2
+ux = function(x) {
+  pi*x[1]^0.5 + (1-pi)*x[2]^0.5
 }
+g <- ggplot() + 
+  geom_function(fun = function(x) (E - pi * L) / (1 - p) - (p / (1 - p)) * x,
+                color = 'red') + 
+  geom_point(aes(x = E - L, y = E), color = 'blue') + 
+  geom_point(aes(x = E - p*L, y = E - p*L), color = 'blue') +
+  lims(x = c(E - L, E - p*L), y = c(E - p*L, E)) + 
+  labs(x = "Consumption in the 'Bad' State", y = "Consumption in the 'Good' State")
+```
+
+```{r insuranceUtility-solution, messages = FALSE, warnings = FALSE}
+g <- g + 
+  geom_function(
+    fun = function(x) ((ux(c(E-L, E)) - pi*x^0.5)/(1-pi))^2, 
+    color = 'darkgreen') +
+  geom_function(
+    fun = function(x) ((ux(c(E-p*L, E-p*L)) - pi*x^0.5)/(1-pi))^2, 
+    color = 'darkgreen') 
+```
+
+```{r insuranceUtility-check}
+grade_code()
+```
+
+### Equilibrium
+
+Solve for the equilibrium using `managerialEconWithR::solnp2()`. 
+
+```{r insuranceEquilibrium, exercise = TRUE}
+
+```
+
+```{r insuranceEquilibrium-setup, messages = FALSE, warnings = FALSE}
+library(ggplot2) 
+E  = 100000
+L  =  50000
+pi =  0.2
+p  =  0.2
+ux = function(x) {
+  pi*x[1]^0.5 + (1-pi)*x[2]^0.5
+}
+```
+
+```{r insuranceEquilibrium-hint}
+# 
+```
+
+```{r insuranceEquilibrium-solution, messages = FALSE, warnings = FALSE}
+library(managerialEconWithR) 
 bc <- function(x) {
-  p1 * x[1] + p2 * x[2]
+  p*x[1] + (1-p)*x[2] 
 }
-equilibrium <- solnp(
-  c(1, 1),
-  ux,
+eq <- solnp2(
+  pars = c(1,1), 
+  fun = ux, 
   ineqfun = bc,
-  ineqLB = 0,
-  ineqUB = m,
-  LB = c(0, 0),
-  UB = c(Inf, Inf)
+  ineqLB = -Inf, 
+  ineqUB = E - pi*L, 
+  LB = c(0,0),
+  control = list(trace = 0),
+  max = TRUE
 )
-equilibrium$pars
--equilibrium$lagrange
--tail(equilibrium$values, 1)
 ```
 
-```{r computeSolve-check}
-grade_this({if (!inherits(.result, c("numeric"))) {
-    fail("Your class of your answer should be a numeric scalar")}
-  if (abs(tail(.result$values, 1)) != 1250) { 
-    fail("The maximum of the utility function should be 1,250") }
+```{r insuranceEquilibrium-check}
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(ux(.result$pars), 1) != 300) { 
+    fail("The maximum of the utility function should be about 300") }
   pass()
 })
 ```
 
-2. Graphical solution. Graph the budget constraint with the optimal bundle and its indifference curve. 
-
-```{r graph, exercise = TRUE, exercise.reveal_solution = TRUE, fig.height=6.5, fig.width=4.5, fig.align='center'}
-
-```
-
-```{r graph-solution}
-curve(
-  ((-tail(equilibrium$values, 1))^r - x^r) ^ (1/r),
-  0,
-  m / p1,
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  xlim = c(0, m / p1),
-  ylim = c(0, m / p2),
-  col = 'darkgreen'
-)
-abline(m / p2, -p1 / p2,
-       col = 'red')
-points(equilibrium$pars[1],
-       equilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-```
-
-```{r graph-check}
-
-```

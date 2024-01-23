@@ -14,6 +14,13 @@ author:
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 ---
 
+<style type="text/css">
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.8em;
+}
+</style>
+
 ```{r setup, include = FALSE}
 library(learnr)
 library(gradethis)

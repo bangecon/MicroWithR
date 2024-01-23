@@ -1,5 +1,5 @@
 ---
-title: "1.5 Comparative Statics"
+title: "1.5 Comparative Statics I: Income Changes"
 editor_options: 
   markdown: 
     wrap: 72
@@ -29,25 +29,26 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
-library(Deriv)
-library(Ryacas)
-library(Rsolnp)
+library(ggcheck)
 gradethis_setup()
 tutorial_options(exercise.eval = TRUE, exercise.reveal_solution = TRUE)
-knitr::opts_chunk$set(echo = FALSE, fig.align = "center", fig.height = 6, fig.width = 6)
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE, 
+  fig.align = "center", fig.height = 6, fig.width = 6)
 knitr::include_graphics
 par(mar = c(4, 4, 1, 1))
 ```
 
-## Overview
+## Introduction
 
 ### Basic Idea
 
-Make a *hypothesis* of what would happen if *one* of the exogenous
-determinants changes.
+Make a *hypothesis* of what would happen to demand for a good when *one* of the exogenous determinants changes.
 
 1.  Ceteris paribus
-2.  Small changes
+2.  Small changes  
+
+The most general way to do this is to derive a general form for the demand function *analytically* and analyze the changes in that function with respect to the parameters (preferences, income, prices). This analysis is known as *comparative statics*. Traditionally, we would do this using calculus; more complex models do this using a combination of calculus and computational simulation based on numerical values for the parameters that seem "plausible" based on empirical studies; here, we will focus almost solely on computational solutions based on made-up parameters in order to develop the intuiton.
 
 ### Determinants
 
@@ -56,9 +57,9 @@ In the Cobb-Douglas example, the demand function for good $i$ depends on:
 1. Preferences (the budget-share parameters, $\alpha$ and $1 - \alpha$);
 2. Income ($m$); 
 3. The price of good $i$ ($p_i$);
-4. The price(s) of the other good(s) ($p_j$).
+4. The price of another good ($p_j$).
 
-We will focus mainly on income and price. 
+We will focus mainly on income and price of good 1 (which is the price of the good for good 1 and the price of another good for good 2). 
 
 ### Types of Hypotheses
 
@@ -71,320 +72,488 @@ We will focus mainly on income and price.
 2.  Computational
 3.  Anayltical
 
-## Computational Approach
+### Initial Equilibrium
 
-### Initial Solution
+The following code computes the initial equilibrium (which we derived last time): 
 
-The following code computes the initial equilibrium: 
-
-```{r initialEquilibrium, echo = TRUE, results=FALSE}
-ux <- function(x)
-  - x[1] ^ (a) * x[2] ^ (1 - a)
-bc <- function(x)
-  p1 * x[1] + p2 * x[2]
+```{r initialEquilibrium, echo = TRUE}
+library(MicroWithR)
 a = 0.25
 p1 = 1.5
 p2 = 1
-m = 100 
-initialEquilibrium <-
-  solnp(
-    c(1, 1),
-    ux,
-    ineqfun = bc,
-    ineqLB = 0,
-    ineqUB = m,
-    LB = c(0, 0),
-    UB = c(Inf, Inf)
-  )
+m = 100
+ux <- function(x)
+  x[1] ^ (a) * x[2] ^ (1 - a)
+bc <- function(x)
+  p1 * x[1] + p2 * x[2]
+eq <- solnp2(
+  c(1, 1),
+  ux,
+  ineqfun = bc,
+  ineqLB = 0,
+  ineqUB = m,
+  LB = c(0, 0),
+  UB = c(Inf, Inf),
+  control = list(trace = 0),
+  max = TRUE
+)
 ```
 
 $$x_1^* = 50/3$$ 
 
 $$x_2^* = 75$$
 
-### Income Change
+The next bit of code graphs the equilibrium: 
+
+```{r initialGraph, echo = TRUE}
+library(ggplot2)
+ggplot() +
+  geom_function(
+    fun = function(x)
+      ux(eq$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+    color = 'darkgreen'
+  ) +
+  geom_function(
+    fun = function(x)
+      m / p2 - x * p1 / p2,
+    color = 'red'
+  ) +
+  geom_point(aes(x = eq$pars[1], y = eq$pars[2]), color = 'blue') +
+  geom_text(
+    aes(x = eq$pars[1], y = eq$pars[2]),
+    label = paste0(
+      'x* = (',
+      round(eq$pars[1], 2),
+      ', ',
+      round(eq$pars[2], 2),
+      ') \n u(x*) = ',
+      round(ux(eq$pars), 2)
+    ),
+    hjust = 0,
+    vjust = 0
+  ) +
+  lims(x = c(0, 100), y = c(0, 100)) +
+  labs(x = "Good 1", y = "Good 2")
+```
+
+Now let's see how the equilibrium changes when we change income. 
+
+## Income Change
+
+### Computational Approach
 
 To measure the effect computationally, we have to specify a numerical
 amount for the income change, say \$5.
 
 1.  For a consumer with the same preferences (Cobb-Douglass with
     $\alpha = 0.25$), and facing the same prices ($p_1 = 1.5$;
-    $p_2 = 5$), compute the new equilibrium for an increase in income
+    $p_2 = 1$), compute the new equilibrium for an increase in income
     from \$100 to \$105 (`dm = 5`). Print the (already-stored) initial
     and new optimal bundles and the initial and new values of the
     utility function.
 
-```{r cdIncomeChange, exercise = TRUE, exercise.setup = 'initialEquilibrium'}
+```{r cdIncomeChange, exercise = TRUE}
 
+```
+
+```{r cdIncomeChange-setup}
+library(MicroWithR)
+ux <- function(x)
+  x[1] ^ (a) * x[2] ^ (1 - a)
+bc <- function(x)
+  p1 * x[1] + p2 * x[2]
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100 
+eq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    control = list(trace = 0),
+    max = TRUE
+  )
 ```
 
 ```{r cdIncomeChange-solution}
 dm = 5
-dmEquilibrium <-
-  solnp(
+dmEq <-
+  solnp2(
     c(1, 1),
     ux,
     ineqfun = bc,
     ineqLB = 0,
     ineqUB = m + dm,
     LB = c(0, 0),
-    UB = c(Inf, Inf)
+    UB = c(Inf, Inf), 
+    control = list(trace = 0),
+    max = TRUE
   )
-initialEquilibrium[c(1, 3)]
-dmEquilibrium[c(1, 3)]
+dmEq[c(1, 3)]
 ```
 
 ```{r cdIncomeChange-check}
-grade_code()
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (.result$pars != c(17.5, 78.75)) { 
+    fail("The optimal amount of goods one and two after the change should be 17.5 and 78.75") }
+  pass()
+})
 ```
 
-```{r dmEquilibrium, exercise.setup = 'initialEquilibrium'}
-m = 100
+```{r dmEquilibrium}
 dm = 5
-dmEquilibrium <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m + dm, 
-                            LB = c(0, 0), UB = c(Inf, Inf))
-dmEquilibrium2 <- solnp(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m - dm, 
-                            LB = c(0, 0), UB = c(Inf, Inf))
-```
-
-$$x_1^{**} = `r round(dmEquilibrium$pars[1], 3)`$$ 
-
-$$x_2^{**} = `r round(dmEquilibrium$pars[2], 3)`$$
-
-$$\frac{\Delta x_1}{\Delta m} \Bigg|_{x_1 = x_1^*} \approx `r round((dmEquilibrium$pars[1] - initialEquilibrium$pars[1])/dm, 3)`$$
-
-### Price Change 
-
-Let's analyze the effect of a \$0.50 increase in price, and a \$0.50
-decrease in price for good 1.
-
-1.  For a consumer with the same preferences (Cobb-Douglass with
-    $\alpha = 0.25$), and facing the price of good 2 and income
-    ($p_2 = 1$), compute the new equilibria for an increase in the price
-    of good 1 from \$1.50 to \$2.00 (`dp1 = 0.5`); repeat for an equal
-    decrease in $p_1$ to \$1.00.
-2.  Print the (already-stored) initial and new optimal bundles.
-
-```{r priceChange, exercise = TRUE, exercise.setup = 'initialEquilibrium'}
-
-
-```
-
-```{r priceChange-solution}
-dp1 = 0.5
-bcLowP  <- function(x)
-  (p1 - dp1) * x[1] + p2 * x[2]
-bcHighP <- function(x)
-  (p1 + dp1) * x[1] + p2 * x[2]
-lowPEquilibrium <-
-  solnp(
+dmEq <-
+  solnp2(
     c(1, 1),
     ux,
-    ineqfun = bcLowP,
+    ineqfun = bc,
     ineqLB = 0,
-    ineqUB = m,
+    ineqUB = m + dm,
     LB = c(0, 0),
-    UB = c(Inf, Inf)
-  )
-highPEquilibrium <-
-  solnp(
-    c(1, 1),
-    ux,
-    ineqfun = bcHighP,
-    ineqLB = 0,
-    ineqUB = m,
-    LB = c(0, 0),
-    UB = c(Inf, Inf)
+    UB = c(Inf, Inf), 
+    control = list(trace = 0),
+    max = TRUE
   )
 ```
 
-```{r priceChange-check}
-grade_code()
-```
+$$x_1^{**} = `r round(dmEq$pars[1], 3)`$$ 
 
-```{r dpEquilibrium, exercise.setup = 'initialEquilibrium'}
-dp1 = 0.5
-bcLowP  <- function(x)
-  (p1 - dp1) * x[1] + p2 * x[2]
-bcHighP <- function(x)
-  (p1 + dp1) * x[1] + p2 * x[2]
-lowPEquilibrium <- solnp(c(1, 1), ux, ineqfun = bcLowP, ineqLB = 0, ineqUB = m, 
-                            LB = c(0, 0), UB = c(Inf, Inf))
-highPEquilibrium <- solnp(c(1, 1), ux, ineqfun = bcHighP, ineqLB = 0, ineqUB = m,
-                            LB = c(0, 0), UB = c(Inf, Inf))
-```
+$$x_2^{**} = `r round(dmEq$pars[2], 3)`$$
 
-Consumption of good 1 after the price decrease is: 
+$$\frac{\Delta x_1}{\Delta m} \Bigg|_{x_1 = x_1^*} \approx `r round((dmEq$pars[1] - eq$pars[1])/dm, 3)`$$
 
-$$x_1^{\dagger} = `r round(lowPEquilibrium$pars[1], 3)`$$  
+Using the old and new equilibrium values, we can graph the effect of the change. 
 
-Consumption of good 1 after the price increase is: 
+### Graphical Approach
 
-$$x_1^{\dagger\dagger} = `r round(highPEquilibrium$pars[1], 3)`$$
-
-$$\frac{\Delta x_1}{\Delta p_1} \Bigg|_{x_1 = x_1^*} \approx `r round((highPEquilibrium$pars[1] - lowPEquilibrium$pars[1])/(dp1*2), 3)`$$
-
-## Graphical Approach
-
-### Income Change
-
-Run the following code to see the graph of the effect of an increase and
-decrease in income equal to 5.
+Add the `geom_function()` layers to the graph to add the budget line and indifference curve for the equilibrium after the increase in income. Include a `geom_point()` for the new equilibrium bundle, and label the equilibrium using `geom_text()`. 
 
 ```{r incomeChangeGraph, exercise = TRUE, exercise.setup = 'dmEquilibrium'}
-curve(
-  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  from = 0,
-  to = m / p1,
-  xlim = c(0, (m + dm) / p1),
-  ylim = c(0, (m + dm) / p2),
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  col = 'dark green'
-)
-abline(m / p2,-p1 / p2, col = 'red')
-points(initialEquilibrium$pars[1],
-       initialEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-curve(
-  (-tail(dmEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline((m + dm) / p2,-p1 / p2, col = 'red', lty = 'dashed')
-points(dmEquilibrium$pars[1],
-       dmEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-curve(
-  (-tail(dmEquilibrium2$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline((m - dm) / p2,-p1 / p2, col = 'red', lty = 'dashed')
-points(dmEquilibrium2$pars[1],
-       dmEquilibrium2$pars[2],
-       col = 'blue',
-       pch = 20)
-arrows(
-  x0 = 0,
-  y0 = 0,
-  x1 = dmEquilibrium$pars[1],
-  y1 = dmEquilibrium$pars[2]
-)
+p <- ggplot() +
+  geom_function(
+    fun = function(x)
+      ux(eq$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+    color = 'darkgreen'
+  ) +
+  geom_function(
+    fun = function(x)
+      m / p2 - x * p1 / p2,
+    color = 'red'
+  ) +
+  geom_point(aes(x = eq$pars[1], y = eq$pars[2]), color = 'blue') +
+  geom_text(
+    aes(x = eq$pars[1], y = eq$pars[2]),
+    label = paste0(
+      'x* = (',
+      round(eq$pars[1], 2),
+      ', ',
+      round(eq$pars[2], 2),
+      ') \n u(x*) = ',
+      round(ux(eq$pars), 2)
+    ),
+    hjust = 0,
+    vjust = 0
+  ) +
+  lims(x = c(0, 100), y = c(0, 100)) +
+  labs(x = "Good 1", y = "Good 2")
+# Add the new budget line and indifference curve to `p` below: 
+
+```
+
+```{r incomeChangeGraph-setup}
+library(MicroWithR)
+ux <- function(x)
+  x[1] ^ (a) * x[2] ^ (1 - a)
+bc <- function(x)
+  p1 * x[1] + p2 * x[2]
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100 
+eq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m,
+    LB = c(0, 0),
+    UB = c(Inf, Inf), 
+    control = list(trace = 0),
+    max = TRUE
+  )
+m = 100
+dm = 5
+dmEq <-
+  solnp2(
+    c(1, 1),
+    ux,
+    ineqfun = bc,
+    ineqLB = 0,
+    ineqUB = m + dm,
+    LB = c(0, 0),
+    UB = c(Inf, Inf),
+    control = list(trace = 0),
+    max = TRUE
+  )
 ```
 
 ```{r incomeChangeGraph-solution}
-curve(
-  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  from = 0,
-  to = m / p1,
-  xlim = c(0, (m + dm) / p1),
-  ylim = c(0, (m + dm) / p2),
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  col = 'dark green'
-)
-abline(m / p2,-p1 / p2, col = 'red')
-points(initialEquilibrium$pars[1],
-       initialEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-curve(
-  (-tail(dmEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline((m + dm) / p2,-p1 / p2, col = 'red', lty = 'dashed')
-points(dmEquilibrium$pars[1],
-       dmEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-curve(
-  (-tail(dmEquilibrium2$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline((m - dm) / p2,-p1 / p2, col = 'red', lty = 'dashed')
-points(dmEquilibrium2$pars[1],
-       dmEquilibrium2$pars[2],
-       col = 'blue',
-       pch = 20)
-arrows(
-  x0 = 0,
-  y0 = 0,
-  x1 = dmEquilibrium$pars[1],
-  y1 = dmEquilibrium$pars[2]
-)
+p <- ggplot() +
+  geom_function(
+    fun = function(x)
+      ux(eq$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+    color = 'darkgreen'
+  ) +
+  geom_function(
+    fun = function(x)
+      m / p2 - x * p1 / p2,
+    color = 'red'
+  ) +
+  geom_point(aes(x = eq$pars[1], y = eq$pars[2]), color = 'blue') +
+  geom_text(
+    aes(x = eq$pars[1], y = eq$pars[2]),
+    label = paste0(
+      'x* = (',
+      round(eq$pars[1], 2),
+      ', ',
+      round(eq$pars[2], 2),
+      ') \n u(x*) = ',
+      round(ux(eq$pars), 2)
+    ),
+    hjust = 0,
+    vjust = 0
+  ) +
+  lims(x = c(0, 100), y = c(0, 100)) +
+  labs(x = "Good 1", y = "Good 2")
+p + geom_function(
+  fun = function(x)
+    ux(dmEq$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
+  color = 'darkgreen'
+) +
+  geom_function(
+    fun = function(x)
+      (m + dm) / p2 - x * p1 / p2,
+    color = 'red'
+  ) +
+  geom_point(aes(x = dmEq$pars[1], y = dmEq$pars[2]), color = 'blue') +
+  geom_text(
+    aes(x = dmEq$pars[1], y = dmEq$pars[2]),
+    label = paste0(
+      'x* = (',
+      round(dmEq$pars[1], 2),
+      ', ',
+      round(dmEq$pars[2], 2),
+      ') \n u(x*) = ',
+      round(ux(dmEq$pars), 2)
+    ),
+    hjust = 0,
+    vjust = 0
+  )
 ```
 
 ```{r incomeChangeGraph-check}
-grade_code()
+grade_this({
+  if (uses_geoms(.result, "function") & uses_geoms(.result, "point")) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
 ```
 
-In the Cobb-Douglas example, consumption of each good increases by equal
-proportions to the change in income (partly because of the fact that
-consumers spend a constant share of their budget on each good). This
-means that the *income expansion path* is a straight line from the
-origin. <br> (In fact, a linear income expansion path is a feature of
-many utility functions that have the property of being
-[*homothetic*](https://en.wikipedia.org/wiki/Homothetic_preferences),
-which also includes the CES utility function.)
+## Engel Curves
 
-### Price Change
+The *Engel Curve* plots the demand for a good against the level of income. In our Cobb-Douglas example, this "curve" is a straight line. In the appendix, we derive the demand curve for good 1 to be: 
 
-Graph the indifference curves and budget lines for each equilibrium:
+$$x_1(p_1, \alpha, m) = \frac{\alpha m}{p_1}$$
 
-1.  $p_1 = \$1.50$ (Plot from $x_1 = 0$ to $x_1 = m/p_1$ and from
-    $x_2 = 0$ to $x_2 = m/p_2$; indifference curve `dark green` and
-    budget line `red`)
-2.  $p_1 = \$2.00$ (Indifference curve )
-3.  $p_1 = \$1.00$
+Plot the Engel curve for good 1 from the example ($\alpha = 0.25$, $p_1 = 1.5$, and $p_2 = 1$).
 
-```{r priceChangeGraph, exercise = TRUE, exercise.setup = 'dpEquilibrium'}
-# We solved for consumption (and utility at that consumption) for the original price, the price after an increase, and after a decrease. 
-
+```{r cdEngel, exercise = TRUE}
 
 ```
 
-```{r priceChangeGraph-solution}
-curve(
-  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  from = 0,
-  to = m / p1,
-  xlim = c(0, m / (p1 - dp1)),
-  ylim = c(0, m / p2),
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  col = 'dark green'
-)
-abline(m / p2,-p1 / p2, col = 'red')
-curve(
-  (-tail(lowPEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline(m / p2,-(p1 - dp1) / p2, col = 'red', lty = 'dashed')
-curve(
-  (-tail(highPEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline(m / p2,-(p1 + dp1) / p2, col = 'red', lty = 'dashed')
+```{r cdEngel-solution}
+library(ggplot2)
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100 
+ggplot() + 
+  geom_function(fun = function(x) a * x / p1) + 
+  lims(x = c(0, 150)) +
+  labs(x = "Income", y = "Consumption of Good 1") 
 ```
 
-```{r priceChangeGraph-check}
-grade_code()
+```{r cdEngel-check}
+grade_this({
+  if (uses_geoms(.result, "function")) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
 ```
 
-## Analytical Approach
+We can check this by looking at the "income expansion path" from the indifference map and corresponding solutions for different levels of income. 
+
+```{r linearIEP, echo = TRUE}
+library(MicroWithR)
+library(ggplot2)
+a = 0.25
+p1 = 1.5
+p2 = 1
+m = 100 
+m4 = seq(60, 120, 20)
+ux <- function(x) {x[1] ^ (a) * x[2] ^ (1 - a)}
+bc <- function(x) {p1 * x[1] + p2 * x[2]}
+eq060 <- solnp2(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m4[1],
+    LB = c(0,0), UB = c(Inf, Inf), max = TRUE)
+eq080 <- solnp2(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m4[2],
+    LB = c(0,0), UB = c(Inf, Inf), max = TRUE)
+eq100 <- solnp2(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m4[3],
+    LB = c(0,0), UB = c(Inf, Inf), max = TRUE)
+eq120 <- solnp2(c(1, 1), ux, ineqfun = bc, ineqLB = 0, ineqUB = m4[4],
+    LB = c(0,0), UB = c(Inf, Inf), max = TRUE)
+g <- ggplot() + 
+  geom_function(fun = function(x)
+    ux(eq060$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))), color = 'red') +
+  geom_function(fun = function(x)
+    ux(eq080$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))), color = 'orange') +
+  geom_function(fun = function(x)
+    ux(eq100$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))), color = 'green') +
+  geom_function(fun = function(x)
+    ux(eq120$pars) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),color = 'blue') +
+  geom_function(fun = function(x) m / p2 - (p1 / p2)*x) + 
+  geom_function(fun = function(x) p1*(1-a)*x / (p2*a)) + 
+  geom_hline(aes(yintercept = eq060$pars[2]), color = 'red', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = eq080$pars[2]), color = 'orange', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = eq100$pars[2]), color = 'green', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = eq120$pars[2]), color = 'blue', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq060$pars[1]), color = 'red', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq080$pars[1]), color = 'orange', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq100$pars[1]), color = 'green', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq120$pars[1]), color = 'blue', linetype = 'dashed') + 
+  lims(x = c(0, m / p1), y = c(0, m / p2)) + labs(x = "Beer", y = "Donuts")
+engel1 <- ggplot() + 
+  geom_function(fun = function(x) p1 * x / a) + 
+  geom_hline(aes(yintercept = m4[1]), color = 'red', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = m4[2]), color = 'orange', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = m4[3]), color = 'green', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = m4[4]), color = 'blue', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq060$pars[1]), color = 'red', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq080$pars[1]), color = 'orange', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq100$pars[1]), color = 'green', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq120$pars[1]), color = 'blue', linetype = 'dashed') + 
+  lims(x = c(0, m/p1), y = c(0, m4[4])) + labs(x = "Beer Consumption", y = "Income")
+engel2 <- ggplot() + 
+  geom_function(fun = function(x) p2 * x / (1-a)) + 
+  geom_hline(aes(yintercept = m4[1]), color = 'red', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = m4[2]), color = 'orange', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = m4[3]), color = 'green', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = m4[4]), color = 'blue', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq060$pars[2]), color = 'red', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq080$pars[2]), color = 'orange', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq100$pars[2]), color = 'green', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq120$pars[2]), color = 'blue', linetype = 'dashed') + 
+  lims(x = c(0, m/p2), y = c(0, m4[4])) + labs(x = "Donut Consumption", y = "Income") + 
+  coord_flip()
+ggpubr::ggarrange(g, engel2, engel1)
+```
+
+### Nonlinear Income Expansion Path Example 
+
+A "simple" example of a nonlinear income expansion path comes from the
+special case of perfect complements, where:
+
+$$u(x) = min\{x_1^2, x_2\}.$$
+
+In this example, for any nonzero set of prices, the consumer would
+choose to set $x_2 = x_1^2$ (to put consumption in the corner of the
+"L". The following code shows the analytical solution and its graph
+for different levels of income.
+
+```{r nonlinearIEP, echo = TRUE}
+library(MicroWithR)
+library(ggplot2)
+p1 = 1.5
+p2 = 1
+m4 = seq(60, 120, 20)
+complements <- function(x) {min(x[1] ^ 2, 25 * x[2])}
+bc <- function(x)
+  p1 * x[1] + p2 * x[2]
+eq060 <- solnp2(c(1, 1), complements, ineqfun = bc, ineqLB = 0, ineqUB = m4[1],
+    LB = c(0,0),  UB = c(Inf, Inf), max = TRUE)
+eq080 <- solnp2(c(1, 1), complements, ineqfun = bc, ineqLB = 0, ineqUB = m4[2],
+    LB = c(0,0), UB = c(Inf, Inf), max = TRUE)
+eq100 <- solnp2(c(1, 1), complements, ineqfun = bc, ineqLB = 0, ineqUB = m4[3],
+    LB = c(0,0), UB = c(Inf, Inf), max = TRUE)
+eq120 <- solnp2(c(1, 1), complements, ineqfun = bc, ineqLB = 0, ineqUB = m4[4],
+    LB = c(0,0), UB = c(Inf, Inf), max = TRUE)
+g <- ggplot() + 
+  geom_segment(aes(x = eq060$pars[1], xend = eq060$pars[1], 
+                   y = eq060$pars[2], yend = m / p2), color = 'red') +
+  geom_segment(aes(x = eq060$pars[1], xend = m / p1, 
+                   y = eq060$pars[2], yend = eq060$pars[2]), color = 'red') +
+  geom_segment(aes(x = eq080$pars[1], xend = eq080$pars[1], 
+                   y = eq080$pars[2], yend = m / p2), color = 'orange') +
+  geom_segment(aes(x = eq080$pars[1], xend = m / p1, 
+                   y = eq080$pars[2], yend = eq080$pars[2]), color = 'orange') +
+  geom_segment(aes(x = eq100$pars[1], xend = eq100$pars[1], 
+                   y = eq100$pars[2], yend = m / p2), color = 'green') +
+  geom_segment(aes(x = eq100$pars[1], xend = m / p1, 
+                   y = eq100$pars[2], yend = eq100$pars[2]), color = 'green') +
+  geom_segment(aes(x = eq120$pars[1], xend = eq120$pars[1], 
+                   y = eq120$pars[2], yend = m / p2), color = 'blue') +
+  geom_segment(aes(x = eq120$pars[1], xend = m / p1, 
+                   y = eq120$pars[2], yend = eq120$pars[2]), color = 'blue') +
+  geom_function(fun = function(x) m / p2 - (p1 / p2)*x) + 
+  geom_function(fun = function(x) (x^2)/25) + 
+  geom_hline(aes(yintercept = eq060$pars[2]), color = 'red', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = eq080$pars[2]), color = 'orange', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = eq100$pars[2]), color = 'green', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = eq120$pars[2]), color = 'blue', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq060$pars[1]), color = 'red', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq080$pars[1]), color = 'orange', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq100$pars[1]), color = 'green', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq120$pars[1]), color = 'blue', linetype = 'dashed') + 
+  lims(x = c(0, m / p1), y = c(0, m / p2)) +
+  labs(x = "Beer", y = "Donuts")
+engel1 <- ggplot() + 
+  geom_function(fun = function(x) p2 * x ^ 2 / 25 + p1 * x) + 
+  geom_hline(aes(yintercept = m4[1]), color = 'red', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = m4[2]), color = 'orange', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = m4[3]), color = 'green', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = m4[4]), color = 'blue', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq060$pars[1]), color = 'red', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq080$pars[1]), color = 'orange', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq100$pars[1]), color = 'green', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq120$pars[1]), color = 'blue', linetype = 'dashed') + 
+  lims(x = c(0, m/p1), y = c(0, m4[4])) + 
+  labs(x = "Beer Consumption", y = "Income")
+engel2 <- ggplot() + 
+  geom_function(fun = function(x) p2 * x + 5 * p1 * sqrt(x)) + 
+  geom_hline(aes(yintercept = m4[1]), color = 'red', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = m4[2]), color = 'orange', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = m4[3]), color = 'green', linetype = 'dashed') + 
+  geom_hline(aes(yintercept = m4[4]), color = 'blue', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq060$pars[2]), color = 'red', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq080$pars[2]), color = 'orange', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq100$pars[2]), color = 'green', linetype = 'dashed') + 
+  geom_vline(aes(xintercept = eq120$pars[2]), color = 'blue', linetype = 'dashed') + 
+  lims(x = c(0, m/p2), y = c(0, m4[4])) + labs(x = "Donut Consumption", y = "Income") + 
+  coord_flip()
+ggpubr::ggarrange(g, engel2, engel1)
+```
+
+## Appendix: Analytical Approach
+
+The *one* place that analytical methods help is in deriving the functions that relate the demand for a good with the consumer's income, the price of the good, and the price(s) of other good(s). It allows us to express demand for a good in terms of the model parameters (preferences, income, and prices) and derive *general* forms for the comparative statics.  
 
 Basic approach: 
 
@@ -394,60 +563,37 @@ Basic approach:
 R can actually do this super-fast (by vectorizing the derivatives)!
 
 Solving the first order conditions for $x_1$ and $x_2$ in terms of the parameters
-(the general-form solution from last time), we get the demand functions. Run the following code to get this result.
+(the general-form solution from last time), we get the demand functions. The following code derives this result.
 
-```{r demand, exercise = TRUE}
+```{r demand, echo = TRUE}
+library(Ryacas)
 u <- ysym('x1^(alpha) * x2^(1-alpha)')
 L <- u + ysym('lambda*(m - p1*x1 - p2*x2)')
 dL <- deriv(L, c('x1', 'x2', 'lambda'))
-MU <- deriv(u, c('x1', 'x2'))
-MRS <- yac_str(MU[1]/MU[2]) |> 
-  Simplify() |> 
-  ysym()
+MU <- c(
+  p1*solve(dL[1], 'lambda'), 
+  p2*solve(dL[2], 'lambda')) |>
+  y_rmvars()
+MRS <- with_value(MU[1]/MU[2], 'p1', p1) |>
+  with_value('p2', p2) |> yac_str() |>
+  Deriv::Simplify() |> ysym()
 D <- solve(c(MRS, dL[[3]]), c(ysym('p1/p2'), 0), c('x1', 'x2')) |> 
   y_rmvars() |>
   simplify()
 D[1] <- with_value(D[1], 'x2', D[2]) |> 
-  simplify()
+  simplify() |> suppressWarnings()
+D
 ```
 
-```{r demand-solution}
-u <- ysym('x1^(alpha) * x2^(1-alpha)')
-L <- u + ysym('lambda*(m - p1*x1 - p2*x2)')
-dL <- deriv(L, c('x1', 'x2', 'lambda'))
-MU <- deriv(u, c('x1', 'x2'))
-MRS <- yac_str(MU[1]/MU[2]) |> 
-  Simplify() |> 
-  ysym()
-D <- solve(c(MRS, dL[[3]]), c(ysym('p1/p2'), 0), c('x1', 'x2')) |> 
-  y_rmvars() |>
-  simplify()
-D[1] <- with_value(D[1], 'x2', D[2]) |> 
-  simplify()
-```
-
-```{r demand-check}
-grade_code()
-```
-
+In a more reader friendly typesetting format using `Ryacas::tex()` we can write this as:
 $$x_1(p_1, m) = `r tex(D[1])`$$
-
 $$x_2(p_2, m) = `r tex(D[2])`$$
-
-Notice that for these preferences the increase in consumption for $x_1$ is linear in the amount of income (it only depends on the exogenous parameters $\alpha$ and $p_1$).
+Notice that *for these preferences* the increase in consumption for $x_1$ is linear in the amount of income (it only depends on the exogenous parameters $\alpha$ and $p_1$).
 
 Run the following code to take the derivative of demand for $x_1$ and $x_2$ with respect to income and prices. 
 
-```{r analyticalStatics, exercise = TRUE, exercise.setup = 'demand-solution'}
+```{r analyticalStatics, echo = TRUE}
 (statics <- deriv(D, c('m', 'p1', 'p2')))
-```
-
-```{r analyticalStatics-solution}
-(statics <- deriv(D, c('m', 'p1', 'p2')))
-```
-
-```{r analyticalStatics-check}
-grade_code()
 ```
 
 substituting our parameter values, we have: 
@@ -464,679 +610,3 @@ $$\nabla x_2(m, p_1, p_2) = \begin{pmatrix} \frac{d}{dm}x_2(m, p_1) \\ \frac{d}{
  = \begin{pmatrix} \frac{0.75}{1} \\ 0 \\ \frac{-75}{1^2} \end{pmatrix}
  \approx \begin{pmatrix} 0.75 \\ 0 \\ -75 \end{pmatrix}$$
 
-## Engel Curves
-
-The *Engel Curve* plots the demand for a good against the level of
-income. In our Cobb-Douglas example, this "curve" is a straight line.
-Plot the Engel curve for the example.
-
-```{r cdEngel, exercise = TRUE, exercise.setup = 'dmEquilibrium'}
-
-```
-
-```{r cdEngel-solution}
-curve(
-  (a / p1) * x,
-  from = 0,
-  to = 150,
-  xlab = expression("Income"),
-  ylab = expression(x[1])
-)
-```
-
-```{r cdEngel-check}
-grade_code()
-```
-
-A "simple" example of a nonlinear income expansion path comes from the
-special case of perfect complements, where:
-
-$$u(x) = min\{x_1^2, x_2\}.$$
-
-In this example, for any nonzero set of prices, the consumer would
-choose to set $x_2 = x_1^2$ (to put consumption in the corner of the
-"L". Run the following code to see the analytical solution and its graph
-for different levels of income.
-
-```{r nonlinearIEP, exercise = TRUE, exercise.setup = 'initialEquilibrium'}
-m4 = seq(60, 120, 20)
-complements <- function(x) {
-  - min(x[1] ^ 2, 25 * x[2])
-}
-nonlinearIEPEquilibrium060m <-
-  solnp(
-    c(1, 1),
-    complements,
-    ineqfun = bc,
-    ineqLB = 0, 
-    ineqUB = m4[1],
-    LB = c(0,0), 
-    UB = c(Inf, Inf)
-  );
-nonlinearIEPEquilibrium080m <-
-  solnp(
-    c(1, 1),
-    complements,
-    ineqfun = bc,
-    ineqLB = 0, 
-    ineqUB = m4[2],
-    LB = c(0,0), 
-    UB = c(Inf, Inf)
-  );
-nonlinearIEPEquilibrium100m <-
-  solnp(
-    c(1, 1),
-    complements,
-    ineqfun = bc,
-    ineqLB = 0, 
-    ineqUB = m4[3],
-    LB = c(0,0), 
-    UB = c(Inf, Inf)
-  );
-nonlinearIEPEquilibrium120m <-
-  solnp(
-    c(1, 1),
-    complements,
-    ineqfun = bc,
-    ineqLB = 0, 
-    ineqUB = m4[4],
-    LB = c(0,0), 
-    UB = c(Inf, Inf)
-  );
-par(mfrow = c(1, 3));
-plot(
-  x = rep(nonlinearIEPEquilibrium060m$pars[1], 10),
-  y = seq(nonlinearIEPEquilibrium060m$pars[2], 120, length.out = 10),
-  type = 'l',
-  col = 'dark green',
-  xlim = c(0, m4[4] / p1),
-  ylim = c(0, m4[4] / p2),
-  xlab = expression(x[1]),
-  ylab = expression(x[2])
-);
-segments(
-  x0 = nonlinearIEPEquilibrium060m$pars[1],
-  x1 = 120,
-  y0 = nonlinearIEPEquilibrium060m$pars[2],
-  y1 = nonlinearIEPEquilibrium060m$pars[2],
-  col = 'dark green'
-);
-segments(
-  x0 = nonlinearIEPEquilibrium080m$pars[1],
-  x1 = nonlinearIEPEquilibrium080m$pars[1],
-  y0 = nonlinearIEPEquilibrium080m$pars[2],
-  y1 = 120,
-  col = 'dark green'
-);
-segments(
-  x0 = nonlinearIEPEquilibrium080m$pars[1],
-  x1 = 120,
-  y0 = nonlinearIEPEquilibrium080m$pars[2],
-  y1 = nonlinearIEPEquilibrium080m$pars[2],
-  col = 'dark green'
-);
-segments(
-  x0 = nonlinearIEPEquilibrium100m$pars[1],
-  x1 = nonlinearIEPEquilibrium100m$pars[1],
-  y0 = nonlinearIEPEquilibrium100m$pars[2],
-  y1 = 120,
-  col = 'dark green'
-);
-segments(
-  x0 = nonlinearIEPEquilibrium100m$pars[1],
-  x1 = 120,
-  y0 = nonlinearIEPEquilibrium100m$pars[2],
-  y1 = nonlinearIEPEquilibrium100m$pars[2],
-  col = 'dark green'
-);
-segments(
-  x0 = nonlinearIEPEquilibrium120m$pars[1],
-  x1 = nonlinearIEPEquilibrium120m$pars[1],
-  y0 = nonlinearIEPEquilibrium120m$pars[2],
-  y1 = 120,
-  col = 'dark green'
-);
-segments(
-  x0 = nonlinearIEPEquilibrium120m$pars[1],
-  x1 = 120,
-  y0 = nonlinearIEPEquilibrium120m$pars[2],
-  y1 = nonlinearIEPEquilibrium120m$pars[2],
-  col = 'dark green'
-);
-abline(100 / p2,-p1 / p2, col = 'red');
-curve(x ^ 2 / 25, add = TRUE);
-curve(
-  p2 * x ^ 2 / 25 + p1 * x,
-  xlim = c(0, nonlinearIEPEquilibrium120m$pars[1]),
-  ylim = c(0, m4[4]),
-  xlab = expression(x[1]),
-  ylab = 'Income'
-);
-curve(
-  p2 * x + 5 * p1 * sqrt(x),
-  xlim = c(0, nonlinearIEPEquilibrium120m$pars[2]),
-  ylim = c(0, m4[4]),
-  xlab = expression(x[2]),
-  ylab = 'Income'
-);
-par(mfrow = c(1,1))
-```
-
-```{r nonlinearIEP-solution}
-m4 = seq(60, 120, 20)
-complements <- function(x) {
-  - min(x[1] ^ 2, 25 * x[2])
-}
-nonlinearIEPEquilibrium060m <-
-  solnp(
-    c(1, 1),
-    complements,
-    ineqfun = bc,
-    ineqLB = 0, 
-    ineqUB = m4[1],
-    LB = c(0,0), 
-    UB = c(Inf, Inf)
-  )
-
-nonlinearIEPEquilibrium080m <-
-  solnp(
-    c(1, 1),
-    complements,
-    ineqfun = bc,
-    ineqLB = 0, 
-    ineqUB = m4[2],
-    LB = c(0,0), 
-    UB = c(Inf, Inf)
-  )
-
-nonlinearIEPEquilibrium100m <-
-  solnp(
-    c(1, 1),
-    complements,
-    ineqfun = bc,
-    ineqLB = 0, 
-    ineqUB = m4[3],
-    LB = c(0,0), 
-    UB = c(Inf, Inf)
-  )
-
-nonlinearIEPEquilibrium120m <-
-  solnp(
-    c(1, 1),
-    complements,
-    ineqfun = bc,
-    ineqLB = 0, 
-    ineqUB = m4[4],
-    LB = c(0,0), 
-    UB = c(Inf, Inf)
-  )
-
-par(mfrow = c(1, 3))
-
-plot(
-  x = rep(nonlinearIEPEquilibrium060m$pars[1], 10),
-  y = seq(nonlinearIEPEquilibrium060m$pars[2], 120, length.out = 10),
-  type = 'l',
-  col = 'dark green',
-  xlim = c(0, m4[4] / p1),
-  ylim = c(0, m4[4] / p2),
-  xlab = expression(x[1]),
-  ylab = expression(x[2])
-)
-
-segments(
-  x0 = nonlinearIEPEquilibrium060m$pars[1],
-  x1 = 120,
-  y0 = nonlinearIEPEquilibrium060m$pars[2],
-  y1 = nonlinearIEPEquilibrium060m$pars[2],
-  col = 'dark green'
-)
-
-segments(
-  x0 = nonlinearIEPEquilibrium080m$pars[1],
-  x1 = nonlinearIEPEquilibrium080m$pars[1],
-  y0 = nonlinearIEPEquilibrium080m$pars[2],
-  y1 = 120,
-  col = 'dark green'
-)
-
-segments(
-  x0 = nonlinearIEPEquilibrium080m$pars[1],
-  x1 = 120,
-  y0 = nonlinearIEPEquilibrium080m$pars[2],
-  y1 = nonlinearIEPEquilibrium080m$pars[2],
-  col = 'dark green'
-)
-
-segments(
-  x0 = nonlinearIEPEquilibrium100m$pars[1],
-  x1 = nonlinearIEPEquilibrium100m$pars[1],
-  y0 = nonlinearIEPEquilibrium100m$pars[2],
-  y1 = 120,
-  col = 'dark green'
-)
-
-segments(
-  x0 = nonlinearIEPEquilibrium100m$pars[1],
-  x1 = 120,
-  y0 = nonlinearIEPEquilibrium100m$pars[2],
-  y1 = nonlinearIEPEquilibrium100m$pars[2],
-  col = 'dark green'
-)
-
-segments(
-  x0 = nonlinearIEPEquilibrium120m$pars[1],
-  x1 = nonlinearIEPEquilibrium120m$pars[1],
-  y0 = nonlinearIEPEquilibrium120m$pars[2],
-  y1 = 120,
-  col = 'dark green'
-)
-
-segments(
-  x0 = nonlinearIEPEquilibrium120m$pars[1],
-  x1 = 120,
-  y0 = nonlinearIEPEquilibrium120m$pars[2],
-  y1 = nonlinearIEPEquilibrium120m$pars[2],
-  col = 'dark green'
-)
-
-abline(100 / p2,-p1 / p2, col = 'red')
-
-curve(x ^ 2 / 25, add = TRUE)
-
-curve(
-  p2 * x ^ 2 / 25 + p1 * x,
-  xlim = c(0, nonlinearIEPEquilibrium120m$pars[1]),
-  ylim = c(0, m4[4]),
-  xlab = expression(x[1]),
-  ylab = 'Income'
-)
-
-curve(
-  p2 * x + 5 * p1 * sqrt(x),
-  xlim = c(0, nonlinearIEPEquilibrium120m$pars[2]),
-  ylim = c(0, m4[4]),
-  xlab = expression(x[2]),
-  ylab = 'Income'
-)
-
-par(mfrow = c(1,1))
-```
-
-```{r nonlinearIEP-check}
-grade_code()
-```
-
-## Demand Curves
-
-### Plotting Demand by Connecting the Dots
-
-Plot the three points you derived in the previous exercise for the
-prices of good 1 equal to 1.0, 1.5, and 2.0. (Orient quantity on the 
-x-axis ranging from 0 to 60 and price
-on the y-axis ranging from 0 to 2.5)
-
-```{r demandPoints, exercise = TRUE, exercise.setup = 'dpEquilibrium'}
-
-```
-
-```{r demandPoints-solution}
-plot(
-  initialEquilibrium$pars[1],
-  p1,
-  type = 'p',
-  xlim = c(0, 60),
-  ylim = c(0, 2.5),
-  xlab = "Quantity of Good 1",
-  ylab = "Price of Good 1"
-)
-points(lowPEquilibrium$pars[1], p1 - dp1)
-points(highPEquilibrium$pars[1], p1 + dp1)
-```
-
-```{r demandPoints-check}
-grade_code()
-```
-
-Connect the dots with line segments. 
-
-```{r demandSegments, exercise = TRUE, exercise.setup = 'dpEquilibrium'}
-plot(
-  initialEquilibrium$pars[1],
-  p1,
-  type = 'p',
-  xlim = c(0, 60),
-  ylim = c(0, 2.5),
-  xlab = "Quantity of Good 1",
-  ylab = "Price of Good 1"
-)
-points(lowPEquilibrium$pars[1], p1 - dp1)
-points(highPEquilibrium$pars[1], p1 + dp1)
-
-```
-
-```{r demandSegments-solution}
-plot(
-  initialEquilibrium$pars[1],
-  p1,
-  type = 'p',
-  xlim = c(0, 60),
-  ylim = c(0, 2.5),
-  xlab = "Quantity of Good 1",
-  ylab = "Price of Good 1"
-)
-points(lowPEquilibrium$pars[1], p1 - dp1)
-points(highPEquilibrium$pars[1], p1 + dp1)
-segments(
-  x0 = initialEquilibrium$pars[1],
-  y0 = p1,
-  x1 = lowPEquilibrium$pars[1],
-  y1 = p1 - dp1
-)
-segments(
-  x0 = initialEquilibrium$pars[1],
-  y0 = p1,
-  x1 = highPEquilibrium$pars[1],
-  y1 = p1 + dp1
-)
-```
-
-```{r demandSegments-check}
-grade_code()
-```
-
-### Connecting Many Dots on a Demand Curve
-
-The more points we do this for, the smoother and more complete our
-demand curve becomes. Run the code below to derive the demand schedule
-for $x_1$ using the parameter values in our original example (m = 100,
-p2 = 1, $\alpha$ = 0.25) for the prices ranging from 0.5 to 2.5 in
-increments of 0.1. 
-
-1. Define `p1seq` as the sequence of prices and `c1` as a `NULL` object. 
-2. Create a `for` loop to iterate the constrained optimization function over all of the values in the length of `p1` using the following steps:
-a. Defines the initial values of the choice variables, `pars` to be equal to `c(1,1)` if `i == 1` and otherwise equal to the value of the solution from the previous iteration (which we call `c` below); 
-b. Define `c` as the value of the `pars` result from the current iteration solution. 
-c. Define the $i^th$ element of `c1` as the first element of the `pars` variable (the optimal level of consumption for that price) of each solution.
-3. Plot the demand curve of p1 (y-axis) versus c1 (x-axis).
-
-```{r demandCurve, exercise = TRUE, exercise.setup = 'dpEquilibrium'}
-p1seq <- seq(0.5, 2.5, 0.1)
-c1 <- NULL
-for(i in 1:length(p1seq)) {
-  if(i == 1) {
-    pars <- c(1,1)
-  } else {
-    pars <- c
-  }
-  c <- solnp(
-    pars = pars,
-    ux,
-    ineqfun = function(x) p1seq[i] * x[1] + p2 * x[2],
-    ineqLB = 0,
-    ineqUB = m,
-    LB = c(0, 0),
-    UB = c(Inf, Inf), 
-    control = list(trace = 0)
-  )$pars
-  c1[i] <- c[1]
-}
-plot(c1,
-     p1seq,
-     type = 'l',
-     xlim = c(0, 50),
-     ylim = c(0, 2.5),
-     xlab = 'Quantity of Good 1',
-     ylab = 'Price of Good 1')
-```
-
-```{r demandCurve-solution}
-p1seq <- seq(0.5, 2.5, 0.1)
-c1 <- NULL
-for (i in 1:length(p1seq)) {
-  if(i == 1) {
-    pars <- c(1,1)
-  } else {
-    pars <- c
-  }
-  c <- solnp(
-    pars = pars,
-    ux,
-    ineqfun = function(x) p1seq[i] * x[1] + p2 * x[2],
-    ineqLB = 0,
-    ineqUB = m,
-    LB = c(0, 0),
-    UB = c(Inf, Inf), 
-    control = list(trace = 0)
-  )$pars
-  c1[i] <- c[1]
-}
-plot(c1,
-     p1seq,
-     type = 'l',
-     xlim = c(0, 50),
-     ylim = c(0, 2.5),
-     xlab = 'Quantity of Good 1',
-     ylab = 'Price of Good 1')
-```
-
-```{r demandCurve-check}
-grade_code()
-```
-
-### Plotting a Demand Function
-
-Recall that the analytical solution for the demand curve was:
-
-$$x_1(p_1, m) = `r tex(D[1])`$$
-
-1.  Plot this function. Note that this function expresses *quantity* as
-    a function of *price*, which implies that the axes are reversed.
-2.  Rearrange the demand function to get *price* as a function of
-    *quantity* in order to plot the *inverse* demand function (with
-    price on the y-axis as usual).
-
-```{r demandFunction, exercise = TRUE, exercise.setup = 'dpEquilibrium'}
-
-```
-
-```{r demandFunction-solution}
-curve(
-  a * m / x,
-  from = 0,
-  to = 2.5,
-  ylim = c(0, 50),
-  xlab = "Price of Good 1",
-  ylab = "Quantity of Good 1"
-)
-curve(
-  a * m / x,
-  from = 0,
-  to = 50,
-  ylim = c(0, 2.5),
-  xlab = "Quantity of Good 1",
-  ylab = "Price of Good 1"
-)
-```
-
-```{r demandFunction-check}
-grade_code("Samesies!")
-```
-
-Why do you think Alfred Marshall would graph demand functions
-"backwards?"
-
-## Income and Substitution Effects
-
-The *substitution effect* arises because the change in the price of one good encourages a consumer to buy more of the relatively cheaper good (and less of the relatively more expensive good). <br> 
-Analytically, the substitution effect is the difference between (1) the quantity that minimizes the consumer's expenditures *subject to leaving the the consumer at least as well-off as the original equilibrium* ($\tilde{x}$); and (2) the original quantity consumed ($x^*$).
-
-The *income effect* arises because when prices change, the same amount of money income can now buy a greater or lesser amount of goods and services, overall. <br> 
-Analytically, the income effect is the difference between (1) $\tilde{x}$; and (2) the new quantity consumed ($x^**$)
-
-### Finding $\tilde{x}$. 
-
-To separate the income and substitution, the first order of business is finding $\tilde{x}$. Run the following code to use the `Rsolnp::solnp()` function to solve the *nonlinearly*-constrained optimization problem for finding $\tilde{x}$, 
-$$min_x \bigg\{p_1x_1 + p_2x_2 \bigg\}$$
-$$\text{s.t. } u_0^* - u(x_1, x_2) \le 0$$
-
-```{r xTilde, exercise = TRUE, exercise.setup = 'dpEquilibrium'}
-library(Rsolnp)
-u0 <- -tail(initialEquilibrium$values, 1)
-x0 <- initialEquilibrium$pars
-xTilde <-
-  solnp(
-    pars = x0,
-    fun = bcLowP,
-    ineqfun = ux,
-    ineqLB = -Inf,
-    ineqUB = -u0,
-    LB = c(0, 0),
-    UB = c(Inf, Inf)
-  )
-
-xTilde
-```
-
-```{r xTilde-solution}
-u0 <- -tail(initialEquilibrium$values, 1)
-x0 <- initialEquilibrium$pars
-xTilde <-
-  solnp(
-    pars = x0,
-    fun = bcLowP,
-    ineqfun = ux,
-    ineqLB = -Inf,
-    ineqUB = -u0,
-    LB = c(0, 0),
-    UB = c(Inf, Inf)
-  )
-
-xTilde
-```
-
-```{r xTilde-check}
-grade_code()
-```
-
-Note: several packages implement constrained optimization with nonlinear constraints; the advantage to `Rsolnp` is that it stores the Lagrange multiplier, which is economically meaningful. 
-
-### Graphical Decomposition
-
-```{r, fig.height = 8, fig.width = 8}
-curve(
-  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  from = 0,
-  to = m / (p1 - dp1),
-  xlim = c(0, m / (p1 - dp1)),
-  ylim = c(0, m / p2),
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  col = 'dark green'
-)
-abline(m / p2,-p1 / p2, col = 'red')
-points(initialEquilibrium$pars[1],
-       initialEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-curve(
-  (-tail(lowPEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),
-  add = TRUE,
-  col = 'dark green',
-  lty = 'dashed'
-)
-abline(m / p2,-(p1 - dp1) / p2, col = 'red', lty = 'dashed')
-points(lowPEquilibrium$pars[1],
-       lowPEquilibrium$pars[2],
-       col = 'blue',
-       pch = 20)
-abline(tail(xTilde$values, 1) / p2,-(p1 - dp1) / p2, col = 'red', lty = 'dashed')
-points(xTilde$pars[1],
-       xTilde$pars[2],
-       col = 'blue',
-       pch = 20)
-segments(x0 = initialEquilibrium$pars[1], 
-         y0 = initialEquilibrium$pars[2], 
-         x1 = initialEquilibrium$pars[1], 
-         y1 = -5, lty = 'dashed', col = 'blue')
-segments(x0 = xTilde$pars[1], 
-         y0 = xTilde$pars[2], 
-         x1 = xTilde$pars[1], 
-         y1 = -5, lty = 'dashed', col = 'blue')
-segments(x0 = lowPEquilibrium$pars[1], 
-         y0 = lowPEquilibrium$pars[2], 
-         x1 = lowPEquilibrium$pars[1], 
-         y1 = -5, lty = 'dashed', col = 'blue')
-text(x = (initialEquilibrium$pars[1]+xTilde$pars[1])/2, 
-     y = 0, "Substitution Effect", adj = c(0, 0.5), srt = 90)
-text(x = (lowPEquilibrium$pars[1]+xTilde$pars[1])/2, 
-     y = 0, "Income Effect", adj = c(0, 0.5), srt = 90)
-```
-
-<details style="line-height:105%"><summary>Click here to see the code for graphing the decomposition of the change in price.</summary>
-
-`curve(`<br>
-`  (-tail(initialEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),`<br>
-`  from = 0,`<br>
-`  to = m / (p1 - dp1),`<br>
-`  xlim = c(0, m / (p1 - dp1)),`<br>
-`  ylim = c(0, m / p2),`<br>
-`  xlab = expression(x[1]),`<br>
-`  ylab = expression(x[2]),`<br>
-`  col = 'dark green')`<br>
-`abline(m / p2,-p1 / p2, col = 'red')`<br>
-`points(initialEquilibrium$pars[1],`<br>
-`       initialEquilibrium$pars[2],`<br>
-`       col = 'blue', pch = 20)`<br>
-`curve(`<br>
-`  (-tail(lowPEquilibrium$values, 1)) ^ (1 / (1 - a)) / (x ^ (a / (1 - a))),`<br>
-`  add = TRUE,`<br>
-`  col = 'dark green',`<br>
-`  lty = 'dashed')`<br>
-`abline(m / p2,-(p1 - dp1) / p2, col = 'red', lty = 'dashed')`<br>
-`points(lowPEquilibrium$pars[1],`<br>
-`       lowPEquilibrium$pars[2],`<br>
-`       col = 'blue',`<br>
-`       pch = 20)`<br>
-`abline(tail(xTilde$values, 1) / p2,-(p1 - dp1) / p2, col = 'red', lty = 'dashed')`<br>
-`points(xTilde$pars[1],`<br>
-`       xTilde$pars[2],`<br>
-`       col = 'blue', pch = 20)`<br>
-`segments(x0 = initialEquilibrium$pars[1], `<br>
-`         y0 = initialEquilibrium$pars[2], `<br>
-`         x1 = initialEquilibrium$pars[1], `<br>
-`         y1 = -5, lty = 'dashed', col = 'blue')`<br>
-`segments(x0 = xTilde$pars[1], `<br>
-`         y0 = xTilde$pars[2], `<br>
-`         x1 = xTilde$pars[1], `<br>
-`         y1 = -5, lty = 'dashed', col = 'blue')`<br>
-`segments(x0 = lowPEquilibrium$pars[1], `<br>
-`         y0 = lowPEquilibrium$pars[2], `<br>
-`         x1 = lowPEquilibrium$pars[1], `<br>
-`         y1 = -5, lty = 'dashed', col = 'blue')`<br>
-`text(x = (initialEquilibrium$pars[1]+xTilde$pars[1])/2, `<br>
-`     y = 0, "Substitution Effect", adj = c(0, 0.5), srt = 90)`<br>
-`text(x = (lowPEquilibrium$pars[1]+xTilde$pars[1])/2, `<br>
-`     y = 0, "Income Effect", adj = c(0, 0.5), srt = 90)`<br>
-
-</details>
-
-### Changes in Consumer Surplus
-
-The two dashed expenditure lines (through $x^**$ and $\tilde{x}$) capture the difference in income needed to achieve the new and original maximum levels of utility, respectively, calculated at the new price levels. In other words this is the additional income the consumer "feels" by moving from the original indifference curve to the new one. It is also one of the ways to capture the change in consumer surplus across all markets when relative prices change. 
-
-```{r installR, echo=FALSE}
-question("What is the approximate dollar-denominated welfare effect (i.e. income effect) of the price change (evaluated at the new prices) for our example?",
-    answer("zero"),
-    answer("-9.64"),
-    answer("9.64", correct = TRUE),
-    answer("90.36"),
-    allow_retry = TRUE
-  )
-```
-
-### Calculating Consumer Surplus
-
-Once you've found $\tilde{x}$, finding the consumer surplus is relatively straightforward. In our case, the expenditures needed at the new prices in order to reach the original utility is the value of the expenditure function at $\tilde{x}$, which equals the last value in `xTilde$values`, or `r round(tail(xTilde$values, 1), 2)`; the expenditures needed to reach the new optimal utility is simply the consumer's money income, `m`. The change in consumer surplus will be the difference `r round(m - tail(xTilde$values, 1), 2)`. 
-
-Some policy analyses use this to evaluate the welfare effects of policy changes in terms of real income. The trick is estimating (with as few assumptions as possible!) the unobserved $\tilde{x}$. 

@@ -26,8 +26,10 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
+library(ggcheck)
+library(Ryacas)
 gradethis_setup(exercise.reveal_solution = TRUE)
-knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+knitr::opts_chunk$set(echo = FALSE, fig.align = 'center', fig.height = 6, fig.width = 6, message = FALSE, warning = FALSE)
 ```
 
 ## Review: The Firm's Three Problems:
@@ -72,9 +74,9 @@ Solve for the market equilibrium price and quantity.
 ```{r market-solution}
 library(nleqslv) 
 market <- function(x) {
-    supply <- 10000000*x[1] - x[2]
-    demand <- 6000000 - 2000000*x[1] - x[2]
-    return(c(supply, demand))
+  supply <- 10000000*x[1] - x[2]
+  demand <- 6000000 - 2000000*x[1] - x[2]
+  return(c(supply, demand))
 }
 equilibrium <- nleqslv(c(2,2), market)
 P <- equilibrium$x[1]
@@ -99,137 +101,20 @@ grade_code()
 
 ## Profit Maximization
 
-When we left our representative firm, we could express the short-run production function (with capacity optimized for $Q = 2500$) in terms of the cube-root of the labor input, $f(L|K=25) = 100*25^{2/3}*L^{1/3}$. The cost function is:
+When we left our representative firm, we could express the short-run production function (with capacity optimized at $K = 25$ for $Q = 2500$) in terms of the cube-root of the labor input as: 
 
-$$C(Q) = 10L(Q) + 20K.$$
+$$f(L|K=25) = 100(25^{2/3})(L^{1/3})$$. 
 
-Substituting $K=25$, and solving $f(L|K = 25)$ for $L$, we have: 
+Solving $f(L|K = 25)$ for $L$, we have: 
 
-$$L(Q) = \frac{Q^3}{625,000,000}$$
+$$L(Q) = \Bigg( \frac{Q}{100 \cdot 25^{2/3}} \Bigg)^3 =\frac{Q^3}{625,000,000}$$
+
+The cost function is:
+
+$$C(Q | K = 25) = 10L(Q) + 20(25)$$
+
 
 $$C(Q) = \frac{Q^3}{62,500,000} + 500$$
-
-Note that the firm chose (optimized) its capacity on expecting to sell 2,500 units of output. Suppose that after building its capital input, market conditions yielded the following supply and demand functions: 
-
-### Analytical Approach
-
-Run the following code to solve the producer's problem analytically using `Ryacas`. 
-
-<details style="line-height:105%"><summary>Click here to view the steps for the analytical solution.</summary>
-1. Load `Ryacas`.
-2. Define the profit function. 
-3. Derive $d\pi/dQ$ and simplify. 
-4. Solve $d\pi/dQ = 0$ for $Q$, remove the variables, and reformat to an ordinary `R` object. 
-</details>
-
-```{r profitmaxAnalytical, exercise = TRUE}
-library(Ryacas)
-pi <- ysym('0.5*Q - 500 - Q^3 / 62500000') # Define the profit function as a yac_symbol
-dpi   <- deriv(pi, 'Q') |>                 # Take the derivative (and simplify)
-  simplify()
-qStar <- solve(dpi, 'Q')[1] |>          # Solve for Q (take the first [>0] value)
-  y_rmvars()                               # Isolate the solution.
-```
-
-```{r profitmaxAnalytical-solution}
-library(Ryacas)
-pi <- ysym('0.5*Q - 500 - Q^3 / 62500000') # 
-dpi   <- deriv(pi, 'Q') |>
-  simplify()
-qStar <- solve(dpi, 'Q')[1] |>
-  y_rmvars() 
-```
-
-```{r profitmaxAnalytical-check}
-grade_code()
-```
-
-```{r, message=FALSE}
-library(Ryacas)
-pi <- ysym('0.5*Q - 500 - Q^3 / 62500000') # 
-dpi   <- deriv(pi, 'Q') |>
-  simplify()
-qStar <- solve(dpi, 'Q')[1] |>
-  y_rmvars() 
-```
-
-The first-order condition for the profit-maximization problem is: 
-
-$$`r Ryacas::tex(dpi)` = 0$$
-
-This is the condition that sets $MR = MC$. 
-
-The profit-maximizing quantity is: 
-
-$$Q^* = `r tex(qStar)` \approx `r round(as_r(qStar), 3)`$$
-
-### Graphical Approach
-
-Run the following code to construct the following graphs: 
-
-1. Total revenue and total cost versus quantity (top left);
-2. Total profit versus quantity (top right);
-3. Marginal revenue, marginal cost, average cost, and average variable cost versus quantity (bottom left); 
-4. Marginal (change in) profit versus quantity (bottom right); 
-
-```{r profitmaxGraph, exercise = TRUE}
-par(mfrow = c(2,2))                                  # Set a 2-by-2 plot window.
-curve(500 + x^3 / 62500000,                          # Total cost curve
-  from = 0, to = 5000, ylim = c(0,2500),             # Start/end x, y-axis limits
-  xlab = "Q", ylab = "TR/TC", col = 'red')           # Axis labels, line color
-curve(x / 2, col = 'blue', add = T)                  # Total revenue curve
-b = 500 + as_r(qStar)^3 / 62500000 - 0.5*as_r(qStar) # Tangent line intercept
-curve(b + 0.5 * x,                                   # Cost tangent at Qstar
-      lty = 'dashed', col = 'red', add = T)
-curve(0.5 * x - (500 + x^3 / 62500000),              # Total profit curve
-  from = 0, to = 5000, ylim = c(-500, 600), xlab = "Q", ylab = "Profit")
-lines(x = c(0, 5000), y = c(0, 0), lty = 'dashed')   # Zero-profit reference line
-curve(3*x^2 / 62500000,                              # Marginal cost curve
-  from = 0, to = 5000, ylim = c(0, 1), xlab = "Q", ylab = "MC/AC", col = 'red')
-curve(x^2/62500000 + 500/x, col = 'brown', add = T)  # Average total cost curve
-curve(x^2 / 62500000,                                # Average variable cost curve
-      col = 'brown', lty = 'dashed', add = T) 
-lines(x = c(0, 5000), y = c(0.5, 0.5), col = 'blue') # Price/marginal revenue curve
-curve(0.5 - (3*x^2 / 62500000),                      # Marginal profit curve
-  from = 0, to = 5000, ylim = c(-0.6, 0.6), xlab = "Q", ylab = expression(DeltaProfit))
-lines(x = c(0, 5000), y = c(0, 0), lty = 'dashed')   # dProfit = 0 reference line
-```
-
-```{r profitmaxGraph-setup}
-library(Ryacas)
-pi <- ysym('0.5*Q - 500 - Q^3 / 62500000') # 
-dpi   <- deriv(pi, 'Q') |>
-  simplify()
-qStar <- solve(dpi, 'Q')[1] |>
-  y_rmvars() 
-```
-
-```{r profitmaxGraph-solution}
-par(mfrow = c(2,2))                                  # Set a 2-by-2 plot window.
-curve(500 + x^3 / 62500000,                          # Total cost curve
-  from = 0, to = 5000, ylim = c(0,2500),             # Start/end x, y-axis limits
-  xlab = "Q", ylab = "TR/TC", col = 'red')           # Axis labels, line color
-curve(x / 2, col = 'blue', add = T)                  # Total revenue curve
-b = 500 + as_r(qStar)^3 / 62500000 - 0.5*as_r(qStar) # Tangent line intercept
-curve(b + 0.5 * x,                                   # Cost tangent at Qstar
-      lty = 'dashed', col = 'red', add = T)
-curve(0.5 * x - (500 + x^3 / 62500000),              # Total profit curve
-  from = 0, to = 5000, ylim = c(-500, 600), xlab = "Q", ylab = "Profit")
-lines(x = c(0, 5000), y = c(0, 0), lty = 'dashed')   # Zero-profit reference line
-curve(3*x^2 / 62500000,                              # Marginal cost curve
-  from = 0, to = 5000, ylim = c(0, 1), xlab = "Q", ylab = "MC/AC", col = 'red')
-curve(x^2/62500000 + 500/x, col = 'brown', add = T)  # Average total cost curve
-curve(x^2 / 62500000,                                # Average variable cost curve
-      col = 'brown', lty = 'dashed', add = T) 
-lines(x = c(0, 5000), y = c(0.5, 0.5), col = 'blue') # Price/marginal revenue curve
-curve(0.5 - (3*x^2 / 62500000),                      # Marginal profit curve
-  from = 0, to = 5000, ylim = c(-0.6, 0.6), xlab = "Q", ylab = expression(DeltaProfit))
-lines(x = c(0, 5000), y = c(0, 0), lty = 'dashed')   # dProfit = 0 reference line
-```
-
-```{r profitmaxGraph-check}
-grade_code()
-```
 
 ### Computational Approach
 
@@ -242,9 +127,18 @@ Careful! Since our profit function has multiple "critical values" (points where 
 ```
 
 ```{r profitmaxNumerical-solution}
-library(Rsolnp)
-loss <- function(x) -(0.5*x - (x^3 / 62500000 + 500))  # Define losses
-profitMax <- solnp(pars = 1, fun = loss, LB = 0)
+library(MicroWithR)
+P = 0.5
+pi <- function(x)
+  P * x - (x ^ 3 / 62500000 + 500)
+profitMax <-
+  solnp2(
+    pars = 1,
+    fun = pi,
+    LB = 0,
+    max = TRUE,
+    control = list(trace = 0)
+  )
 ```
 
 ```{r profitmaxNumerical-hint}
@@ -265,3 +159,312 @@ grade_this(
   pass("Same as we got from the analytical approach")
 )
 ```
+
+### Graphical Approach
+
+Construct the following graphs: 
+
+1. Total revenue and total cost versus quantity
+```{r trtcGraph, exercise = TRUE, fig.align='center', fig.height=6}
+
+```
+
+```{r trtcGraph-setup}
+library(MicroWithR)
+P = 0.5
+pi <- function(x)
+  P * x - (x ^ 3 / 62500000 + 500)
+profitMax <-
+  solnp2(
+    pars = 1,
+    fun = pi,
+    LB = 0,
+    max = TRUE,
+    control = list(trace = 0)
+  )
+```
+
+```{r trtcGraph-solution}
+library(ggplot2)
+tcGraph <- ggplot() + 
+  geom_function(fun = function(x) 500 + x^3 / 62500000) + 
+  geom_function(fun = function(x) P*x) + 
+  lims(x = c(0, 5000), y = c(0, 2500)) 
+```
+
+```{r trtcGraph-check}
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1) & 
+      ith_geom_is(.result, "function", i = 2) & 
+      ith_geom_is(.result, "function", i = 3)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
+
+2. Marginal revenue, marginal cost, average cost, and average variable cost versus quantity; 
+```{r mrmcGraph, exercise = TRUE, fig.align='center', fig.height=6}
+
+```
+
+```{r mrmcGraph-setup}
+library(MicroWithR)
+library(ggplot2)
+P = 0.5
+pi <- function(x)
+  P * x - (x ^ 3 / 62500000 + 500)
+profitMax <-
+  solnp2(
+    pars = 1,
+    fun = pi,
+    LB = 0,
+    max = TRUE,
+    control = list(trace = 0)
+  )
+```
+
+```{r mrmcGraph-solution}
+ggplot() + 
+  geom_function(fun = function(x) x^2/62500000 + 500/x) + 
+  geom_function(fun = function(x) x^2 / 62500000) + 
+  geom_function(fun = function(x) 3*x^2 / 62500000) + 
+  geom_hline(yintercept = P) +
+  lims(x = c(0, 5000), y = c(0, 1)) 
+```
+
+```{r mrmcGraph-check}
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1) & 
+      ith_geom_is(.result, "function", i = 2) & 
+      ith_geom_is(.result, "function", i = 3) & 
+      ith_geom_is(.result, "hline", i = 4)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
+
+3. Total profit versus quantity;
+
+```{r piGraph, exercise = TRUE, fig.align='center', fig.height=6}
+
+```
+
+```{r piGraph-setup}
+library(MicroWithR)
+library(ggplot2)
+P = 0.5
+pi <- function(x)
+  P * x - (x ^ 3 / 62500000 + 500)
+profitMax <-
+  solnp2(
+    pars = 1,
+    fun = pi,
+    LB = 0,
+    max = TRUE,
+    control = list(trace = 0)
+  )
+```
+
+```{r piGraph-solution}
+piGraph <- ggplot() + 
+  geom_function(fun = function(x) P * x - (500 + x^3 / 62500000)) + 
+  geom_hline(yintercept = 0) +
+  lims(x = c(0, 5000), y = c(-500, 600)) 
+```
+
+```{r piGraph-check}
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1) & 
+      ith_geom_is(.result, "function", i = 2) & 
+      ith_geom_is(.result, "function", i = 3) & 
+      ith_geom_is(.result, "hline", i = 4)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
+
+4. Marginal (change in) profit versus quantity (bottom right); 
+
+```{r dpiGraph, exercise = TRUE, fig.align='center', fig.height=6}
+
+```
+
+```{r dpiGraph-setup}
+library(MicroWithR)
+library(ggplot2)
+P = 0.5
+pi <- function(x)
+  P * x - (x ^ 3 / 62500000 + 500)
+profitMax <-
+  solnp2(
+    pars = 1,
+    fun = pi,
+    LB = 0,
+    max = TRUE,
+    control = list(trace = 0)
+  )
+```
+
+```{r dpiGraph-solution}
+ggplot() + 
+  geom_function(fun = function(x) 0.5 - (3*x^2 / 62500000)) + 
+  geom_hline(yintercept = 0) +
+  lims(x = c(0, 5000), y = c(-0.6, 0.6)) 
+```
+
+```{r dpiGraph-check}
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1) & 
+      ith_geom_is(.result, "hline", i = 2)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
+
+### Comparison of the Graphical Equilibria
+
+```{r profitmaxGraphSetup, echo = FALSE}
+library(MicroWithR)
+P = 0.5
+pi <- function(x)
+  P * x - (x ^ 3 / 62500000 + 500)
+profitMax <-
+  solnp2(
+    pars = 1,
+    fun = pi,
+    LB = 0,
+    max = TRUE,
+    control = list(trace = 0)
+  )
+qStar <- profitMax$pars
+library(ggplot2)
+tcGraph <- ggplot() + 
+  geom_function(fun = function(x) 500 + x^3 / 62500000, aes(color = "TC")) + 
+  geom_function(fun = function(x) P*x, aes(color = "TR")) + 
+  geom_function(fun = function(x) 500 + qStar^3 / 62500000 - 0.5*qStar + 0.5 * x, 
+                color = 'red', linetype = 'dashed') +
+  lims(x = c(0, 5000), y = c(0, 2500)) + 
+  labs(x = "Quantity", y = "$", color = "") +
+  scale_colour_manual(breaks = c("TC", "TR"), values = c("red","blue")) + 
+  theme(legend.position = "bottom")
+piGraph <- ggplot() + 
+  geom_function(fun = function(x) P * x - (500 + x^3 / 62500000), 
+                aes(linetype = "Profit")) + 
+  geom_hline(aes(yintercept = 0, linetype = 'Profit=0')) +
+  lims(x = c(0, 5000), y = c(-500, 600)) + 
+  labs(x = "Quantity", y = "Profit", linetype = "") +
+  scale_linetype_manual(breaks = c("Profit", "Profit=0"), values = c("solid","dashed")) + 
+  theme(legend.position = "bottom")
+acGraph <- ggplot() + 
+  geom_function(fun = function(x) x^2/62500000 + 500/x, aes(color = "ATC")) + 
+  geom_function(fun = function(x) x^2 / 62500000, aes(color = "AVC")) + 
+  geom_function(fun = function(x) 3*x^2 / 62500000, aes(color = "MC")) + 
+  geom_hline(aes(yintercept = P, color = 'P')) +
+  lims(x = c(0, 5000), y = c(0, 1)) + 
+  labs(x = "Quantity", y = "$", color = "") +
+  scale_color_manual(breaks = c("ATC", "AVC", "MC", "P"), values = c("brown", "chocolate1","red", "blue")) + 
+  theme(legend.position = "bottom")
+dpiGraph <- ggplot() + 
+  geom_function(fun = function(x) 0.5 - (3*x^2 / 62500000), aes(linetype = 'dProfit')) + 
+  geom_hline(aes(yintercept = 0, linetype = 'dProfit=0')) +
+  lims(x = c(0, 5000), y = c(-0.6, 0.6)) + 
+  labs(x = "Quantity", y = "dProfit", linetype = "") + 
+  scale_linetype_manual(breaks = c("dProfit", "dProfit=0"), values = c("solid","dashed")) + 
+  theme(legend.position = "bottom")
+```
+
+We can name the plots and combine them using `ggpubr::ggarrange()` as I've done below (with some extra aesthetics. For details see below. 
+
+```{r, echo = TRUE}
+library(ggpubr)
+ggarrange(tcGraph, piGraph, acGraph, dpiGraph)
+```
+
+<details style="line-height:105%">
+
+<summary>Click here to see the code for adding all of the fancy color, linetype, and legend aesthetics.</summary>
+
+```{r, echo = TRUE}
+library(MicroWithR)
+P = 0.5
+pi <- function(x)
+  P * x - (x ^ 3 / 62500000 + 500)
+profitMax <-
+  solnp2(
+    pars = 1,
+    fun = pi,
+    LB = 0,
+    max = TRUE,
+    control = list(trace = 0)
+  )
+qStar <- profitMax$pars
+library(ggplot2)
+tcGraph <- ggplot() + 
+  geom_function(fun = function(x) 500 + x^3 / 62500000, aes(color = "TC")) + 
+  geom_function(fun = function(x) P*x, aes(color = "TR")) + 
+  geom_function(fun = function(x) 500 + qStar^3 / 62500000 - 0.5*qStar + 0.5 * x, 
+                color = 'red', linetype = 'dashed') +
+  lims(x = c(0, 5000), y = c(0, 2500)) + 
+  labs(x = "Quantity", y = "$", color = "") +
+  scale_colour_manual(breaks = c("TC", "TR"), values = c("red","blue")) + 
+  theme(legend.position = "bottom")
+piGraph <- ggplot() + 
+  geom_function(fun = function(x) P * x - (500 + x^3 / 62500000), 
+                aes(linetype = "Profit")) + 
+  geom_hline(aes(yintercept = 0, linetype = 'Profit=0')) +
+  lims(x = c(0, 5000), y = c(-500, 600)) + 
+  labs(x = "Quantity", y = "Profit", linetype = "") +
+  scale_linetype_manual(breaks = c("Profit", "Profit=0"), values = c("solid","dashed")) + 
+  theme(legend.position = "bottom")
+acGraph <- ggplot() + 
+  geom_function(fun = function(x) x^2/62500000 + 500/x, aes(color = "ATC")) + 
+  geom_function(fun = function(x) x^2 / 62500000, aes(color = "AVC")) + 
+  geom_function(fun = function(x) 3*x^2 / 62500000, aes(color = "MC")) + 
+  geom_hline(aes(yintercept = P, color = 'P')) +
+  lims(x = c(0, 5000), y = c(0, 1)) + 
+  labs(x = "Quantity", y = "$", color = "") +
+  scale_color_manual(breaks = c("ATC", "AVC", "MC", "P"), values = c("brown", "chocolate1","red", "blue")) + 
+  theme(legend.position = "bottom")
+dpiGraph <- ggplot() + 
+  geom_function(fun = function(x) 0.5 - (3*x^2 / 62500000), aes(linetype = 'dProfit')) + 
+  geom_hline(aes(yintercept = 0, linetype = 'dProfit=0')) +
+  lims(x = c(0, 5000), y = c(-0.6, 0.6)) + 
+  labs(x = "Quantity", y = "dProfit", linetype = "") + 
+  scale_linetype_manual(breaks = c("dProfit", "dProfit=0"), values = c("solid","dashed")) + 
+  theme(legend.position = "bottom")
+```
+</details>
+
+### Analytical Approach
+
+The analytical solution undertakes the following steps:  
+
+1. Load `Ryacas`.  
+2. Define the profit function. 
+3. Derive $d\pi/dQ$ and simplify. 
+4. Solve $d\pi/dQ = 0$ for $Q$, remove the variables, and reformat as an `R` object. 
+
+The following code solves the producer's problem analytically using `Ryacas`.  
+
+```{r profitmaxAnalytical, echo = TRUE}
+library(Ryacas)
+pi <- ysym('0.5*Q - 500 - Q^3 / 62500000') # Define the profit function as a yac_symbol
+dpi   <- deriv(pi, 'Q') |>                 # Take the derivative (and simplify)
+  simplify()
+qStar <- solve(dpi, 'Q')[1] |>          # Solve for Q (take the first [>0] value)
+  y_rmvars()                               # Isolate the solution.
+```
+
+The first-order condition for the profit-maximization problem is: 
+
+$$`r Ryacas::tex(dpi)` = 0$$
+
+This is the condition that sets $MR = MC$. 
+
+The profit-maximizing quantity is: 
+
+$$Q^* = `r tex(qStar)` \approx `r round(as_r(qStar), 3)`$$

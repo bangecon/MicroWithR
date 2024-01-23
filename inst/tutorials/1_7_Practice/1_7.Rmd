@@ -47,7 +47,7 @@ We have already modeled a few using our utility maximization framework:
 Here, we consider a few more examples: 
 
 4. Inter-Temporal Choice  
-5. Labor Supply  
+5. Labor-Leisure Tradeoffs 
 
 ## Intertemporal Choice
 
@@ -332,11 +332,68 @@ From this we can see that *current* consumption is not all that sensitive to the
 
 $$(1+r)c_1 + c_2 \le (1+r)m_1 + m_2$$
 
-## Labor Supply
+## Labor-Leisure Tradeoffs
 
 Alternatives for describing choice of labor supply:
 
 1. Choose amounts of consumption (a "good") and *labor* (a "bad"); 
 2. Choose amounts of consumption and *leisure* (both "goods").
 
+Really, the two are equivalent, but the former is a little cleaner to model since the indifference curves look "normal." 
 
+### Manager Effort Decision
+
+Suppose that a manager derives utility from consuming (1) goods and services out of their income, $y$; and (2) on-the-job leisure ("shirking"), $\ell$ according to the following utility function: 
+
+$$u(y,l) = y^{0.75}\ell^{0.25}$$
+Their total on-the-job time is 50 hours per week, 50 weeks per year for a total of 2,500 hours per year. 
+
+With minimal managerial effort ($\ell = 2,500$) the firm's profits reach \$1,000,000. Each hour of managerial effort, $e$, while on the job returns profit to the firm of \$2,500. 
+
+Suppose that the firm pays the manager a fixed salary of \$150,000 per year. What would be the total number of hours of effort versus on-the-job leisure that the manager will choose? 
+
+Suppose now that the firm pays the manager a fixed salary of just \$100,000 with an incentive bonus equal to 4% of the firm's total profits. Solve for the optimal amount of leisure, income, and effort. 
+
+```{r effort, exercise = TRUE}
+
+```
+
+```{r effort-hint}
+
+```
+
+```{r effort-solution}
+library(MicroWithR)
+ux = function(x)
+  x[1] ^ 0.75 * x[2] ^ 0.25
+H = 2500
+S = 100000
+s = 0.04
+m = 2500
+h = function(x)
+  H - x[2]
+pi0 = 100000
+pi = function(x)
+  m * h(x) + pi0
+bx <- function(x)
+  x[1] + s * m * x[2]
+eq <- solnp2(
+  pars = c(1, 1),
+  fun = ux,
+  ineqfun = bx,
+  ineqUB = S + s * (m * H + pi0),
+  ineqLB = -Inf,
+  max = TRUE
+)
+```
+
+```{r effort-check}
+grade_this({if (!inherits(.result, c("list"))) {
+    fail("Your class of your answer should be a list")}
+  if (round(.result$pars, 1) != c(58, 46.4)) { 
+    fail("The optimal amount of goods one and two after the change should be about 58 and 46.4") }
+  pass()
+})
+```
+
+### Shareholders' Incentive Decision. 
