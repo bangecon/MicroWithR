@@ -26,6 +26,7 @@ body{font-size: 16pt}
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
+library(ggcheck)
 library(Ryacas)
 library(Deriv)
 gradethis_setup()
@@ -118,7 +119,7 @@ Write the R code required to perform the following operations:
 
 ```
 
-```{r calculatR-solution}
+```{r calculatR-solution, warning=FALSE, message = FALSE}
 21+21
 5*(4-1)^2-3
 sqrt(1764)
@@ -149,7 +150,7 @@ Display the objects in your environment using the `ls()` function.
 
 ```
 
-```{r objects-solution}
+```{r objects-solution, warning=FALSE, message = FALSE}
 answer <- 21+21
 life <- 5*(4-1)^2-3
 universe <- sqrt(1764)
@@ -180,7 +181,7 @@ Then, evaluate $f(x) = 8x^2 - 6x - 12$ at $x = 3$
 
 ```
 
-```{r functions-solution}
+```{r functions-solution, warning=FALSE, message = FALSE}
 quadratic <- function(x, a, b, c) {
   a*x^2 + b*x + c
 }
@@ -196,26 +197,44 @@ For the purposes of getting computational solutions, there is not really a diffe
 
 ### Graphing a Function
 
+<<<<<<< HEAD
 The `ggplot2` package produces professional-looking graphs that look great with the defaults, and that you can learn to customize in infinitely many ways with experience and practice. The function, `ggplot()` initiates a plot, and you can add layer after layer of plots, labels, data, and formatting options using "geom" functions. For mathematical functions, the `geom_function()` function can add any function that you specify with `function(x)` followed by an `expression`. You can also store the plot properties as an object and add features as you think of them. 
 
 Define a plot, `p` with the math function $f(x) = 8x^2 - 6x - 12$ \textcolor{blue}{*blue*}. 
+=======
+The `ggplot2` package produces professional-looking graphs that look great with the defaults, and that you can learn to customize in infinitely many ways with experience and practice. The function, `ggplot()` initiates a plot, and you can add layer after layer of plots, labels, data, and formatting options using "geom" functions. For mathematical functions, the `geom_function()` function can add any function that you specify with `function(x)` followed by an `expression` that includes mathematical operations applied to the variable, $x$.  
+
+You can also store the plot properties as an object and add features as you think of them. Define a plot, `g` with the math function $f(x) = 8x^2 - 6x - 12$ \textcolor{blue}{*blue*}.  
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 
 ```{r plot, exercise=TRUE, fig.height=6.5, fig.width=4.5, fig.align='center'}
 
 ```
 
+<<<<<<< HEAD
 ```{r plot-solution}
 p <- ggplot() +
   geom_function(fun = function(x) 8*x^2 - 6*x - 12, color = "blue") 
 p
+=======
+```{r plot-solution, warning=FALSE, message = FALSE}
+g <- ggplot() +
+  geom_function(fun = function(x) 8*x^2 - 6*x - 12, color = "blue") 
+g
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 ```
 
 ```{r plot-check}
 grade_this({
+<<<<<<< HEAD
   if (ith_geom_is(.result, "function", i = 1)) {
     pass(random_praise())
   }
   fail(random_encouragement())
+=======
+    pass_if(ith_geom_is(.result, "function", 1)) 
+    fail(random_encouragement())
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 })
 ```
 
@@ -225,12 +244,20 @@ Add the line $y = 20x$ to the same plot in \textcolor{darkorange}{*dark orange*}
 
 ```
 
+<<<<<<< HEAD
 ```{r addPlot-setup}
+=======
+```{r addPlot-setup, warning=FALSE, message = FALSE}
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 p <- ggplot() +
   geom_function(fun = function(x) 8*x^2 - 6*x - 12, color = "blue") 
 ```
 
+<<<<<<< HEAD
 ```{r addPlot-solution}
+=======
+```{r addPlot-solution, warning=FALSE, message = FALSE}
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 p <- p +
     geom_function(fun = function(x) 20*x, color = 'darkorange')
 ```
@@ -238,7 +265,11 @@ p <- p +
 ```{r addPlot-check}
 grade_this({
   if (ith_geom_is(.result, "function", i = 2)) {
+<<<<<<< HEAD
     pass(random_praise(), " Where is the second function though? Maybe we should fixe the scales of the axes.")
+=======
+    pass(random_praise())
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
   }
   fail(random_encouragement())
 })
@@ -252,13 +283,22 @@ Do the following to improve the appearance of the plot:
 
 ```
 
+<<<<<<< HEAD
 ```{r lims-setup}
+=======
+```{r lims-setup, warning=FALSE, message = FALSE}
+library(ggplot2)
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 p <- ggplot() +
   geom_function(fun = function(x) 8*x^2 - 6*x - 12, color = "blue") +
   geom_function(fun = function(x) 20*x, color = 'darkorange')
 ```
 
+<<<<<<< HEAD
 ```{r lims-solution}
+=======
+```{r lims-solution, warning=FALSE, message = FALSE}
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 p <- p +
   lims(x = c(-2, 4), y = c(-25, 75)) + 
   labs(x = expression(italic(x)), y = expression(italic(f) ( italic(x) )))
@@ -276,19 +316,41 @@ grade_this({
 There are also loads of other ways to make beautiful graphs using the package `ggplot2` using custom themes for the plot area, titles, and other options. This class focuses on solutions and basic plots of those solutions, for which `base R` plots more than suffice.
 
 ## Optimization
+<<<<<<< HEAD
+
+### Ocular Estimation
+=======
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 
 ### Ocular Estimation
 
-If we want to try to "eyeball" the minimum of our quadratic function, we can zoom in on the range $0.25 \le x \le 0.5$. Run the following code to graph this portion of the domain of our function.
+If we want to try to "eyeball" the minimum of our quadratic function, we can zoom in on the range $0.25 \le x \le 0.5$. Add new `lims()` to our plot, `p`, to graph only this portion of the domain of our function. Also set the y-axis `lims(0)` to a reasonable range to allow us to see how y changes along this domain. 
 
 ```{r zoom, exercise = TRUE, fig.height=6.5, fig.width=4.5, fig.align='center'}
 
 ```
 
+<<<<<<< HEAD
 ```{r zoom-solution}
 ggplot() +
   geom_function(fun = function(x) 8*x^2 - 6*x - 12) +
   lims(x = c(0.25, 0.5))
+=======
+```{r zoom-hint}
+# A good range for the y-axis might be -13.25 to -13. Experiment with ranges that you think will help others see the minimum. 
+```
+
+```{r zoom-setup, warning=FALSE, message = FALSE}
+library(ggplot2)
+p <- ggplot() +
+  geom_function(fun = function(x) 8*x^2 - 6*x - 12, color = "blue") +
+  geom_function(fun = function(x) 20*x, color = 'darkorange') +
+  lims(x = c(-2, 4), y = c(-25, 75)) + 
+  labs(x = expression(italic(x)), y = expression(italic(f) ( italic(x) )))
+```
+```{r zoom-solution, warning=FALSE, message = FALSE}
+p + lims(x = c(0.25, 0.5), y = c(-13.15, -13))
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 ```
 
 ```{r zoom-check}
@@ -297,6 +359,7 @@ grade_this({
     pass(random_praise())
   }
   fail(random_encouragement())
+<<<<<<< HEAD
 })
 ```
 
@@ -321,18 +384,12 @@ grade_this({if (!inherits(.result, c("yac_symbol"))) {
   if (.result$yacas_cmd != "16*x-6") { 
     fail("The derivative should be equal to '16*x-6'") }
   pass()
+=======
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 })
 ```
 
-`Ryacas` can also format the result with tex syntax which you can call in a document to produce a formatted result as shown below: 
-
-$$`r tex(deriv(ysym('a*x^2 + b*x + c'), 'x'))`$$
-
-<details><summary>Click here to see the code that generated this formatted equation.<p></p></summary>
-\$\$`` ` r tex(deriv(ysym('a*x^2 + b*x + c'), 'x'))` ``\$\$`<br><br>
-</details>
-
-To find the minimum of the function, notice that to the left of the minimum, the function is *decreasing* (it has a negative derivative); whereas, to the right of the minimum, the function is *increasing* (has a positive derivative). Thus, the exact value of the minimum must occur where the derivative equals *zero*. The algebra of finding the exact solution in general form, $x = -b/2a$, or the specific example, $x = 3/8$ is pretty straightforward. 
+It looks like the minimum is somewhere around $0.37$ or $0.38$. Next, let's use *calculus* get a more precise answer. 
 
 ### Computational Solution
 
@@ -352,15 +409,24 @@ Use the `solnp()` function from the `Rsolnp` package to find the minimum of $f(x
 # `solnp` can be finicky about its starting value, and sometimes gets confused when you choose zero as a starting value. Try almost any other value. 
 ```
 
+<<<<<<< HEAD
 ```{r solnp-solution}
+=======
+```{r solnp-solution, warning=FALSE, message = FALSE}
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 library(Rsolnp)
 solnp(pars = 1, fun = function(x) 8*x^2 - 6*x - 12)
 ```
 
 ```{r solnp-check}
+<<<<<<< HEAD
 grade_this({if (!inherits(.result, c("list"))) {
+=======
+grade_this({
+  if (!inherits(.result, c("list"))) {
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
     fail("Your class of your answer should be a list")}
-  if (.result$minimum != 0.375) { 
+  if (round(.result$pars, 3) != 0.375) { 
     fail("The solution should be equal to 0.375.") }
   pass()
 })
@@ -377,13 +443,20 @@ K \ge 0 \\
 \text{where} \\
 w = r = 10$$
 
+<<<<<<< HEAD
 ```{r solnpC, exercise = TRUE}
 solnp(pars = 0,                            # Set initial guess for the solution
+=======
+```{r constrainedSolnp, echo = TRUE}
+library(Rsolnp)
+solnp(pars = c(0,0),                       # Set initial guess for the solution
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
       fun = function(x) 10*x[1] + 10*x[2], # Define the objective function 
       ineqfun = function(x) x[1]*x[2],     # Define the constraint function
       ineqLB = 100,                        # Set the lower bound of the constraint 
       ineqUB =  Inf,                       # Set the upper bound of the constraint
       LB = c(0,0))                         # Set the lower bound for the variables
+<<<<<<< HEAD
 ```
 
 ```{r solnpC-solution}
@@ -402,6 +475,8 @@ grade_this({if (!inherits(.result, c("list"))) {
     fail("The solution should be about 0.375") }
   pass("Notice how computational solutions sometimes give very slightly less precise solutions.")
 })
+=======
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 ```
 
 ## Solving a System of Equations: Supply and Demand
@@ -412,12 +487,18 @@ $$P = 10 - Q_d$$
 
 $$P = Q_s$$
 
-Solve for the equilibrium price and quantity using `nleqslv::nleqslv`. 
+To solve a system of equations (linear or nonlinear) the `nleqslv` function from the `nleqslv` package is a useful tool that requires the following arguments: 
+
+* x: A numeric vector with an initial guess of the solution (similar to `pars`)
+* fn: A function of x that equals zero at the solution and returns a vector of function values with the same length as the vector x (i.e. to solve for two variables you need two functions). 
+
+Solve for the equilibrium price and quantity in the example using `nleqslv`. 
 
 ```{r equilibrium, exercise = TRUE}
 
 ```
 
+<<<<<<< HEAD
 ```{r equilibrium-hint1}
 # A `function(x)` can be a vector that includes multiple equations. 
 ```
@@ -427,60 +508,31 @@ Solve for the equilibrium price and quantity using `nleqslv::nleqslv`.
 ```
 
 ```{r equilibrium-solution}
+=======
+```{r equilibrium-hint}
+# A `function(x)` can be a vector that includes multiple equations. 
+# `nleqslv` looks to set the values of `function(x)` to zero, so you might need to rearrange the equations.
+```
+
+```{r equilibrium-solution, warning=FALSE, message = FALSE}
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 library(nleqslv)
 nleqslv(c(1,1), function(x) c(x[1] - x[2], 10 - x[1] - x[2]))
 ```
 
 ```{r equilibrium-check}
-grade_this({if (!inherits(.result, c("list"))) {
-    fail("Your class of your answer should be a list")}
-  if (.result$x != c(5,5)) { 
-    fail("The equilibrium price and quantity are (5,5)") }
+grade_this({
+  if (
+    round(.result$x[1], 0) != round(.solution$x[1], 0) & 
+    round(.result$x[2], 0) != round(.solution$x[2], 0)) {
+    fail("The solution should be about (5, 5).") }
   pass()
 })
 ```
 
 (Note: This is a pretty easy system to solve; the objective is to code the solution "correctly.")
 
-## A Note on "Piping"
-
-In our optimization example, we nested a `ysym` function (to convert a text equation into a `yac_symbol`). Suppose we wanted to solve the derivatives we just derived. We *could* nest the result of the derivative inside `solve` by running the code below: 
-
-```{r nested, exercise = TRUE}
-solve(deriv(ysym('a*x^2 + b*x + c'), 'x'), 'x')
-```
-
-```{r nested-solution}
-solve(deriv(ysym('a*x^2 + b*x + c'), 'x'), 'x')
-```
-
-```{r nested-check}
-grade_code()
-```
-
-Alternatively, we could use a coding method called "piping," where you pass one object along as the `x` for another function to evaluate using the `|>` operator after each command before starting a new line (although starting a new line is not even required, either). This allows you to specify the commands you want to execute *in the order you want to execute them* (rather than needing to have the last execution on the outside, or first). Run the following code to compare the result of the two styles of coding.
-
-```{r piped, exercise = TRUE}
-'a*x^2 + b*x + c' |> # Start with an object, function, string, or expression
-  ysym() |>          # Type the first function you want to do on that object
-  deriv('x') |>      # Now the second function  (you may add options)...
-  solve('x')         # And so on...
-```
-
-```{r piped-solution}
-'a*x^2 + b*x + c' |> # Start with an object, function, string, or expression
-  ysym() |>          # Type the first function you want to do on that object
-  deriv('x') |>      # Now the second function  (you may add options)...
-  solve('x')         # And so on...
-```
-
-```{r piped-check}
-grade_code()
-```
-
-Sometimes this can yield faster results, and some users find it more intuitive and easier to read. 
-
-## Useful Math and Calculus Formulas
+## Appendix 
 
 ### Basic Math Function Rules
 
@@ -495,3 +547,41 @@ $$log_b(x^a) = alog_b(x)$$
 
 $$\frac{d}{dx}\big(x^a\big) = ax^{a-1}$$
 $$\frac{d}{dx}\bigg(ln(x)\bigg) = \frac{1}{x}$$  
+
+### Analytic Optimization
+
+R can actually apply standard analytic solution algorithms to find the functional form for a derivative of a function using the `deriv` function available in the `Ryacas` package. Use `deriv` to find the general derivative of $$f(x) = ax^2 + bx + c$$ and the example with the specific parameter values, $f(x) = 8x^2 - 6x - 12$, with respect to `x`. 
+
+```{r Deriv, echo = TRUE}
+deriv(ysym('a*x^2 + b*x + c'), 'x')
+deriv(ysym('8*x^2 - 6*x - 12'), 'x')
+```
+
+`Ryacas` can also format the result with tex syntax which you can call in a document to produce a formatted result as shown below: 
+
+$$`r tex(deriv(ysym('a*x^2 + b*x + c'), 'x'))`$$
+
+<details><summary>Click here to see the code that generated this formatted equation.<p></p></summary>
+\$\$`` ` r tex(deriv(ysym('a*x^2 + b*x + c'), 'x'))` ``\$\$`<br><br>
+</details>
+
+To find the minimum of the function, notice that to the left of the minimum, the function is *decreasing* (it has a negative derivative); whereas, to the right of the minimum, the function is *increasing* (has a positive derivative). Thus, the exact value of the minimum must occur where the derivative equals *zero*. The algebra of finding the exact solution in general form, $x = -b/2a$, or the specific example, $x = 3/8$ is pretty straightforward. 
+
+### A Note on "Piping"
+
+In our optimization example, we nested a `ysym` function (to convert a text equation into a `yac_symbol`). Suppose we wanted to solve the derivatives we just derived. We *could* nest the result of the derivative inside `solve` by running the code below: 
+
+```{r nested, echo = TRUE}
+solve(deriv(ysym('a*x^2 + b*x + c'), 'x'), 'x')
+```
+
+Alternatively, we could use a coding method called "piping," where you pass one object along as the `x` for another function to evaluate using the `|>` operator after each command before starting a new line (although starting a new line is not even required, either). This allows you to specify the commands you want to execute *in the order you want to execute them* (rather than needing to have the last execution on the outside, or first). Run the following code to compare the result of the two styles of coding.
+
+```{r piped, echo = TRUE}
+'a*x^2 + b*x + c' |> # Start with an object, function, or expression
+  ysym() |>          # Type the first function you want to do on that object
+  deriv('x') |>      # Now the second function  (you may add options)...
+  solve('x')         # And so on...
+```
+
+Sometimes this can yield faster results, and some users find it more intuitive and easier to read. 

@@ -11,16 +11,13 @@ output:
 runtime: shiny_prerendered
 ---
 
-<style type="text/css">
-#doc-metadata {
-  margin-bottom: 10px;
-  font-size: 0.8em;
-}
-</style>
-
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
+<<<<<<< HEAD
+=======
+library(ggcheck)
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 gradethis_setup()
 tutorial_options(exercise.reveal_solution = FALSE, exercise.eval = FALSE, exercise.checker = gradethis_exercise_checker)
 knitr::opts_chunk$set(echo = FALSE)
@@ -40,16 +37,23 @@ $$P = Q_s^2$$
 
 ```
 
+<<<<<<< HEAD
 ```{r equilibrium-solution}
+=======
+```{r equilibrium-solution, warning=FALSE, message = FALSE}
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 library(nleqslv)
 equilibrium <- nleqslv(c(2,2), function(x) c(x[1]^2 - x[2], 10/x[1] - x[2]))
 ```
 
 ```{r equilibrium-check}
-grade_this({if (!inherits(.result, c("list"))) {
+grade_this({
+  if (!inherits(.result, c("list"))) {
     fail("Your class of your answer should be a list")}
-  if (round(.result$x, 2) != c(2.15, 4.64)) { 
-    fail("The equilibrium quantity and price are about 2.15 and 4.64)") }
+  if (round(.result$x[1], 2) != 2.15) { 
+    fail("The equilibrium quantity is about 2.15") }
+  if (round(.result$x[2], 2) != 4.64) { 
+    fail("The equilibrium price is about 4.64") }
   pass()
 })
 ```
@@ -71,16 +75,29 @@ grade_this({if (!inherits(.result, c("list"))) {
 ```
 
 ```{r equilibriumPlot-hint-3}
+<<<<<<< HEAD
 # For the label argument use `past0("(", `x value`, ", ", `y value`, ")") to 
 # create a label with the solution values of q and p in parentheses.
 ```
 
 ```{r equilibriumPlot-setup}
+=======
+# For the label argument use `paste0("(", `x value`, ", ", `y value`, ")") to 
+# create a label with the solution values of q and p in parentheses.
+```
+
+```{r equilibriumPlot-setup, warning=FALSE, message = FALSE}
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 library(nleqslv)
 equilibrium <- nleqslv(c(2,2), function(x) c(x[1]^2 - x[2], 10/x[1] - x[2]))
 ```
 
+<<<<<<< HEAD
 ```{r equilibriumPlot-solution}
+=======
+```{r equilibriumPlot-solution, warning=FALSE, message = FALSE}
+library(ggplot2)
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
 ggplot() + 
   geom_function(fun = function(x) 10/x) + 
   geom_function(fun = function(x) x^2) + 
@@ -97,7 +114,14 @@ ggplot() +
 ```{r equilibriumPlot-check}
 grade_this({
   if (
+<<<<<<< HEAD
     uses_geom(.result, "function") & uses_geom(.result, "point") & uses_geom(.result, "text")) {
+=======
+    ith_geom_is(.result, "function", 1) & 
+    ith_geom_is(.result, "function", 2) & 
+    ith_geom_is(.result, "point", 3) & 
+    ith_geom_is(.result, "text", 4)) {
+>>>>>>> 89e5e3d9ff9bf79c337ecded449db08ebc3ff1fb
     pass(random_praise())
   }
   fail(random_encouragement())
