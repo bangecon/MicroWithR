@@ -1,5 +1,5 @@
 ---
-title: "2.2 Cost Minimization"
+title: "2.2 Cost Minimization - Practice"
 output: 
   learnr::tutorial: 
     progressive: true

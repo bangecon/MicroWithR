@@ -1,5 +1,5 @@
 ---
-title: "1.7 Other Applications: Labor-Leisure Trade-Off"
+title: "1.7 Other Applications: Labor-Leisure Trade-Off - Practice"
 editor_options: 
   markdown: 
     wrap: 72

@@ -1,5 +1,5 @@
 ---
-title: "2.4 Firm Output Choice"
+title: "2.4 Firm Output Choice - Practice"
 output: 
   learnr::tutorial: 
     progressive: true

@@ -1,5 +1,5 @@
 ---
-title: "3.1 Market Demand in Competitive Markets"
+title: "3.1 Market Demand in Competitive Markets - Practice"
 output: 
   learnr::tutorial: 
     progressive: true

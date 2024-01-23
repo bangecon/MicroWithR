@@ -1,5 +1,5 @@
 ---
-title: "2.4 Competitive Firms' Output Choices in the Short Run"
+title: "2.4 Firm Output Choice"
 output: 
   learnr::tutorial: 
     progressive: true

@@ -3,7 +3,7 @@ output:
   learnr::tutorial: 
     progressive: true
 runtime: shiny_prerendered
-title: "Introduction to Mathing with R"
+title: "0.1: Introduction to Mathing with R"
 author: 
   name: "Created by [Jim Bang](http://www.github.com/bangecon)"
   email: BangJamesT@sau.edu
@@ -463,7 +463,7 @@ $$\frac{d}{dx}\bigg(ln(x)\bigg) = \frac{1}{x}$$
 
 R can actually apply standard analytic solution algorithms to find the functional form for a derivative of a function using the `deriv` function available in the `Ryacas` package. Use `deriv` to find the general derivative of $$f(x) = ax^2 + bx + c$$ and the example with the specific parameter values, $f(x) = 8x^2 - 6x - 12$, with respect to `x`. 
 
-```{r Deriv, echo = TRUE}
+```{r, echo = TRUE}
 deriv(ysym('a*x^2 + b*x + c'), 'x')
 deriv(ysym('8*x^2 - 6*x - 12'), 'x')
 ```

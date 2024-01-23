@@ -1,5 +1,5 @@
 ---
-title: "1.4 Application: Insurance"
+title: "1.4 Rational Consumer Choice Application: Insurance - Practice"
 output: 
   learnr::tutorial: 
     progressive: true

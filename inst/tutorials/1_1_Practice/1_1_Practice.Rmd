@@ -3,7 +3,7 @@ output:
   learnr::tutorial: 
     progressive: true
 runtime: shiny_prerendered
-title: "1.1 Budget Constraint"
+title: "1.1 Budget Constraint - Practice"
 author: 
   name: "Created by [Jim Bang](http://www.github.com/bangecon)"
   email: BangJamesT@sau.edu

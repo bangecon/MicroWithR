@@ -1,5 +1,5 @@
 ---
-title: "1.6 Comparative Statics II: Engel Curves and Demand Curves"
+title: "1.6 Comparative Statics II: Price Changes"
 editor_options: 
   markdown: 
     wrap: 72

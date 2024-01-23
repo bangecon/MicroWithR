@@ -1,5 +1,5 @@
 ---
-title: "3.2 Market Supply and Equilibrium in Competitive Markets"
+title: "3.2 Market Supply and Equilibrium in Competitive Markets - Practice"
 output: 
   learnr::tutorial: 
     progressive: true

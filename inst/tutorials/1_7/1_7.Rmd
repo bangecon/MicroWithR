@@ -1,5 +1,5 @@
 ---
-title: "1.7 Other Applications"
+title: "1.7 Other Applications: Inter-Temporal Choice"
 editor_options: 
   markdown: 
     wrap: 72
@@ -72,6 +72,7 @@ Graph the budget constraint for a consumer who receives an income of 80 in perio
 ```
 
 ```{r intertemporalBC-solution}
+library(ggplot2)
 m1 = 80
 m2 = 20
 r = 0.20
@@ -106,6 +107,7 @@ Add the the indifference curves for the intertemporal preferences for total util
 m1 = 80
 m2 = 20
 r = 0.20
+library(ggplot2)
 ```
 
 ```{r intertemporalPreferences-solution}
@@ -176,6 +178,7 @@ Graph the equilibrium using `ggplot`.
 ```
 
 ```{r intertemporalGraph-setup}
+library(ggplot2)
 m1 = 80
 m2 = 20
 r = 0.20
@@ -277,6 +280,7 @@ m1 = 80
 m2 = 20
 r = 0.20
 d = 2 / 3
+library(ggplot2)
 library(MicroWithR)
 ux <- function(x)
   log(x[1]) + d * log(x[2])

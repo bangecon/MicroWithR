@@ -1,5 +1,5 @@
 ---
-title: "2.3 Cost Curves"
+title: "2.3 Cost Curves - Practice"
 output: 
   learnr::tutorial: 
     progressive: true

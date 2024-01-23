@@ -1,5 +1,5 @@
 ---
-title: "3.3 Monopoly"
+title: "3.3 Monopoly - Practice"
 output: 
   learnr::tutorial: 
     progressive: true

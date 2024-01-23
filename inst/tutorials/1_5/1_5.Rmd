@@ -1,5 +1,5 @@
 ---
-title: "1.5 Comparative Statics I: Income Changes"
+title: "1.5: Comparative Statics I - Income Changes"
 editor_options: 
   markdown: 
     wrap: 72

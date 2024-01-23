@@ -1,5 +1,5 @@
 ---
-title: "1.3 Utility Functions"
+title: "1.3 Utility Functions - Practice"
 output: 
   learnr::tutorial: 
     progressive: true

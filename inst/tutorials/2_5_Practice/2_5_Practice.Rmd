@@ -1,5 +1,5 @@
 ---
-title: "2.5 Technological Diffusion"
+title: "2.5 Competitive Firm/Industry Long-Run Readjustment - Practice"
 output: 
   learnr::tutorial: 
     progressive: true
