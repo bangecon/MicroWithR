@@ -15,16 +15,10 @@ ui <- fluidPage(
       label = "Enter the sheet ID of the roster",
       value = NULL
     ),
+    actionButton("go", "Go!"),
     hr(),
     a("Created by Jim Bang", href='https://github.com/bangecon'),
     a("St. Ambrose University", href='https://www.sau.edu/')
-  ),
-    actionButton("go", "Go!"),
-    numericInput(
-      inputId = "round",
-      label = "Enter the round you want to display.",
-      value = 1
-    )
   ),
   mainPanel(textOutput("winner"), style = "font-size:40px; ")
 )
