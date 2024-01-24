@@ -7,15 +7,14 @@ ui <- fluidPage(
   sidebarPanel(
     numericInput(
       inputId = "seed",
-      label = "Enter the current time (HHMMSS).",
-      value = as.integer(gsub("-", "", Sys.Date()))
+      label = "Enter the current time.",
+      value = as.integer(format(Sys.time(), '%H%M%S'))
     ),
     textInput(
       inputId = "sheet",
       label = "Enter the sheet ID of the roster",
-      value = NULL
+      value = '1i_hJiSk-TOfqtNOtm7ZUUcJe1gEZSPwowEd5VZlHFNo'
     ),
-    actionButton("go", "Go!"),
     hr(),
     a("Created by Jim Bang", href='https://github.com/bangecon'),
     a("St. Ambrose University", href='https://www.sau.edu/')
@@ -24,7 +23,7 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
-  roster <- eventReactive(input$go {
+  roster <- reactive({
     sheet <- input$sheet
     g <- as.data.frame(read_sheet(sheet))
     g[,1]
