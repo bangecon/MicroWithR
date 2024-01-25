@@ -15,7 +15,7 @@ ui <- fluidPage(
       label = "Enter the sheet ID of the roster",
       value = NULL
     ),
-    actionButton("go", "Load New Responses"),
+    actionButton("go", "Go!"),
     hr(),
     a("Created by Jim Bang", href='https://github.com/bangecon'),
     a("St. Ambrose University", href='https://www.sau.edu/')
