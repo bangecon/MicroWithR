@@ -64,7 +64,7 @@ $$\frac{MU_1}{MU_2}=\frac{p_1}{p_2}$$
 $$p_1x_1 + p_2x_2 = m$$
 
 ```{r, fig.width=6, fig.height=8, fig.align='center', out.width = '75%', warning=FALSE, message=FALSE}
-library(managerialEconWithR)
+library(MicroWithR)
 library(ggplot2)
 a = 0.25; p1 = 1.5; p2 = 1; m = 100
 ux <- function(x) x[1] ^ (a) * x[2] ^ (1 - a)
@@ -96,7 +96,7 @@ ggplot() +
 
 <details style="line-height:105%"><summary>Click here to view code for the graph.</summary>
 ```{r, echo = TRUE, eval = FALSE, warning=FALSE, message=FALSE}
-library(managerialEconWithR)
+library(MicroWithR)
 library(ggplot2)
 a = 0.25; p1 = 1.5; p2 = 1; m = 100
 ux <- function(x) x[1] ^ (a) * x[2] ^ (1 - a)
@@ -136,7 +136,7 @@ Understanding the analytical solution give us an idea for (and hopefully an appr
 Set up the solution by defining the following
 
 1. A utility function, `ux` defined as a `function(x)` object where `x = c(x[1], x[2])`. <br>
-Note: most optimization functions find the function minimum by default. Some have an option that switches from minimization to maximization; `solnp` does *not*, so if we used that function we would have to minimize the *negation* of the utility function (i.e. put a "-" sign in front). To work around this, I created a simple function as part of this `managerialEconWithR` package called `solnp2` that adds an option, `max` which takes logical values of `TRUE` for maximization problems or `FALSE` for minimization. To see the code for this function, unfold the details below (it's simpler than you might think!).  
+Note: most optimization functions find the function minimum by default. Some have an option that switches from minimization to maximization; `solnp` does *not*, so if we used that function we would have to minimize the *negation* of the utility function (i.e. put a "-" sign in front). To work around this, I created a simple function as part of this `MicroWithR` package called `solnp2` that adds an option, `max` which takes logical values of `TRUE` for maximization problems or `FALSE` for minimization. To see the code for this function, unfold the details below (it's simpler than you might think!).  
 
 <details style="line-height:105%"><summary>Click here to view code for the `solnp2` function.</summary>
 ```{r, echo = TRUE, results = 'hide', fig.show = 'hide'}
@@ -186,12 +186,12 @@ grade_this({
 
 ### Solving Constrained Optimization in R with `solnp2`.
 
-Once we've defined these values, we can solve any *minimization* problem with a single function, `solnp()`, from the `Rsolnp` package (which imports automatically with our `managerialEconWithR`, but still needs to be loaded using `library()`). However, four our purpose, we wish to *maximize* the consumer's utility. To do this we have two options:  
+Once we've defined these values, we can solve any *minimization* problem with a single function, `solnp()`, from the `Rsolnp` package (which imports automatically with our `MicroWithR`, but still needs to be loaded using `library()`). However, four our purpose, we wish to *maximize* the consumer's utility. To do this we have two options:  
 
 1. Adapt the problem to fit with a "minimization" algorithm by defining the objective as the negative of utility and minimizing "disutility."
 2. Adapt the `solnp` function to calculate a maximum by defining a new function that does exactly what `solnp` itself does, just from the other direction, to find a maximum. 
 
-I have done option 2 for you by creating a new function, `solnp2`, in the `managerialEconWithR` package. The required arguments for this function are (in order): 
+I have done option 2 for you by creating a new function, `solnp2`, in the `MicroWithR` package. The required arguments for this function are (in order): 
 
 * `pars`: the starting values (an initial "guess") for $x$, which should be positive - and usually small - for economically-sensible answers (like positive quantities);  
 * `fun`: the function to be optimized, `ux`;    
@@ -233,7 +233,7 @@ bc <- function(x) p1*x[1] + p2*x[2]    # Define the budget constraint
 ```
 
 ```{r computeSolve-solution, messages = FALSE, warnings = FALSE}
-library(managerialEconWithR)
+library(MicroWithR)
 eq <- solnp2(
   c(1, 1),
   ux,
@@ -275,7 +275,7 @@ Since $u^*$ is just a number (once we solve for the optimal x), just rearrange $
 ```
 
 ```{r graph-setup, messages = FALSE, warnings = FALSE}
-library(managerialEconWithR)
+library(MicroWithR)
 a = 0.25
 p1 = 1.5
 p2 = 1
@@ -284,7 +284,7 @@ ux <- function(x)
   x[1] ^ (a) * x[2] ^ (1 - a)
 bc <- function(x)
   p1 * x[1] + p2 * x[2]
-library(managerialEconWithR)
+library(MicroWithR)
 eq <- solnp2(
   c(1, 1),
   ux,
@@ -326,7 +326,7 @@ $$\Delta{U(\textbf{x})} = \lambda \Delta{I}$$
 We can also approach $\lambda$ from the other direction: to increase the consumer's utility by a given amount, $\Delta{U(\textbf{x})}$, they would require $\Delta{U}/\lambda$ dollars of income. In our graphical example, I plotted the budget line for income equal to 100, the indifference curve for the level of utility at the solution (51.49), and the indifference curves for levels of utility 10% (5.149 "utils") higher or lower than the equilibrium. Add a `geom_function()` layer to the graph for a budget line that is $\Delta{U}/\lambda = 5.149/0.5149 = 10$ dollars higher than the initial level of income. 
 
 ```{r dU, warning=FALSE, message=FALSE}
-library(managerialEconWithR)
+library(MicroWithR)
 library(ggplot2)
 a = 0.25; p1 = 1.5; p2 = 1; m = 100
 ux <- function(x) x[1] ^ (a) * x[2] ^ (1 - a)
