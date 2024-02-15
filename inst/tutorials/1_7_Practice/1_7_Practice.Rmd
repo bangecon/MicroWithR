@@ -77,7 +77,7 @@ s = 0.04
 m = 2500
 h = function(x)
   H - x[2]
-pi0 = 100000
+pi0 = 1000000
 pi = function(x)
   m * h(x) + pi0
 bx <- function(x)
