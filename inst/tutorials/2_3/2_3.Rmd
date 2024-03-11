@@ -149,7 +149,7 @@ tc <- function(x) {
   w * x[1] + r * x[2]                                       # Define objective 
 }
 crts <- function(x) {
-  A * x[1] ^ alpha * x[2] ^ (1 - alpha)                   # Define constraint
+  A * x[1] ^ a * x[2] ^ (1 - a)                             # Define constraint
 }
 for (i in 1:nrow(crtsSchedule)) {                           # Initialize for-loop
   costMinTemp <- solnp(
