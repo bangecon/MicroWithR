@@ -236,7 +236,7 @@ acGraph <- ggplot() +
 
 ```{r atcGraph-check}
 grade_this({
-  if (ith_geom_is(.result, "function", i = 1)) {
+  if (ith_geom_is(.result, "line", i = 1)) {
     pass(random_praise())
   }
   fail(random_encouragement())
