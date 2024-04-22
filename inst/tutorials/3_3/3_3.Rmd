@@ -329,7 +329,7 @@ d.Inv(eq$pars)
 profit(eq$pars)
 ```
 
-```{r sr, echo = FALSE}
+```{r sr-check, echo = FALSE}
 grade_this({if (round(.result, 0) != 3331447) { 
     fail("The maximum level of profit should be about 3,331,447") }
   pass()
