@@ -3,6 +3,7 @@ title: "2.1 Production and Production Functions"
 output: 
   learnr::tutorial: 
     progressive: true
+    allow_skip: true
 runtime: shiny_prerendered
 author: 
   name: "Created by [Jim Bang](http://www.github.com/bangecon)"
@@ -11,7 +12,6 @@ author:
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 ---
 
-```{=html}
 <style type="text/css">
 h1{font-size: 24pt}
 h2{font-size: 20pt}
@@ -23,7 +23,7 @@ body{font-size: 16pt}
   font-size: 0.66em;
 }
 </style>
-```
+
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)
