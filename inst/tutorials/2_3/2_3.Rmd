@@ -3,6 +3,7 @@ title: "2.3 Cost Curves"
 output: 
   learnr::tutorial: 
     progressive: true
+    allow_skip: true
 runtime: shiny_prerendered
 author: 
   name: "Created by [Jim Bang](http://www.github.com/bangecon)"
@@ -149,7 +150,7 @@ tc <- function(x) {
   w * x[1] + r * x[2]                                       # Define objective 
 }
 crts <- function(x) {
-  A * x[1] ^ alpha * x[2] ^ (1 - alpha)                   # Define constraint
+  A * x[1] ^ a * x[2] ^ (1 - a)                             # Define constraint
 }
 for (i in 1:nrow(crtsSchedule)) {                           # Initialize for-loop
   costMinTemp <- solnp(
@@ -236,7 +237,7 @@ acGraph <- ggplot() +
 
 ```{r atcGraph-check}
 grade_this({
-  if (ith_geom_is(.result, "function", i = 1)) {
+  if (ith_geom_is(.result, "line", i = 1)) {
     pass(random_praise())
   }
   fail(random_encouragement())

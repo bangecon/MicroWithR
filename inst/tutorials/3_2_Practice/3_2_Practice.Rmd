@@ -3,6 +3,7 @@ title: "3.2 Market Supply and Equilibrium in Competitive Markets - Practice"
 output: 
   learnr::tutorial: 
     progressive: true
+    allow_skip: true
 runtime: shiny_prerendered
 author: 
   name: "Created by [Jim Bang](http://www.github.com/bangecon)"

@@ -3,6 +3,7 @@ title: "3.4 Monopolistic Competition"
 output: 
   learnr::tutorial: 
     progressive: true
+    allow_skip: true
 runtime: shiny_prerendered
 author: 
   name: "Created by [Jim Bang](http://www.github.com/bangecon)"

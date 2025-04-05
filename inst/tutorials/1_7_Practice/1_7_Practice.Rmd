@@ -6,6 +6,7 @@ editor_options:
 output: 
   learnr::tutorial: 
     progressive: true
+    allow_skip: true
 runtime: shiny_prerendered
 author: 
   name: "Created by [Jim Bang](http://www.github.com/bangecon)"
@@ -77,7 +78,7 @@ s = 0.04
 m = 2500
 h = function(x)
   H - x[2]
-pi0 = 100000
+pi0 = 1000000
 pi = function(x)
   m * h(x) + pi0
 bx <- function(x)

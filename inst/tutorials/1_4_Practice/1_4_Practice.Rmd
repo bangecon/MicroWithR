@@ -3,6 +3,7 @@ title: "1.4 Rational Consumer Choice Application: Insurance - Practice"
 output: 
   learnr::tutorial: 
     progressive: true
+    allow_skip: true
 runtime: shiny_prerendered
 author: 
   name: "Created by [Jim Bang](http://www.github.com/bangecon)"
@@ -183,7 +184,7 @@ grade_code()
 
 ### Equilibrium
 
-Solve for the equilibrium using `managerialEconWithR::solnp2()`. 
+Solve for the equilibrium using `MicroWithR::solnp2()`. 
 
 ```{r insuranceEquilibrium, exercise = TRUE}
 
@@ -205,7 +206,7 @@ ux = function(x) {
 ```
 
 ```{r insuranceEquilibrium-solution, messages = FALSE, warnings = FALSE}
-library(managerialEconWithR) 
+library(MicroWithR) 
 bc <- function(x) {
   p*x[1] + (1-p)*x[2] 
 }

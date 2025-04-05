@@ -2,6 +2,7 @@
 output: 
   learnr::tutorial: 
     progressive: true
+    allow_skip: true
 runtime: shiny_prerendered
 title: "0.1: Introduction to Mathing with R"
 author: 
