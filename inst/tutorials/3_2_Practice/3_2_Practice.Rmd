@@ -176,19 +176,21 @@ The equations we're trying to solve here are a nonlinear mess! Luckily, as long 
 
 ```{r eqSolve-solution}
 library(nleqslv)
+market <- function(x) {
+    demand <- 4.5e6/x[1] - x[2]
+    supply <- (x[1]^2/6.48e12) - (x[1]/1.44e6) + 1 - x[2]
+    return(c(demand, supply))
+}
 srEq <- nleqslv(
-  c(1,1), 
-  function(x) c(
-    x[1]*x[2] - 4.5e6,
-    x[2] ^ 2 / 6.48e12 - x / 1.44e6 + 1 - x[1]
-    )
-  )
-srEq$pars
+    c(1,1), 
+    market
+)
+srEq$xsrEq$x
 ```
 
 ```{r eqSolve-check}
 grade_this({if (round(.result, 1) != c(1.6,932169.8)) { 
-    fail("The cost-minimizing labor and capital inputs are about 1.6 and 932170.") }
+    fail("") }
   pass()
 })
 ```

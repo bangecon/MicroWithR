@@ -1,0 +1,429 @@
+---
+title: "3.6 General Equilibrium"
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+---
+
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.66em;
+}
+</style>
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(Ryacas)
+library(Deriv)
+gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+```
+
+## General Equilibrium
+
+Pure Exchange: each consumer has magical endowments of *goods* to exchange.  
+Production: individuals must produce goods from their endowed *inputs*.  
+Exchange with Production: goods must be produce from inputs, and then exchanged.  
+
+### The Big Picture
+
+```{r, echo=FALSE}
+library(ggplot2)
+ggplot() +
+  geom_function(
+    fun = function(x)
+      - (x - 2)^2 + 4
+  ) +
+  annotate(
+    "text",
+    x = c(0.5, 1, 1.5, 2, 2, 2.5, 3, 3.5),
+    y = c(3, 4, 5, 2, 5.5, 5, 4, 3),
+    label = c(
+      "Mobile Phones",
+      "Automobiles",
+      "Housing",
+      "All of society's land, labor, and capital",
+      "Health Care",
+      "Food",
+      "Machinery",
+      "Education"
+    )
+  ) +
+  geom_segment(aes(
+    x = 0.75,
+    y = 2.4375,
+    xend = 0.6,
+    yend = 2.8
+  ),
+  arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_segment(aes(
+    x = 1.25,
+    y = 3.4375,
+    xend = 1.1,
+    yend = 3.8
+  ),
+  arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_segment(aes(
+    x = 1.65,
+    y = 3.8775,
+    xend = 1.5,
+    yend = 4.8
+  ),
+  arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_segment(aes(
+    x = 2,
+    y = 4,
+    xend = 2,
+    yend = 5.3
+  ), arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_segment(aes(
+    x = 2.35,
+    y = 3.8775,
+    xend = 2.5,
+    yend = 4.8
+  ),
+  arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_segment(aes(
+    x = 2.75,
+    y = 3.4375,
+    xend = 2.9,
+    yend = 3.8
+  ),
+  arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_segment(aes(
+    x = 3.25,
+    y = 2.4375,
+    xend = 3.4,
+    yend = 2.8
+  ),
+  arrow = arrow(length = unit(0.1, "inches"))) +
+  lims(x = c(0, 4), y = c(0, 6)) +
+  theme(
+    line = element_blank(),
+    text = element_blank(),
+    title = element_blank(),
+    panel.background = element_blank()
+  ) 
+```
+
+## Edgeworth Box
+
+Homer and Flanders consume two goods, donuts and bibles. Each is endowed with 5 dozen donuts and 5 bibles. However, Homer and Flanders have different preferences. Homer prefers donuts to bibles, while Flanders prefers bibles to donuts so that we can their preferences can be described by the following utility functions: 
+
+$$U^{H}(Q_b, Q_d) = Q_b^{0.05}Q_d^{0.95}$$
+
+$$U^{F}(Q_b, Q_d) = Q_b^{0.75}Q_d^{0.25}$$
+
+### Tradeoffs without exchange
+
+Illustrate Homer and Flanders' endowment indifference curves on separate graphs.  
+Add a line tangent to each indifference curve that represents each consumer's marginal rate of substition of donuts to bibles without exchange.  
+(Hint: For the Cobb-Douglas function, the MRS is equal to the ratio of the budget shares times the ratio of the consumption levels at each point, $MRS = \frac{\alpha}{1-\alpha}\frac{y}{x}$ where $\alpha$ is the budget share of the "x" good.)
+
+```{r MRS, exercise = TRUE}
+
+```
+
+```{r MRS-solution, warning=FALSE, message = FALSE}
+library(ggplot2)
+a_H = 0.05
+a_F = 0.75
+u_H <- function(Q_b, Q_d) {
+  Q_b^a_H * Q_d^(1-a_H)
+}
+u_F <- function(Q_b, Q_d) {
+  Q_b^a_F * Q_d^(1-a_F)
+}
+e_H = c(5, 5)
+e_F = c(5, 5)
+ic_H <- function(Q_b) {
+  (u_H(e_H[1], e_H[2])/Q_b^a_H)^(1/(1-a_H))
+}
+ic_F <- function(Q_b) {
+  (u_F(e_F[1], e_F[2])/Q_b^a_F)^(1/(1-a_F))
+}
+g_H <- ggplot() +
+  geom_function(fun = ic_H) + 
+  geom_point(aes(x = e_H[1], y = e_H[2]), color = "blue") +
+  geom_abline(
+    slope = -a_H/(1-a_H),
+    intercept = 5 + a_H/(1-a_H) * 5,
+    color = "red"
+  ) +
+  lims(x = c(0, 10), y = c(0, 10)) + 
+  labs(x = "Beer", y = "Donuts")
+g_F <- ggplot() +
+  geom_function(fun = ic_F) + 
+  geom_point(aes(x = e_F[1], y = e_F[2]), color = "blue") +
+  geom_abline(
+    slope = -a_F/(1-a_F),
+    intercept = 5 + a_F/(1-a_F) * 5,
+    color = "red"
+  ) +
+  lims(x = c(0, 10), y = c(0, 10)) + 
+  labs(x = "Bibles", y = "Donuts")
+g_H
+g_F
+```
+
+```{r MRS-check}
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
+
+### Combining the Indifference Curves
+
+Define a new function for Flanders' utility in terms of *Homer's* consumption, noting that Flanders' consumption equals the total combined endowment minus Homer's consumption. Then, find an expression for Flanders' flipped-over indifference curve through the endowment point in terms of Homer's beer consumption, noting that this is equal to the total endowment of donuts minus Flanders' indifference curve expressed in terms of Homer's consumption through the endowment. In other words, 
+
+$$V_{F}(Q_b^H, Q_d^H) = (E_b - Q_b^H)^{0.75}(E_d-Q_d^H)^{0.25}$$
+where $E_b$ and $E_d$ are the total endowments of bibles and donuts, respectively.
+
+The expression for Flanders' flipped indifference curve is then:
+
+$$Q_d^H = E_d - \Bigg( \frac{V_{N}(E_b^H, E_d^H)}{(E_b-Q_b^H)^{0.75}}\Bigg)^{1/0.25}$$
+
+1. Plot Flanders' flipped indifference curve and MRS line.  
+2. Add Homer's endowment indifference curve and MRS line to that graph.  
+
+```{r box, exercise = TRUE}
+
+```
+
+```{r box-setup, warning=FALSE, message = FALSE}
+library(ggplot2)
+a_H = 0.05
+a_F = 0.75
+u_H <- function(Q_b, Q_d) {
+  Q_b^a_H * Q_d^(1-a_H)
+}
+u_F <- function(Q_b, Q_d) {
+  Q_b^a_F * Q_d^(1-a_F)
+}
+e_H = c(5, 5)
+e_F = c(5, 5)
+ic_H <- function(Q_b) {
+  (u_H(e_H[1], e_H[2])/Q_b^a_H)^(1/(1-a_H))
+}
+ic_F <- function(Q_b) {
+  (u_F(e_F[1], e_F[2])/Q_b^a_F)^(1/(1-a_F))
+}
+```
+
+```{r box-solution, warning=FALSE, message = FALSE}
+e <- e_H + e_F
+v_F <- function(Q_b, Q_d) {
+  u_F(e[1] - Q_b, e[2] - Q_d)
+}
+ic_F_inv <- function(Q_b) {
+  e[2] - (v_F(e_H[1], e_H[2])/(e[1]-Q_b)^a_F)^(1/(1-a_F))
+}
+g_F_inv <- ggplot() + 
+  geom_function(fun = ic_F_inv) + 
+  geom_point(aes(x = e_H[1], y = e_H[2]), color = "blue") +
+  geom_abline(
+    slope = -a_F/(1-a_F),
+    intercept = (e[2] - e_F[2]) + a_F/(1-a_F) * (e[1] - e_F[1]),
+    color = "red"
+  ) +
+  lims(x = c(0, 10), y = c(0, 10)) + 
+  labs(x = "Homer's Bibles", y = "Homer's Donuts")
+g_F_inv
+box <- g_F_inv + 
+  geom_function(fun = ic_H) + 
+  geom_abline(
+    slope = -a_H/(1-a_H),
+    intercept = 5 + a_H/(1-a_H) * 5,
+    color = "red"
+  )
+box
+```
+
+```{r box-check}
+grade_this({
+  if (ith_geom_is(.result, "function", i = 1)) {
+    pass(random_praise())
+  }
+  fail(random_encouragement())
+})
+```
+
+### Properties of the box
+
+1. The sides of the box give the total amounts of the two goods available.  
+	Total bibles = $E_b = E_b^H + E_b^N = 10$
+	Total boxes of donuts = $E_d = E_d^H + E_d^N = 10$  
+2. The initial endowment is a single point that can be read from A or B’s point of view.  
+	The initial endowment is (5,5) for Homer and (5,5) for Flanders.  
+3. Market prices (will) establish a budget constraint that is common to both consumers.    
+4. It is the price ratio, p_b/p_d, that matters, not the individual prices levels. Because of this (known as Walras' Law), we can set p_d = 1, and call it the "numeraire."  
+5. Net demands for both goods by both consumers can be read from the box with careful attention. Remember to read Flanders’ consumption from the top right corner.  
+6. The Edgeworth Box has enough information for you to figure out how prices will change and where the equilibrium solution lies. 
+
+## Solving the Box
+
+Solving the Edgeworth Box involves a constrained vector optimization problem That we could write as: 
+
+$$\max_{Q,p} \Bigg\{ \begin{pmatrix}U_H(Q_{b,H}, Q_{d,H}) \\ U_F(Q_{b,F}, Q_{d,F}) \end{pmatrix} =  \begin{pmatrix} Q_{b,H}^{\alpha_H} Q_{d,H}^{1-\alpha_H} \\ Q_{b,F}^{\alpha_F} Q_{d,F}^{1-\alpha_F} \end{pmatrix} \Bigg\} s.t.$$
+$$\begin{pmatrix}p_bQ_{b,H} + Q_{d,H} \\  p_bQ_{b,F} + Q_{d,F}\end{pmatrix} \le \begin{pmatrix}p_bE_{b,H} + E_{d,H} \\  p_bE_{b,F} + E_{d,F}\end{pmatrix}$$
+$$\begin{pmatrix} Q_{b,H} + Q_{b,F} \\ Q_{d,H} + Q_{d,F} \end{pmatrix} \le \begin{pmatrix} E_{b,H} + E_{b,F} \\ E_{d,H} + E_{d,F} \end{pmatrix}$$
+
+One way to simplify this problem is to recognize that with prices, only *relative* prices matter. This means that we can set one of the prices ($p_d$) to 1.  
+
+Unfortunately, I do not know of a way to jointly optimize a vector of functions in R and [this link](https://scicomp.stackexchange.com/questions/11817/how-do-i-simultaneously-minimize-two-different-functions-who-have-the-same-input) makes me think that it is probably too complicated to demonstrate for new useRs (or even for me!).  
+
+Instead, I will solve the problem using the first-order conditions from Flanders' optimization problem and use it as a constraint to optimize Homer's problem. Then, we will graph the equilibrium.  
+
+The first-order conditions for Flanders' optimization problem are:  
+$$\frac{\partial U_F}{\partial Q_{b,F}} \le  \lambda_F p_b$$ 
+$$\frac{\partial U_F}{\partial Q_{d,F}} \le  \lambda_F$$
+$$p_bQ_{b,F} + Q_{d,F} \le p_bE_{b,F} + E_{d,F}$$
+
+where $\lambda_F$ is the Lagrange multiplier from Flanders' optimization problem. Using the Flanders' utility function and combining, these first-order conditions become: 
+
+$$\frac{\alpha_F}{(1-\alpha_F)} \cdot \frac{Q_{d,F}}{Q_{b,F}} = p_b$$
+
+$$p_bQ_{b,F} + Q_{d,F} = p_bE_{b,F} + E_{d,F}$$
+Substituting the endowment constraint (Flanders' consumption is whatever is left after Homer consumes and vice-versa) into Flanders' first-order conditions gives the following equations:
+$$\frac{\alpha_F}{(1-\alpha_F)} \cdot \frac{E_{d} - Q_{d,H}}{E_{b} - Q_{b,H}} = \frac{p_b}{1}$$
+$$p_b(E_b - Q_{b,H} + (E_d - Q_{d,H}) = p_bE_{b,F} + E_{d,F}$$
+
+We can now solve for Homer's optimal consumption of bibles and donuts and prices. 
+
+```{r boxSolve, exercise = TRUE}
+
+```
+
+```{r boxSolve-setup, exercise = TRUE}
+library(ggplot2)
+a_H = 0.05
+a_F = 0.75
+u_H <- function(Q_b, Q_d) {
+  Q_b^a_H * Q_d^(1-a_H)
+}
+u_F <- function(Q_b, Q_d) {
+  Q_b^a_F * Q_d^(1-a_F)
+}
+e_H = c(5, 5)
+e_F = c(5, 5)
+ic_H <- function(Q_b) {
+  (u_H(e_H[1], e_H[2])/Q_b^a_H)^(1/(1-a_H))
+}
+ic_F <- function(Q_b) {
+  (u_F(e_F[1], e_F[2])/Q_b^a_F)^(1/(1-a_F))
+}
+```
+
+```{r boxSolve-solution}
+
+```
+
+
+## The Firm's Three Problems
+
+1. Input cost minimization
+2. Output profit maximization
+3. Input profit maximization
+
+### Competitive Input Markets
+
+$$\matrix{ \matrix{\text{1. Many, many buyers} \\ \text{2. Homogeneous inputs} \\ \text{3. Perfect information}} \Biggr\} \\ \text{4. Free entry/exit} \\ \text{  }} \matrix{\text{ } \\ \implies \\ \text{ } \\ \implies \\ \text{ } }  \matrix{\Biggl\{ \matrix{\text{Firms are} \\ \text{price} \\ \text{takers}} \\ \text{Profits/losses} \\ \text{are temporary}}$$
+
+### The Producer's Input-Hiring Problem
+
+1. Objective: 
+2. Endogenous (choice) variable(s): 
+3. Exogenous variable(s): 
+
+### Short Run
+
+For simplicity we will solve the model using a Cobb-Douglas production function with input shares 1/3 and 2/3, and TFP parameter 100: 
+
+$$f(L,K) = 100L^{1/3}K^{2/3}$$.
+
+The firm's goal is to choose inputs optimally to maximize profits. 
+
+$$\max_{L,K} \{ \pi(L,K) = P \cdot f(L,K) - (wL + rK) \} $$
+
+From the firm's perspective, markets determine input and output prices *exogenously*. Set $P = 10$, $w = 1$, $r = 2$
+
+In the short run, firms' previous choice of capital firms constrain their choices. Set $K = \bar{K} = 25$
+
+Inserting all of these substitutions and simplifying, we have:
+
+$$\max_{L} \{ 5000 \cdot (5L)^{1/3} - (L + 100) \}$$.
+
+## Analytical Approach
+
+```{r}
+
+```
+
+```{r}
+w = 1
+r = 2
+pi  <- ysym('10*100*L^(1/3)*K^(2/3) - (w*L + r*K)')
+dpi <- deriv(pi, c('L', 'K')) 
+MPL <- solve(dpi[1], 'w') |>
+  y_rmvars()
+MPK <- solve(dpi[2], 'r') |>
+  y_rmvars()
+MRTS <- MPL/MPK 
+MRTS <- yac_str(MRTS) |>
+  Simplify() |> 
+  ysym()
+Kstar <- solve(MRTS, w/r, 'K') |>
+  y_rmvars()
+MPL <- with_value(MPL, 'K', Kstar) 
+solution <- solve(MPL, w, 'L')
+```
+
+```{r}
+
+```
+
+## Graphical Approach
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+## Numerical Approach
+
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

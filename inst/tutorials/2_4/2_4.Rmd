@@ -190,6 +190,7 @@ tcGraph <- ggplot() +
   geom_function(fun = function(x) 500 + x^3 / 62500000) + 
   geom_function(fun = function(x) P*x) + 
   lims(x = c(0, 5000), y = c(0, 2500)) 
+tcGraph
 ```
 
 ```{r trtcGraph-check}
@@ -225,12 +226,13 @@ profitMax <-
 ```
 
 ```{r mrmcGraph-solution}
-ggplot() + 
+mcacGraph <- ggplot() + 
   geom_function(fun = function(x) x^2/62500000 + 500/x) + 
   geom_function(fun = function(x) x^2 / 62500000) + 
   geom_function(fun = function(x) 3*x^2 / 62500000) + 
   geom_hline(yintercept = P) +
   lims(x = c(0, 5000), y = c(0, 1)) 
+mcacGraph
 ```
 
 ```{r mrmcGraph-check}
@@ -272,6 +274,7 @@ piGraph <- ggplot() +
   geom_function(fun = function(x) P * x - (500 + x^3 / 62500000)) + 
   geom_hline(yintercept = 0) +
   lims(x = c(0, 5000), y = c(-500, 600)) 
+piGraph
 ```
 
 ```{r piGraph-check}
@@ -309,10 +312,11 @@ profitMax <-
 ```
 
 ```{r dpiGraph-solution}
-ggplot() + 
+dpiGraph <- ggplot() + 
   geom_function(fun = function(x) 0.5 - (3*x^2 / 62500000)) + 
   geom_hline(yintercept = 0) +
   lims(x = c(0, 5000), y = c(-0.6, 0.6)) 
+dpiGraph
 ```
 
 ```{r dpiGraph-check}
@@ -359,7 +363,7 @@ piGraph <- ggplot() +
   labs(x = "Quantity", y = "Profit", linetype = "") +
   scale_linetype_manual(breaks = c("Profit", "Profit=0"), values = c("solid","dashed")) + 
   theme(legend.position = "bottom")
-acGraph <- ggplot() + 
+mcacGraph <- ggplot() + 
   geom_function(fun = function(x) x^2/62500000 + 500/x, aes(color = "ATC")) + 
   geom_function(fun = function(x) x^2 / 62500000, aes(color = "AVC")) + 
   geom_function(fun = function(x) 3*x^2 / 62500000, aes(color = "MC")) + 
@@ -381,7 +385,7 @@ We can name the plots and combine them using `ggpubr::ggarrange()` as I've done 
 
 ```{r, echo = TRUE}
 library(ggpubr)
-ggarrange(tcGraph, piGraph, acGraph, dpiGraph)
+ggarrange(tcGraph, piGraph, mcacGraph, dpiGraph)
 ```
 
 <details style="line-height:105%">
