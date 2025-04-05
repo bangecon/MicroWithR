@@ -12,7 +12,6 @@ author:
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 ---
 
-```{=html}
 <style type="text/css">
 h1{font-size: 24pt}
 h2{font-size: 20pt}
@@ -24,7 +23,7 @@ body{font-size: 16pt}
   font-size: 0.66em;
 }
 </style>
-```
+
 ```{r setup, include=FALSE}
 library(learnr)
 library(gradethis)

@@ -169,8 +169,8 @@ ggplot() +
   geom_point(aes(x = 10, y = 10)) +
   geom_polygon(aes(x = c(7.5, 7.5, 12.5), y = c(12.5, 7.5, 7.5)), color = 'black', fill = NA) + 
   geom_text(aes(x = 10, y = 10), label = 'x', hjust = 1, vjust = 1) + 
-  geom_text(aes(x = 5, y = 10), label = expression(paste(Delta, "Beer"))) + 
-  geom_text(aes(x = 10, y = 6.5), label = expression(paste(Delta, "Donuts"))) + 
+  geom_text(aes(x = 5, y = 10), label = expression(paste(Delta, "Donuts"))) + 
+  geom_text(aes(x = 10, y = 6.5), label = expression(paste(Delta, "Beer"))) + 
   lims(x = c(0,50), y = c(0,50)) + 
   labs(x = "Beer", y = "Donuts") 
 ```
