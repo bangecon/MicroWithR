@@ -70,6 +70,8 @@ for (i in 1:nrow(costSchedule)) {
 }
 costSchedule$Average_Cost <-
   costSchedule$Total_Cost / costSchedule$Quantity
+costSchedule$Variable_Cost <-
+  costSchedule$Total_Cost - (costSchedule$Capital * r)
 tcGraph <- ggplot() +
   geom_line(aes(x = Quantity, y = Total_Cost), data = costSchedule) +
   labs(x = "Quantity", y = "Total Cost")
@@ -129,6 +131,8 @@ for (i in 1:nrow(costSchedule)) {
 }
 costSchedule$Average_Cost <-
   costSchedule$Total_Cost / costSchedule$Quantity
+costSchedule$Variable_Cost <-
+  costSchedule$Total_Cost - (costSchedule$Capital * r)
 tcGraph <- ggplot() +
   geom_line(aes(x = Quantity, y = Total_Cost), data = costSchedule) +
   labs(x = "Quantity", y = "Total Cost")
@@ -179,9 +183,10 @@ sracGraph <- ggplot() +
   geom_line(aes(x = Quantity, y = Average_Cost, color = "ATC"), data = costSchedule[-1, ]) +
   labs(x = "Quantity", y = "Total Cost") + lims(y = c(0, 1)) +
   geom_line(aes(x = Quantity, y = Average_Variable_Cost, color = "AVC"),
-            data = srCrtsSchedule[-1,]) +
-  geom_line(aes(x = Quantity, y = Marginal_Cost, color = "MC"), data = srCrtsSchedule) +
-  scale_colour_manual(breaks = c("ATC", "AVC", "MC"), values = c("black","purple", "red"))
+            data = SRcostSchedule[-1,]) +
+  geom_line(aes(x = Quantity, y = Marginal_Cost, color = "MC"), data = SRcostSchedule) +
+  scale_colour_manual(breaks = c("ATC", "AVC", "MC"), values = c("black","purple", "red")) +
+  lims(y = c(0, 0.02))
 ggarrange(srtcGraph, sracGraph)
 ```
 
