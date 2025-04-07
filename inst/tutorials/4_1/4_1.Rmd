@@ -1,5 +1,5 @@
 ---
-title: "3.6 General Equilibrium"
+title: "4.1 General Equilibrium"
 output: 
   learnr::tutorial: 
     progressive: true
