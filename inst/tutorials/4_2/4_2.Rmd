@@ -1,0 +1,362 @@
+---
+title: "4.2 Externalities"
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+---
+
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.66em;
+}
+</style>
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(Ryacas)
+library(Deriv)
+gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+```
+
+## Externalities
+
+In a competitive market, firms (and households) make their decisions *independently* to maximize their own profit or utility and no individual's decision affects any other individual at all. However, in the case of externalities, each individual's decisions may affect the outcomes for individuals who neither produce nor consume the output. 
+
+For example, based on what we have learned, banana growers produce bananas until the marginal cost of producing one more ton of bananas equals the marginal revenue it receives from selling that unit. It does so without regard for any harm that its chemical pesticides and fertilizers may cause. This pollution affects people who use the water downstream from the plantations. These effects are called *externalities* because they are external to the market transaction between the banana growers and their customers.
+
+## Banana Growers' Profit Maximization
+
+### Setup
+
+In a competitive market, banana growers choose their output to maximize the following profit function: 
+
+$$\Pi_b = p_b \cdot Q_b - C(Q_b)$$
+
+where $p_b$ is the price of bananas, $Q_b$ is the quantity of bananas produced, and $C_b(Q_b)$ is the cost of producing $Q_b$ tons of bananas. 
+
+### First-Order Conditions
+
+The first-order condition for profit maximization is:
+
+$$\frac{d \Pi_b}{d Q_b} = p_b - \frac{d C(Q_b)}{d Q_b} = 0$$
+
+### Numerical Example
+
+Solve the banana growers' profit maximization problem for $Q_b$ when their cost function is $C(Q_b) = 5Q_b^2 + 10,000$ and the price of bananas is $\$1,000/ton$. 
+
+```{r bananas, exercise = TRUE}
+
+```
+
+```{r bananas-solution}
+library(MicroWithR, quietly = TRUE)
+p_b = 1000
+C_b <- function(Q_b) {
+  5 * Q_b^2 + 10000
+}
+pi_b <- function(Q_b) {
+  p_b * Q_b - C_b(Q_b)
+}
+eq_b <- solnp2(
+  pars = 1,
+  fun = function(Q_b) {
+    pi_b(Q_b)
+  },
+  LB = 0,
+  UB = Inf,
+  control = list(trace = FALSE), 
+  max = TRUE
+)
+(qb_star <- eq_b$par)
+```
+
+```{r bananas-check}
+grade_code()
+```
+
+## Downstream Fishing Industry Profit Maximization
+
+### Setup
+
+However suppose that the banana growers' use of pesticides and fertilizers also affects the fishing industry downstream by polluting the water. The fishing industry is also competitive and the fishermen choose their output to maximize the following profit function:  
+
+$$\Pi_f = p_f \cdot Q_f - C(Q_f) - Z(Q_b, Q_f)$$
+
+where $p_f$ is the price of fish, $Q_f$ is the quantity of fish produced, $C_f(Q_f)$ is the cost of producing $Q_f$ tons of fish, and $Z(Q_b, Q_f)$ is the external cost of the environmental impacts of the banana industry on the fishing industry. The first-order condition for profit maximization is:
+
+$$\frac{\partial \Pi_f}{\partial Q_f} = p_f - \frac{\partial C(Q_f)}{\partial Q_f} - \frac{\partial Z(Q_b, Q_f)}{\partial Q_f} = 0$$
+where the last term is the marginal cost of the externality *on the fishing industry*. The fishing industry will choose its output to maximize its profit, but it will also take into account the external costs of the banana growers' production. By contrast, the banana growers do not take into account the external costs of their own production.
+
+Note that all of the marginal cost terms in these equations are positive (or at least non-negative). This means that when banana growers maximize their own profits independently, their choice results in more bananas and fewer fish than is socially optimal.
+
+### Numerical Example
+
+Solve the fishing industry's profit maximization problem for $Q_f$ when their cost function is $C(Q_f) = 50Q_f^2 + 400,000$, the price of fish is $\$15,000/ton$, and the external cost of the banana growers' production on the fishing industry is $Z(Q_b, Q_f) = Q_f Q_b$. 
+
+In this setup the fishing industry's *marginal* cost increases by $\$5$ for every ton of bananas produced. In other words the external cost of an additional ton of bananas produced is $\$5$ times the quantity of fish produced. 
+
+```{r fishing, exercise = TRUE}
+
+```
+
+```{r fishing-solution}
+p_f = 15000
+Q_b = qb_star
+C_f <- function(Q_f) {
+  50 * Q_f^2 + 400000
+}
+Z <- function(Q_b, Q_f) {
+  5 * Q_f * Q_b
+}
+pi_f <- function(Q_f, Q_b) {
+  p_f * Q_f - C_f(Q_f) - Z(Q_b, Q_f)
+}
+eq_f <- solnp2(
+  pars = 1,
+  fun = function(Q_f) {
+    pi_f(Q_f, Q_b)
+  },
+  LB = 0,
+  UB = Inf,
+  control = list(trace = FALSE), 
+  max = TRUE
+)
+(qf_star <- eq_f$par)
+```
+
+```{r fishing-setup}
+library(MicroWithR, quietly = TRUE)
+p_b = 1000
+C_b <- function(Q_b) {
+  5 * Q_b^2 + 10000
+}
+pi_b <- function(Q_b) {
+  p_b * Q_b - C_b(Q_b)
+}
+eq_b <- solnp2(
+  pars = 1,
+  fun = function(Q_b) {
+    pi_b(Q_b)
+  },
+  LB = 0,
+  UB = Inf,
+  control = list(trace = FALSE), 
+  max = TRUE
+)
+qb_star <- eq_b$par
+```
+
+```{r fishing-check}
+grade_code()
+```
+
+## Socially Optimal Output
+
+### Setup
+
+Suppose output for both industries were chosen to maximize the *total* surplus. The total surplus is the sum of the profits of both industries:
+
+$$W = \Pi_b + \Pi_f = p_b \cdot Q_b + p_f \cdot Q_f - C(Q_b) - C(Q_f) - Z(Q_b, Q_f)$$
+
+The first-order conditions for maximizing total surplus are:
+
+$$\frac{d W}{d Q_b} = p_b - \frac{d C(Q_b)}{d Q_b} - \frac{\partial Z(Q_b, Q_f)}{\partial Q_b} = 0$$
+
+and 
+
+$$\frac{d W}{d Q_f} = p_f - \frac{d C(Q_f)}{d Q_f} - \frac{\partial  Z(Q_b, Q_f)}{\partial Q_f} = 0$$
+
+Notice that the cost of the banana grower's externality shows up in the first-order conditions for both industries. 
+
+### Numerical Example
+
+Solve the socially optimal output problem for $Q_b$ and $Q_f$ using the cost functions and prices from the previous setup. 
+
+```{r spp, exercise = TRUE}
+
+```
+
+```{r spp-solution}
+W_spp <- function(Q_b, Q_f) {
+  p_b * Q_b + p_f * Q_f - C_b(Q_b) - C_f(Q_f) - Z(Q_b, Q_f)
+}
+eq_spp <- solnp2(
+  pars = c(1, 1),
+  fun = function(x) {
+    W_spp(x[1], x[2])
+  },
+  LB = c(0, 0),
+  UB = c(Inf, Inf),
+  control = list(trace = FALSE), 
+  max = TRUE
+)
+(qb_spp <- eq_spp$par[1])
+(qf_spp <- eq_spp$par[2])
+```
+
+```{r spp-setup}
+library(MicroWithR, quietly = TRUE)
+p_b = 1000
+C_b <- function(Q_b) {
+  5 * Q_b^2 + 10000
+}
+pi_b <- function(Q_b) {
+  p_b * Q_b - C_b(Q_b)
+}
+eq_b <- solnp2(
+  pars = 1,
+  fun = function(Q_b) {
+    pi_b(Q_b)
+  },
+  LB = 0,
+  UB = Inf,
+  control = list(trace = FALSE), 
+  max = TRUE
+)
+qb_star <- eq_b$par
+p_f = 15000
+Q_b = qb_star
+C_f <- function(Q_f) {
+  50 * Q_f^2 + 400000
+}
+Z <- function(Q_b, Q_f) {
+  5 * Q_f * Q_b
+}
+pi_f <- function(Q_f, Q_b) {
+  p_f * Q_f - C_f(Q_f) - Z(Q_b, Q_f)
+}
+eq_f <- solnp2(
+  pars = 1,
+  fun = function(Q_f) {
+    pi_f(Q_f, Q_b)
+  },
+  LB = 0,
+  UB = Inf,
+  control = list(trace = FALSE), 
+  max = TRUE
+)
+qf_star <- eq_f$par
+```
+
+```{r spp-check}
+grade_code()
+```
+
+Note that the socially optimal output of bananas is less than the profit-maximizing output, but this is (more than) made up for by additional returns to the fishing industry. 
+
+## Pigouvian Taxation
+
+One way to solve the problem of the externality is to tax the banana growers for the external cost they impose on the fishing industry. The tax should be equal to the marginal external cost of banana production, which solves:
+
+$$\Pi_b = p_b \cdot Q_b - C(Q_b) - tQ_b$$
+
+for $t$ so that the banana growers choose a quantity equal to the socially optimal quantity.
+
+The first-order condition for profit maximization is:
+
+$$\frac{d \Pi_b}{d Q_b} = p_b - \frac{d C(Q_b)}{d Q_b} - t = 0$$
+
+In our case, the externality is $Z(Q_b, Q_f) = 5 \cdot Q_b \cdot Q_f$, so the marginal external cost is $5 \cdot Q_f^*$, where $Q_f$ is the optimal quantity of fish produced in the social planner's problem (about 149).
+
+```{r pigou, exercise = TRUE}
+
+```
+
+```{r pigou-solution}
+t <- 5*qf_spp
+pi_b <- function(Q_b) {
+  p_b * Q_b - C_b(Q_b)
+}
+eq_bt <- solnp2(
+  pars = 1,
+  fun = function(Q_b) {
+    pi_b(Q_b) - t * Q_b
+  },
+  LB = 0,
+  UB = Inf,
+  control = list(trace = FALSE), 
+  max = TRUE
+)
+(qbt_star <- eq_bt$par)
+```
+
+```{r pigou-setup}
+library(MicroWithR, quietly = TRUE)
+p_b = 1000
+C_b <- function(Q_b) {
+  5 * Q_b^2 + 10000
+}
+pi_b <- function(Q_b) {
+  p_b * Q_b - C_b(Q_b)
+}
+eq_b <- solnp2(
+  pars = 1,
+  fun = function(Q_b) {
+    pi_b(Q_b)
+  },
+  LB = 0,
+  UB = Inf,
+  control = list(trace = FALSE), 
+  max = TRUE
+)
+qb_star <- eq_b$par
+p_f = 15000
+Q_b = qb_star
+C_f <- function(Q_f) {
+  50 * Q_f^2 + 400000
+}
+Z <- function(Q_b, Q_f) {
+  5 * Q_f * Q_b
+}
+pi_f <- function(Q_f, Q_b) {
+  p_f * Q_f - C_f(Q_f) - Z(Q_b, Q_f)
+}
+eq_f <- solnp2(
+  pars = 1,
+  fun = function(Q_f) {
+    pi_f(Q_f, Q_b)
+  },
+  LB = 0,
+  UB = Inf,
+  control = list(trace = FALSE), 
+  max = TRUE
+)
+qf_star <- eq_f$par
+W_spp <- function(Q_b, Q_f) {
+  p_b * Q_b + p_f * Q_f - C_b(Q_b) - C_f(Q_f) - Z(Q_b, Q_f)
+}
+eq_spp <- solnp2(
+  pars = c(1, 1),
+  fun = function(x) {
+    W_spp(x[1], x[2])
+  },
+  LB = c(0, 0),
+  UB = c(Inf, Inf),
+  control = list(trace = FALSE), 
+  max = TRUE
+)
+qb_spp <- eq_spp$par[1]
+qf_spp <- eq_spp$par[2]
+```
+
+```{r pigou-check}
+grade_code()
+```
+
+Note that this gives the socially optimal quantity of bananas. 
+
+This was a simple example where the price of the outputs were constant. In "reality" the price of the output is a function of the quantities produced.
