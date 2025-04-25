@@ -1,0 +1,85 @@
+---
+title: "4.3 Public Goods"
+output: 
+  learnr::tutorial: 
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+
+```{=html}
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.66em;
+}
+</style>
+```
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(Ryacas)
+library(Deriv)
+gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+```
+
+## Public Goods vs. Private Goods
+
+Two dimensions:  
+1. Degree of rivalry - whether one person's consumption of a good reduces ("uses up") the amount available for others.
+2. Degree of excludability - whether it is possible to prevent non-payers from consuming a good (are property rights well-defined and enforced?).
+
++--------------------+-----------------------+-----------------------+
+|                    | Rivalrous             | Non-Rivalrous         |
++====================+=======================+=======================+
+| **Excludable**     | Private goods \       | Club goods \          |
+|                    | (food, clothing,      | (theatres, internet,  |
+|                    | housing)              | streaming)            |
++--------------------+-----------------------+-----------------------+
+| **Non-Excludable** | Common-pool resources | Public goods \        |
+|                    | \                     | (parks, clean air,    |
+|                    | (fish stocks, pasture | defense)              |
+|                    | land)                 |                       |
++--------------------+-----------------------+-----------------------+
+
+: Taxonomy of types of goods
+
+## The Roommate Problem
+
+Lenny and Carl are roommates and need to buy a TV. In this case the TV is a public good that the roommates share the benefits from using. At the same time, they need to keep some of their income for their own private consumption of food, clothing, and other goods. The roommates have the following utility functions:
+
+$$U_L(T,F) = \frac{2}{3}ln(1+T) + \frac{1}{3}ln(F_L)$$
+and
+$$U_C(T,F) = \frac{1}{3}ln(1+T) + \frac{2}{3}ln(F_C)$$
+
+where:  
+
+- $T = \Bigg\{ \begin{align} &1 \text{ if they buy the TV} \\ &0 \text{ if they do notbuy the TV} \end{align}$
+- $F_i$ is the amount of private (food, etc.) consumption for each roommate. 
+
+Suppose that Lenny has a \$1,000 income and Carl has a \$1,500 income. The price of the TV is \$500. This means that the Lenny's budget constraint is:
+
+$$g_{T,L} + F_L \le 1000$$ 
+and Carl's budget constraint is:
+
+$$g_{T,C} + F_C \le 1500$$
+
+where $g_{T,i}$ is the amount contributed to buying the TV by each roommate.  
+
+The roommates buy the TV if $g_{T,L} + g_{T,C} \ge 500$.
+
+### Feasibility
+
+Each roommate will have a *reservation price* representing the *maximum* amount they are willing to pay for the TV. 
+
