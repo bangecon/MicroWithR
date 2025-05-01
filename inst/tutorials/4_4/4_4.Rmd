@@ -140,22 +140,10 @@ In the context of management, moral hazard occurs when managers take actions tha
 Specifically, we supposed that a manager derives utility from consuming (1) goods and services out of their income, $y$; and (2) on-the-job leisure ("shirking"), $\ell$ according to the following utility function: 
 
 $$u(y,l) = y^{0.75}\ell^{0.25}$$
-Their total on-the-job time is 50 hours per week, 50 weeks per year for a total of 2,500 hours per year. 
+Their total on-the-job time is 50 hours per week, 50 weeks per year for a total of 2,500 hours per year.  
 
-With minimal managerial effort ($\ell = 2,500$) the firm's profits reach \$1,000,000. Each hour of managerial effort, $e$, while on the job returns profit to the firm of \$2,500. 
+With minimal managerial effort ($\ell = 2,500$) the firm's profits reach \$1,000,000. Each hour of managerial effort, $e$, while on the job returns profit to the firm of \$2,500.  
 
-Suppose that the firm pays the manager a fixed salary of \$150,000 per year. What would be the total number of hours of effort versus on-the-job leisure that the manager will choose? 
+When the firm paid the manager a fixed salary of \$150,000 per year the manager will chose minimal effort ($ell = 2,500$). When the firm paid the manager a fixed salary of just \$100,000 with an incentive bonus equal to 4% of the firm's total profits, the manager reduced their on-job leisure to about 975 hours and increased their on-job effort to 1,500 "efficiency-hour" units.  
 
-Suppose now that the firm pays the manager a fixed salary of just \$100,000 with an incentive bonus equal to 4% of the firm's total profits. Solve for the optimal amount of leisure, income, and effort. 
-
-```{r selection, exercise = TRUE}
-
-```
-
-```{r selection-solution}
-
-```
-
-```{r selection-check}
-grade_code()
-```
+Moral hazard also creates problems in other situations, but these can be trickier to model and would be more appropriate topics for a separate course in game theory or contract theory. 
