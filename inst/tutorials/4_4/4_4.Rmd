@@ -1,0 +1,133 @@
+---
+title: "4.4 Asymmetric Information"
+output: 
+  learnr::tutorial: 
+    progressive: true
+runtime: shiny_prerendered
+author: 
+  name: "Created by [Jim Bang](http://www.github.com/bangecon)"
+  email: BangJamesT@sau.edu
+  affiliation: "[St. Ambrose University](http://www.sau.edu)"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+---
+
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+#doc-metadata {
+  margin-bottom: 10px;
+  font-size: 0.66em;
+}
+</style>
+
+```{r setup, include=FALSE}
+library(learnr)
+library(gradethis)
+library(Ryacas)
+library(Deriv)
+gradethis_setup(exercise.reveal_solution = TRUE, exercise.eval = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.height = 6, fig.width = 6)
+```
+
+<style type="text/css">
+h1{font-size: 24pt}
+h2{font-size: 20pt}
+h3{font-size: 18pt}
+h4,h5,h6{font-size: 16pt}
+body{font-size: 16pt}
+</style>
+
+## Types of Asymmetric Information
+
+Asymmetric information occurs when one party in a transaction has more or better information than the other party and is the result of either *hidden characteristics* or *hidden actions*. We will discuss two main types of asymmetric information: adverse selection and moral hazard.
+
+1. Adverse Selection: 
+   - Occurs before a transaction takes place. 
+   - Occurs because of hidden characteristics.
+   - Results in only low-quality goods being available; high-quality goods are driven out.
+2. Moral Hazard: 
+   - Occurs after a transaction takes place. 
+   - Occurs because of hidden actions.
+   - Results in one party taking advantage of the other party's lack of information.
+
+## Adverse Selection
+
+Examples of adverse selection include:  
+- **Used car market:** Sellers have more information about the quality of the car than buyers.  
+- **Health insurance:** Individuals have more information about their health than insurance companies.  
+- **Job market:** Employers have less information about the skills and abilities of potential employees than the employees themselves.  
+- **Credit market:** Borrowers have more information about their creditworthiness than lenders.  
+
+### Adverse Selection in the Used Car Market
+
+Imagine a used-car market where there are 100 sellers and 100 buyers. Each seller has a car that is either high-quality (H) or low-quality (L). The seller knows the quality of the car, but the buyer does not. Since the sellers are slightly less eager to keep a car of either type than buyers are to buy one, they value each type of car is higher to the buyers than it is to the sellers. To formalize this, suppose the following values for each type of car to each type of agent:  
+
+$$V_{S} = \Bigg\{ \begin{align} & \$10,000 \text{ if the car is a "lemon"} \\ & \$20,000 \text{ if the car is high-quality} \end{align}$$
+
+$$V_{B} = \Bigg\{ \begin{align} & \$12,500 \text{ if the car is a "lemon"} \\ & \$25,000 \text{ if the car is high-quality} \end{align}$$
+
+### Buyers' Willingness to Pay
+
+Since the buyer does not know the quality of the car, any car they might buy in this market has a 0.5 probability of being a high-quality car and a 0.5 probability of being a lemon. 
+
+```{r buyer-values, echo = FALSE}
+question("What is the highest price a buyer is willing to pay for a car?",
+    answer("$12,500", message = "Good try, but not quite. The buyer is willing to pay $12,500 for a lemon, but there is a 50% chance that the car will be high-quality."),
+    answer("$15,000", message = "So close, but no. If the seller doesn't know the quality of their own car, then this would be the expected value of the car to them. However, the seller does know the quality of their car, so their willingness to sell depends on the type of car."),
+    answer("$18,750", correct = TRUE, message = "Good job! The buyer is willing to pay $18,750 for a car, which is the expected value of the car, or 0.5(12,500) + 0.5(25,000)."),
+    answer("$20,000", message = "Not quite. The seller of a high-quality car is willing to sell the car for $20,000, but the buyer does not know the quality of the car, and in facct if they did know the quality of the car, they would be willing to pay a bit more since they value it more than the seller."),
+    answer("25,000", message = "I admire your generosity and faith in the word of the sellers! The buyer is only willing to pay $25,000 for a high-quality car, but there is a 50% chance that the car will be low-quality."),
+    allow_retry = TRUE
+  )
+```
+
+### Sellers' Willingness to Accept
+
+The seller *does* know the quality of the car, so the car they sell is worth either $\$10,000$ or $\$20,000$ to them with probability $1$. 
+
+```{r seller-values, echo = FALSE}
+question("Which of the following are true about the price a seller is willing to accept for a car?",
+    answer("The lowest price a seller of a high-quality car would be willing to accept is $25,000", message = "Not quite. A buyer would be willing to pay up to $25,00 for a car that they know is high-quality, but a seller would be willing to accept a little less."),
+    answer("Any seller in this market would be willing to sell at a price of $15,000", message = "So close, but no. If the seller doesn't know the quality of their own car, then this would be the expected value of the car to them. However, the seller does know the quality of their car, so their willingness to sell depends on the type of car."),
+    answer("Any seller in this market would be willing to sell at a price of $18,750", message = "Sorry, try again. The buyer is willing to pay $18,750 for a car, which is the expected value of the car, or 0.5(12,500) + 0.5(25,000)."),
+    answer("The lowest price a seller of a high-quality car would be willing to accept is $20,000", correct = TRUE, message = "Nice work! Sellers of high-quality cars know exactly what the value of their own car is to them."),
+    answer("The lowest price a seller of a low-quality car would be willing to accept is $12,500", message = "Not quite. A buyer would be willing to pay up to 12,500 for a car that they know is a lemon, but a seller would be willing to accept a little less."),
+    answer("The lowest price a seller of a low-quality car would be willing to accept is $10,000", correct = TRUE, message = "Good job! Sellers of low-quality cars know that the value of their own car is only $10,000 to them."),
+    allow_retry = TRUE
+  )
+```
+
+### Rational Expectations
+
+Rational expectations has a specific meaning in economics. It means that people use all available information to make decisions and that they anticipate future outcomes based on that information. In this context, a rational buyer knows that sellers of high-quality cars will not sell their cars for less than $\$20,000$. 
+
+This means that no seller with a high-quality car will sell their car, and the buyer will anticipate that all of the remaining cars will be lemons. This is an example of adverse selection, where the high-quality cars are driven out of the market because buyers are unable to distinguish between high and low quality and are therefore unwilling to pay a price that reflects the true value of the car.
+
+```{r re-buyers, echo = FALSE}
+question("If buyers have rational expectations, what is the highest price they would be willing to pay for a car?",
+    answer("$12,500", correct = TRUE, message = "Good job! The buyers anticipate that all of the available cars in the market are lemons and adjust their willingness to pay."),
+    answer("$15,000", message = "This would be the price a seller would accept if they don't know the quality of their own car."),
+    answer("$18,750", message = "Not any more. The buyer would only be willing to pay this price if they thought there was a 50% chance of getting a high-quality car."),
+    answer("$20,000", message = "The seller of a high-quality car is willing to sell the car for $20,000, but no buyer would pay that much without high confidence that the care is high-quality."),
+    answer("25,000", message = "I admire your generosity and faith in the word of the sellers! The buyer is only willing to pay $25,000 for a high-quality car, but in equilibrium no good cars remain in the market."),
+    allow_retry = TRUE
+  )
+```
+
+##
+
+
+```{r selection, exercise = TRUE}
+
+```
+
+```{r selection-solution}
+
+```
+
+```{r selection-check}
+grade_code()
+```

@@ -3,15 +3,14 @@ title: "4.3 Public Goods"
 output: 
   learnr::tutorial: 
     progressive: true
-    allow_skip: true
 runtime: shiny_prerendered
 author: 
   name: "Created by [Jim Bang](http://www.github.com/bangecon)"
   email: BangJamesT@sau.edu
   affiliation: "[St. Ambrose University](http://www.sau.edu)"
 date: "`r format(Sys.Date(), '%d %b %Y')`"
+---
 
-```{=html}
 <style type="text/css">
 h1{font-size: 24pt}
 h2{font-size: 20pt}
@@ -23,7 +22,6 @@ body{font-size: 16pt}
   font-size: 0.66em;
 }
 </style>
-```
 
 ```{r setup, include=FALSE}
 library(learnr)
@@ -59,27 +57,168 @@ Two dimensions:
 
 Lenny and Carl are roommates and need to buy a TV. In this case the TV is a public good that the roommates share the benefits from using. At the same time, they need to keep some of their income for their own private consumption of food, clothing, and other goods. The roommates have the following utility functions:
 
-$$U_L(T,F) = \frac{2}{3}ln(1+T) + \frac{1}{3}ln(F_L)$$
+$$U_L(T,F) = \frac{1}{2}ln(1+T) + \frac{1}{2}ln(F_L)$$
+
 and
+
 $$U_C(T,F) = \frac{1}{3}ln(1+T) + \frac{2}{3}ln(F_C)$$
 
 where:  
 
-- $T = \Bigg\{ \begin{align} &1 \text{ if they buy the TV} \\ &0 \text{ if they do notbuy the TV} \end{align}$
+- $T = \Bigg\{ \begin{align} &1 \text{ if they buy the TV} \\ &0 \text{ if they do not buy the TV} \end{align}$
 - $F_i$ is the amount of private (food, etc.) consumption for each roommate. 
 
-Suppose that Lenny has a \$1,000 income and Carl has a \$1,500 income. The price of the TV is \$500. This means that the Lenny's budget constraint is:
+Suppose that Lenny has a \$1,000 income and Carl has a \$900 income. The price of the TV is \$600. This means that the Lenny's budget constraint is:
 
-$$g_{T,L} + F_L \le 1000$$ 
+$$g_{T,L} + F_L \le 1000$$
 and Carl's budget constraint is:
 
-$$g_{T,C} + F_C \le 1500$$
+$$g_{T,C} + F_C \le 900$$
 
 where $g_{T,i}$ is the amount contributed to buying the TV by each roommate.  
 
-The roommates buy the TV if $g_{T,L} + g_{T,C} \ge 500$.
+The roommates buy the TV if $g_{T,L} + g_{T,C} \ge 600$.
 
 ### Feasibility
 
 Each roommate will have a *reservation price* representing the *maximum* amount they are willing to pay for the TV. 
 
+The maximum amount that either roommate would be willing to contribute is the contribution that would make them indifferent between buying the TV and not buying the TV. The utility that Lenny receives when the roommates do *not* buy the TV is: 
+
+$$U_L(T = 0, F_L = 1000) = \frac{1}{2}ln(1) + \frac{1}{2}ln(1000) \approx 3.454$$
+
+The utility that Lenny receives when the roommates *do* buy the TV is:
+
+$$U_L(T = 1, F_L = 1000 - r_L) = \frac{1}{2}ln(2) + \frac{1}{2}ln(1000 - r_L)$$
+
+where $r_L$ is Lenny's reservation value for contributing to the TV. Lenny's reservation value satisfies the condition: 
+
+$$U_L(T = 0, F_L = 1000) = U_L(T = 1, F_L = 1000 - r_L)$$
+or, 
+$$\frac{1}{2}ln(1000) = \frac{1}{2}ln(2) + \frac{1}{2}ln(1000 - r_L)$$
+
+Similarly, Carl's reservation value satisfies the condition:
+
+$$U_C(T = 0, F_C = 900) = U_C(T = 1, F_C = 900 - r_C)$$
+
+Solve for Lenny and Carl's reservation values.
+
+```{r reservation, exercise = TRUE}
+
+```
+
+```{r reservation-solution}
+U_L0 <- function(r_L) {
+  (1/2)*log(1+0) + (1/2)*log(1000)
+}
+U_L1 <- function(r_L) {
+  (1/2)*log(1+1) + (1/2)*log(1000 - r_L)
+}
+U_C0 <- function(r_C) {
+  (1/3)*log(1+0) + (2/3)*log(900)
+}
+U_C1 <- function(r_C) {
+  (1/3)*log(1+1) + (2/3)*log(900 - r_C)
+}
+# Use nleqslv to solve for Lenny's and Carl's reservation values
+library(nleqslv)
+r_Lstar <- nleqslv(0, function(r_L) U_L0(r_L) - U_L1(r_L))
+r_Lstar
+r_Cstar <- nleqslv(0, function(r_C) U_C0(r_C) - U_C1(r_C))
+r_Cstar
+```
+
+```{r reservation-check}
+grade_code()
+```
+
+From this, we see that Lenny's reservation value is \$500 and Carl's is about \$263.60. 
+
+### Efficiency
+
+Purchasing the public good is efficient if the total value of the public good to the roommates is greater than the cost of the public good. In other words, if: 
+
+$$U_L(T = 1, F_L = 1000 - g_L) + U_C(T = 1, F_C = 900 - g_C) \ge U_L(T = 0, F_L = 1000) + U_C(T = 0, F_C = 900)$$
+
+The total value of the public good is equal to the sum of Lenny and Carl's reservation values, which is true if $r_L + r_C \ge 600$. However, we also see from the reservation values that neither roommate is *individually* willing to shoulder the cost of the TV. 
+
+## Devising a Cost-Sharing Rule
+
+There are many ways that the roommates *could* share the cost of the TV. The roommates could split the cost evenly, in proportion to their incomes, in proportion to their reservation values, or *infinitely* many ways as long as the total contributions add up to \$600. Let's see if an equal cost-sharing rule would work. In this case, it is not. If each roommate contributed \$300, then Carl's contribution would end up being greater than his reservation value and he would not agree to it. What about in proportion to their incomes? Again, this would not be agreeable to Carl, because Carl's contribution would be $\frac{900}{1900} \cdot 600 = 284.21$, which still greater than his reservation value of \$236.60.
+
+### Solving for a Pareto-efficient cost-sharing rule
+
+The roommates could also agree to a *cost-sharing rule* that is Pareto-efficient. A cost-sharing rule is Pareto-efficient if there is no other cost-sharing rule that would make one roommate better off without making the other roommate worse off. In fact, there are *infinitely* many Pareto-efficient cost-sharing rules. For example, if Lenny pays \$500 and Carl pays \$100, then Lenny would (barely) agree to it since this is his reservation value, and Carl would agree to it since this is well below his reservation value of \$263.60. Similarly, if Carl pays \$263.60 and Lenny pays \$336.40, then Carl would (barely) agree to it since this is his reservation value, and Lenny would agree to it since this is well below his reservation value of \$500. Any point in between these two points would also be Pareto-efficient. because both roommates would be better off from that sharing rule than by not buying the TV at all, and any change from any of those possible cost-sharing rules would make one roommate better off at the expense of the other.  
+
+### Solving for the Joint Welfare Maximizing Cost-Sharing Rule
+
+Suppose we have a "social planner" who is trying to maximize the total utility of the roommates. The social planner would choose the cost-sharing rule that maximizes the following objective function:
+
+$$W = \frac{1}{2}ln(1+T) + \frac{1}{2}ln(F_L) + \frac{1}{3}ln(1+T) + \frac{2}{3}ln(F_C)$$
+
+The social planner's problem is to maximize $W$ subject to the constraint that $g_L + g_C = 600$. The Lagrangian for this problem is:
+
+$$\mathcal{L} = \frac{1}{2}ln(1+T) + \frac{1}{2}ln(F_L) + \frac{1}{3}ln(1+T) + \frac{2}{3}ln(F_C) + \lambda(600 - g_L - g_C)$$
+
+where $\lambda$ is the Lagrange multiplier. 
+
+Solve for the social planner's problem. 
+
+```{r spp, exercise = TRUE}}
+
+```
+
+```{r spp-solution}
+library(MicroWithR)
+W <- function(g_L, g_C) {
+  U_L <- (1/2)*log(2) + (1/2)*log(1000 - g_L)
+  U_C <- (1/3)*log(2) + (2/3)*log(900 - g_C)
+  W <- U_L + U_C
+  return(W)
+}
+spp_star <- solnp2(
+  c(1,1), 
+  function(x) {
+    g_L <- x[1]
+    g_C <- x[2]
+    W(g_L, g_C)
+    }, 
+  LB = c(0, 0),
+  ineqfun = function(x) {
+    g_L <- x[1]
+    g_C <- x[2]
+    g_L + g_C
+  }, 
+  ineqLB = 600,
+  ineqUB = Inf,
+  max = TRUE,
+  control = list(trace = FALSE)
+)
+spp_star
+g_L_spp <- spp_star$pars[1]
+g_C_spp <- spp_star$pars[2]
+```
+
+```{r spp-check}
+grade_code()
+```
+
+Thus, the social planner would choose a cost-sharing rule of about \$442.86 for Lenny and about \$157.14 for Carl.
+
+## Appendix: Nash Equilibrium
+
+In this case, the Nash equilibrium is a set of contributions such that neither roommate can benefit by changing their contribution while the other roommate keeps their contribution unchanged. We can show that there are *infinitely* many Nash equilibria in this game. These Nash equilibria can be categorized into two groups: Efficient and inefficient.
+
+### Ineffficient Nash Equilibrium
+
+The only inefficient equilibrium is the one where neither roommate contributes anything to the TV. In this case, the roommates are both worse off than they would be if they bought the TV. 
+
+Since a Nash equilibrium is a set of strategies such that no player can benefit by changing their strategy while the other players keep their strategies unchanged, we can see that if Lenny and Carl both contribute \$0, then neither roommate can benefit by changing their contribution. This is because if Lenny contributes \$0, then Carl's best response is to contribute \$0 since the maximum Carl is willing to contribute is \$236.60 and this is not enough to buy the TV. Similarly, if Carl contributes \$0, then Lenny's best response is to contribute \$0 since the maximum amount he is willing to contribute is \$500. Thus, the only Nash equilibrium in this case is the one where neither roommate contributes anything to the TV.
+
+### Efficient Nash Equilibria
+
+The efficient Nash equilibria are the ones where the roommates agree to share the cost of the TV in such a way that both roommates are better off than they would be if they did not buy the TV. In this case, there are infinitely many efficient Nash equilibria. For example, if Lenny pays \$500 then Carl's best response is to pay \$100, since this is less than his reservation value and he is better off making this contribution than going without a TV. On the other hand, if Carl pays \$263.60 then Lenny's best response is to pay \$336.40 since this is less than his reservation value. By similar logic any of the Pareto-efficient sets of contributions is also an efficient Nash equilibrium. 
+
+### Which Nash Equilibrium?
+
+In our simple two-agent problem it's reasonable to expect that the individuals will be able to negotiate a cost-sharing rule that is Pareto-efficient. However, with many agents, it may be difficult to reach and enforce a Pareto-efficient cost-sharing rule. This is because as the number of individuals increases, the incentive to free-ride on the contributions of others increases. 

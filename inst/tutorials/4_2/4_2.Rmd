@@ -349,8 +349,8 @@ eq_spp <- solnp2(
   control = list(trace = FALSE), 
   max = TRUE
 )
-qb_spp <- eq_spp$par[1]
-qf_spp <- eq_spp$par[2]
+qb_spp <- eq_spp$pars[1]
+qf_spp <- eq_spp$pars[2]
 ```
 
 ```{r pigou-check}
@@ -360,3 +360,5 @@ grade_code()
 Note that this gives the socially optimal quantity of bananas. 
 
 This was a simple example where the price of the outputs were constant. In "reality" the price of the output is a function of the quantities produced.
+
+
