@@ -117,8 +117,36 @@ question("If buyers have rational expectations, what is the highest price they w
   )
 ```
 
-##
+### Market Equilibrium
 
+The equilibrium in the market involves the following:  
+1. All of the cars available in the market are lemons.  
+2. The buyers are willing to pay $\$12,500$ for a car.  
+3. The sellers are willing to sell their car for $\$10,000$.  
+4. The market price will be between $\$10,000$ and $\$12,500$ and will depend on the bargaining power of the sellers and buyers.
+
+## Moral Hazard
+
+Examples of moral hazard include:  
+- A person with health insurance may rely more on medical treatment instead of changing their behavior than they would if they did not have insurance.  
+- A person with a car insurance policy may drive more recklessly than they would if they did not have insurance.  
+- Managers of firms may make short-sighted decisions or take more perquisites if they know that these actions are not closely monitored by shareholders.  
+- Banks may take on more risk when lending money if they know that the government will bail them out in case of failure.  
+
+### Moral Hazard in Management
+
+In the context of management, moral hazard occurs when managers take actions that are not in the best interest of the shareholders because they do not bear the full consequences of their actions. This can happen when managers have a lot of discretion in their decision-making and are not closely monitored by shareholders. In section 1.7, we discussed the concept of managerial incentives. In this setup, we modeled the relationship between the manager and the shareholders as a principal-agent problem. The principal (shareholders) wants to maximize the value of the firm, while the agent (manager) may have different incentives.  
+
+Specifically, we supposed that a manager derives utility from consuming (1) goods and services out of their income, $y$; and (2) on-the-job leisure ("shirking"), $\ell$ according to the following utility function: 
+
+$$u(y,l) = y^{0.75}\ell^{0.25}$$
+Their total on-the-job time is 50 hours per week, 50 weeks per year for a total of 2,500 hours per year. 
+
+With minimal managerial effort ($\ell = 2,500$) the firm's profits reach \$1,000,000. Each hour of managerial effort, $e$, while on the job returns profit to the firm of \$2,500. 
+
+Suppose that the firm pays the manager a fixed salary of \$150,000 per year. What would be the total number of hours of effort versus on-the-job leisure that the manager will choose? 
+
+Suppose now that the firm pays the manager a fixed salary of just \$100,000 with an incentive bonus equal to 4% of the firm's total profits. Solve for the optimal amount of leisure, income, and effort. 
 
 ```{r selection, exercise = TRUE}
 
