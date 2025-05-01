@@ -164,7 +164,7 @@ where $\lambda$ is the Lagrange multiplier.
 
 Solve for the social planner's problem. 
 
-```{r spp, exercise = TRUE}}
+```{r spp, exercise = TRUE}
 
 ```
 
